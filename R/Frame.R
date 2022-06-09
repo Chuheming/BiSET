@@ -969,7 +969,7 @@ Frame <- function(){
   gl_bal <- glabel("Please select:",container = real_note)
   p_value <- gedit(text = "0.05", width = 4, container = real_note)
 
-  gbutton("Analysis",container = real_note,handler = function(h,...){
+  gbutton("GO Analysis",container = real_note,handler = function(h,...){
 
     syva = svalue(sy_value)
     if (identical(syva,'Symbol')){
@@ -1020,7 +1020,9 @@ Frame <- function(){
           genesymbol[jjjj,1] = mat[jjj,1]
           jjjj = jjjj + 1
         }
-       i = i+ jjjj + 1
+
+       i = i+ jjjj
+
        result_go1 <- executGO(genesymbol,speva,syva,pvalue)
        derego1 <- dim(result_go1)
        if (derego1[1]>0){
@@ -1057,6 +1059,51 @@ Frame <- function(){
 
   })
 
+  gbutton("KEGG Analysis",container = real_note,handler = function(h,...){
+    syva = svalue(sy_value)
+    if (identical(syva,'Symbol')){
+      syva = 1
+    }else{
+      syva = 0
+    }
+    speva = svalue(spe_value)
+    if (identical(speva,'Homo')){
+      speva = 1
+    }else
+      speva = 0
+
+    pvalue = as.numeric(svalue(p_value))
+
+    gene_path = choose.files(caption = "Choose One File (.txt)")
+    mat = read.table(gene_path, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE)
+
+    gene <- unique(mat)
+    # x <- compareCluster(gene_up,  fun = "enrichGO", org.Hs.eg.db,ont = "BP", pAdjustMethod = "BH", pvalueCutoff = 0.01, qvalueCutoff = 0.05)
+    if (speva == 1){
+      if (syva == 1){
+        gene.df <- bitr(gene,fromType="SYMBOL",toType="ENTREZID", OrgDb = org.Hs.eg.db)#TCGA数据框如果没有进行基因注释，那么fromType应该是Ensembl，各种ID之间可以互相转换,toType可以是一个字符串，也可以是一个向量，看自己需求
+      }else
+        gene.df <- bitr(gene,fromType="ENSEMBL",toType="ENTREZID", OrgDb = org.Hs.eg.db)#TCGA数据框如果没有进行基因注释，那么fromType应该是Ensembl，各种ID之间可以互相转换,toType可以是一个字符串，也可以是一个向量，看自己需求
+      gene = gene.df$ENTREZID
+      kk <- enrichKEGG(gene = gene, organism = org.Hs.eg.db,pvalueCutoff = 0.05, qvalueCutoff = 0.05)
+
+    }else{
+      if (syva == 1){
+        gene.df <- bitr(gene,fromType="SYMBOL",toType="ENTREZID", OrgDb = org.Mm.eg.db)#TCGA数据框如果没有进行基因注释，那么fromType应该是Ensembl，各种ID之间可以互相转换,toType可以是一个字符串，也可以是一个向量，看自己需求
+      }else{
+        gene.df <- bitr(gene,fromType="ENSEMBL",toType="ENTREZID", OrgDb = org.Mm.eg.db)#TCGA数据框如果没有进行基因注释，那么fromType应该是Ensembl，各种ID之间可以互相转换,toType可以是一个字符串，也可以是一个向量，看自己需求
+
+      }
+      gene = gene.df$ENTREZID
+     kk <- enrichKEGG(gene = gene_up, organism = org.Mm.eg.db,pvalueCutoff = 0.05, qvalueCutoff = 0.05)
+
+    }
+
+    pic <- dotplot(kk)
+
+    plot(pic)
+
+  })
   gbutton("Save_GO",container = real_note,handler = function(h,...){
     if (!is.null(result_go)){
       th = gfile(text = "Select",type = "selectdir",initial.dir=getwd())
@@ -1069,7 +1116,7 @@ Frame <- function(){
   })
   #################################################
   ##设定主窗口的大小
-  size(win) <- c(700, 620)
+  size(win) <- c(700, 650)
   ##主窗口可见
   visible(win) <- TRUE
 
