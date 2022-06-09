@@ -16,16 +16,10 @@ Imports:
         readxl,
         writexl,
         gWidgets2,
-        gWidgets,
-        gWidgetsRGtk2,
         dplyr,
         ggplot2,
-        AnnotationDbi,
         biclust,
         BiBitR,
-        runibic,
-        QUBIC,
-        fabia,
-        clusterProfiler,
-        org.Hs.eg.db,
-        org.Mm.eg.db
+
+
+
