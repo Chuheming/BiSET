@@ -32,17 +32,17 @@ Frame <- function(){
   # th = gfile(text = "Select",type = "selectdir",initial.dir=getwd())
 
 
-  #忽略警告
+  #Ignore warning
   options(warn = -1)
-  # 生成RGTK2包与GTK的小部件集接口
+  # generate RGTK2 package and GTK Widget
   options(guiToolkit="RGtk2")
-  #生成main window
+  #generate main window
   win <- gwindow('R Window',visible = FALSE)
 
-  #生成toolbar
-  # 生成open toolbar
+  #generate toolbar
+  # generate open toolbar
   my_open <- gaction(label = "Open", icon = "open", handler = function(h,...){
-    #实现handler函数用来打开需要导入的GUI的数据
+    #Implement the handler function to open the GUI data that needs to be imported
     real_path = choose.files(caption = "Choose One File (.txt)")
     if(length(real_path)==0)
       galert('Please Select the Files to be Processed', title = "Tips", delay = 6)
@@ -58,46 +58,15 @@ Frame <- function(){
     data_source <<- data_source_id
   })
 
-  #生成Save toolbar
-#
-#   my_save <- gaction(label = 'Save', icon = 'save', handler = function(h,...){
-#     my_path_save = choose.dir(getwd(),"Choose a suitable folder")
-#     print(my_path_save)
-#     # choose.dir(caption = "choose the Save Dir")
-#     if (is.data.frame(my_path_save))
-#       galert('There is no output for the time',title = "File Save Failure",delay = 6)
-#     else{
-#       if (is.na(my_path_save))
-#         galert('Cancel the preservation', title = "File Save Failure", delay = 6)
-#       else{
-#         print(all_data)
-#         my_path_save = paste0(my_path_save,"\\data_result.txt")
-#         write.table(all_data, file = my_path_save,append = FALSE, quote = TRUE, sep = ",",eol = "\n", na = "NA", dec = ".", row.names = F, col.names = F)
-#
-#         #readr::write_csv(all_data, path = paste0(my_path_save,'\\data_result.csv'))
-#         galert(paste0('The results are preserved in ',my_path_save,'\\data_result.txt'),title = "File Save Success",delay = 6)
-#       }
-#     }
-#   })
-
-  # #生成CloseToolbar
-  # my_close <- gaction(label = 'Close', icon = 'close', handler = function(h,...){
-  #   dispose(win)
-  # })
-
   my_about_content <- "The main function of BiSET is to customize the generation of simulated datasets. At the same time, the software provides six biclustering algorithms (CC,Bimax,QUBIC,FABIA,RUnibic,Plaid) to cluster the generated simulated datasets and real datasets. In addition, BiSET can also perform GO enrichment analysis."
   my_about <- gaction(label = "About", icon = 'about',handler = function(h,...){
     gmessage(my_about_content,title = "About BiSET",parent = win)
   })
 
-  #定义好的事件放在主窗口上
+  #the defined events are placed on the main window
   my_list <- list(
     open = my_open,
     seq = list(separator = TRUE),
-    # save = my_save,
-    # seq = list(separator = TRUE),
-    # close = my_close,
-    # seq = list(separator = TRUE),
     about = my_about,
     seq = list(separator = TRUE)
   )
@@ -118,7 +87,7 @@ Frame <- function(){
   bir_value <- gedit(text = "10", width = 6, container = bg_gl1)
   bic_value <- gedit(text = "10", width = 6, container = bg_gl1)
   ###########      Overlapping and Noise   ######
-  #Noise 输入框
+  #Noise
   # N_Ol <- glabel("Noise_level:",container = bg_gl1)
   # N_value <- gedit(text = "0", width = 4, container = bg_gl1)
 
@@ -130,35 +99,35 @@ Frame <- function(){
 
 
 
-  #Overlapping 输入框
+  #Overlapping
   gl_Ol <- glabel("Overlapping_level:",container = bg_gl1)
   Ol_value <- gWidgets::gdroplist(items = c('0','1'),selected = 1, container = bg_gl1)
   gseparator(horizontal = FALSE, container = bg_gl1)
 
   bg_gl2 <- (container = gf1)
-  ### 分割线
+  ### Dividing line
   gseparator(horizontal = TRUE,container = bg_gl2)
   gseparator(horizontal = TRUE,container = bg_gl2)
 
   gf2 <- gframe(horizontal = FALSE, container = win)
   bg_note1 <- (container = gf2)
-  ## select contant 创建一个group
+  ## select contant
   bg_gl2 <- (container = gf2)
   bg_note2 <- (container = gf2)
 
   gl_note <- glabel("Biclustering Partten",container=bg_note1)
-  #植入簇个数
+  #number of implanted bicluster
   num_m <- glabel("Num:",container = bg_gl2)
   num_v <- gedit(text = "10", width = 4, container = bg_gl2)
-  #Alpha 一个输入框
+  #Alpha
   gl_alpha <- glabel("Alpha:",container = bg_gl2)
   alpha_value <- gedit(text = "0.1", width = 4, container = bg_gl2)
   gseparator(horizontal = FALSE, container = bg_gl2)
-  #Beta 一个输入框
+  #Beta
   gl_Beta <- glabel("Beta:",container = bg_gl2)
   Beta_value <- gedit(text = "0.1", width = 4, container = bg_gl2)
   gseparator(horizontal = FALSE, container = bg_gl2)
-  #Gamma 一个输入框
+  #Gamma
   gl_Gamma <- glabel("Gamma:",container = bg_gl2)
   Gamma_value <- gedit(text = "0.1", width = 4, container = bg_gl2)
   gseparator(horizontal = FALSE, container = bg_gl2)
@@ -179,20 +148,20 @@ Frame <- function(){
       }
     }
 
-    #判断是否构建成功
+    #Determine whether the build is successful
     bo_m = 0
-    #获取噪声等级
+    #Select the noise
     level_noise <- as.numeric(svalue(N_value))
-    #获取重叠等级
+    #Select the overlapp
     level_ov <- as.numeric(svalue(Ol_value))
-    #获取背景矩阵与植入矩阵大小
+    #get the value of background matrix and bilcuster
     size_bgmr <- as.numeric(svalue(bgmr_value))
     size_bgmc <- as.numeric(svalue(bgmc_value))
     size_bir <- as.numeric(svalue(bir_value))
     size_bic <- as.numeric(svalue(bic_value))
 
 
-    #簇个数
+    #get the number of cluster
     numv = as.numeric(svalue(num_v))
     #####
     bgm <- matrix(c(0),nrow = size_bgmr, ncol = size_bgmc)
@@ -205,13 +174,9 @@ Frame <- function(){
 
     if (level_ov == 0){
       if (level_noise == 0){
-        #没有白噪声与重叠
-        # for (i in 1:size_bgmr){
-        #   bgm[i,] = rnorm(size_bgmc,mean = 0, sd = 1)
-        # }
-        # 植入簇
+
         if (Pva==1){
-          # 移位模式簇
+          # Shift partten
           bo_m= 1
 
           for (i in 1:numv){
@@ -228,7 +193,7 @@ Frame <- function(){
             }
           }
 
-          #构建簇
+          #build cluster
           bv1 = bv
           for(i in 1:size_bir){
             for (j in 1:size_bic){
@@ -239,7 +204,7 @@ Frame <- function(){
           all_bim <<- bim
         } else{
           if (Pva == 2){
-            # 缩放模式簇
+            # scale partten
             bo_m = 1
             for (i in 1:numv){
               m = 1
@@ -254,7 +219,7 @@ Frame <- function(){
                 gv1 = gv1 + gv1*2
               }
             }
-            #构建簇
+            #Build clusters
             gv1 = gv
             for(i in 1:size_bir){
               for (j in 1:size_bic){
@@ -264,7 +229,7 @@ Frame <- function(){
             }
             all_bim <<- bim
           }else{
-            #移位缩放模式簇
+            #shift-scale partten
             bo_m = 1
             for (i in 1:numv){
               m = 1
@@ -283,7 +248,7 @@ Frame <- function(){
                 gv1 = gv1 + gv1*2
               }
             }
-            #构建簇
+            #Build clusters
             bv1 = bv
             gv1 = gv
             av1 = av
@@ -300,13 +265,13 @@ Frame <- function(){
         }
 
       }else{
-        #有白噪声，没有重叠
+        #has noise，non-overlapping
         for (i in 1:size_bgmr){
           bgm[i,] = rnorm(size_bgmc,mean = 0, sd = 1)
         }
-        # 植入簇
+        # implant bicluster
         if (Pva==1){
-          # 移位模式簇
+          # shift
           bo_m= 1
 
           for (i in 1:numv){
@@ -323,7 +288,7 @@ Frame <- function(){
             }
           }
 
-          #构建簇
+          #Build clusters
           bv1 = bv
           for(i in 1:size_bir){
             for (j in 1:size_bic){
@@ -334,7 +299,7 @@ Frame <- function(){
           all_bim <<- bim
         } else{
           if (Pva == 2){
-            # 缩放模式簇
+            # scale
             bo_m = 1
             for (i in 1:numv){
               m = 1
@@ -349,7 +314,7 @@ Frame <- function(){
                 gv1 = gv1 + gv1*2
               }
             }
-            #构建簇
+            #Build clusters
             gv1 = gv
             for(i in 1:size_bir){
               for (j in 1:size_bic){
@@ -359,7 +324,7 @@ Frame <- function(){
             }
             all_bim <<- bim
           }else{
-            #移位缩放模式簇
+            #shift-scale partten
             bo_m = 1
             for (i in 1:numv){
               m = 1
@@ -378,7 +343,7 @@ Frame <- function(){
                 gv1 = gv1 + gv1*2
               }
             }
-            #构建簇
+            #Build clusters
             bv1 = bv
             gv1 = gv
             av1 = av
@@ -398,9 +363,9 @@ Frame <- function(){
     }else{
 
       if (level_noise == 0){
-        #没有白噪声,重叠（只在移位缩放模式）
-        # 重叠区间默认两行五列
-        #构建簇
+        #no noise ,has overlapping (only in shift-scale partten)
+        # The overlapping interval defaults to two rows and five columns
+        #Build clusters
         bv1 = bv
         gv1 = gv
         av1 = av
@@ -413,7 +378,7 @@ Frame <- function(){
           gv1 = gv1 + gv1*0.02
         }
         all_bim <<- bim
-  ################################### 进度：重叠模式簇还没有写完代码
+
         fbim = matrix(c(0),nrow = size_bir,ncol = size_bic)
         for (i in 1:size_bir){
           temp_i = size_bir-i+1
@@ -424,17 +389,16 @@ Frame <- function(){
             for (i in 1:numv){
               m = 1
 
-              #列起始位置
+              #column start position
               cm = m+(i-1)*(size_bic-5)
-              #行起始位置
+              #line start position
               m = m+(i-1)*(size_bir-2)
-              #行终止位置
+              #line end positon
               mr = m+size_bir-1
               fi1 = 3
               for (k in 1:size_bir){
                 if (i%%2==0){
-                  #i奇数放fbim
-                    #fbim前两行支取后五列
+                  #odd i put fbim
 
                     if (k<=2){
                      jc <- cm+5
@@ -451,9 +415,8 @@ Frame <- function(){
 
 
                 }else{
-                  #i偶数放bim
+                  #
                   if (i>1){
-                    #fbim前两行支取后五列
 
                     if (k<=2){
                       jc <- cm+5
@@ -481,11 +444,11 @@ Frame <- function(){
 
 
       }else{
-        #有白噪声，重叠
+        #noise , overlapping
         for (i in 1:size_bgmr){
           bgm[i,] = rnorm(size_bgmc,mean = 0, sd = 1)
         }
-        # 植入簇
+
         bv1 = bv
         gv1 = gv
         av1 = av
@@ -498,7 +461,6 @@ Frame <- function(){
           gv1 = gv1 + gv1*0.02
         }
         all_bim <<- bim
-        ################################### 进度：重叠模式簇还没有写完代码
         fbim = matrix(c(0),nrow = size_bir,ncol = size_bic)
         for (i in 1:size_bir){
           temp_i = size_bir-i+1
@@ -509,17 +471,14 @@ Frame <- function(){
         for (i in 1:numv){
           m = 1
 
-          #列起始位置
           cm = m+(i-1)*(size_bic-5)
-          #行起始位置
+
           m = m+(i-1)*(size_bir-2)
-          #行终止位置
+
           mr = m+size_bir-1
           fi1 = 3
           for (k in 1:size_bir){
             if (i%%2==0){
-              #i奇数放fbim
-              #fbim前两行支取后五列
 
               if (k<=2){
                 jc <- cm+5
@@ -536,9 +495,8 @@ Frame <- function(){
 
 
             }else{
-              #i偶数放bim
+
               if (i>1){
-                #fbim前两行支取后五列
 
                 if (k<=2){
                   jc <- cm+5
@@ -570,7 +528,6 @@ Frame <- function(){
       all_bim <<- bim
       data_source <<- bgm
       pl <<- 1
-      # galert('模拟数据集已构建完成',title = "Success")
 
       if (isEmpty(all_data)){
         galert('There is no output for the time',title = "File Save Failure",delay = 6)
@@ -594,7 +551,7 @@ Frame <- function(){
   gbutton("Save_Cluster",container = bg_gl2,handler = function(h,...){
     th <<- gfile(text = "Select",type = "selectdir",initial.dir=getwd())
     if (pl==1){
-      # my_path_save = choose.dir(getwd(),"Choose a suitable folder")
+
       my_path_save = paste0(th,"\\data_result.txt")
       my_path_raw = paste0(th,"\\raw.txt")
       write.table(all_data, file = my_path_save,append = FALSE, quote = TRUE, sep = " ",eol = "\n", na = "NA", dec = ".", row.names = F, col.names = F)
@@ -607,7 +564,7 @@ Frame <- function(){
   })
 
 
-  ### 分割线
+  ###
   gseparator(horizontal = TRUE,container = bg_gl2)
   gseparator(horizontal = TRUE,container = bg_gl2)
 
@@ -619,35 +576,27 @@ Frame <- function(){
   gtb <- gWidgets::gtoolbar(toolbarlist = my_list, container = win)
   #gframe
   gf <- gframe(horizontal = FALSE, container = win)
-  ## select contant 创建一个group
+  ## select contant
   bg_gl <- (container = gf)
 
-  # #select Algorithm 一个输入框
-  # gl_al <- glabel("Algorithm:",container = bg_gl)
-  # al_value <- gedit(text = "CC", width = 10, container = bg_gl)
-  # gseparator(horizontal = FALSE, container = bg_gl)
+
   ## 一个筛选框
   gl_bal <- glabel("Biclustering Algorithm:",container = bg_gl)
   bal_value <- gWidgets::gdroplist(items = c('CC','Bimax','Qubic','rUnibic','Plaid','FABIA'),selected = 1, container = bg_gl)
   gseparator(horizontal = FALSE,container = bg_gl)
 
-  #一个Button
+  #Button
   sbo <- 0 #
   sbf <- 0 #FABIA
 
   gbutton("Run",container = bg_gl,handler = function(h,...){
-
-
-    # my_path_save = paste0(th,"\\data_result.txt")
-    # loma = as.matrix(read.table(my_path_save, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
-
 
     loma = data_source
     if (identical(svalue(bal_value),'CC')){
 
 
       if (length(loma)==0){
-        galert("请先添加或生成数据集")
+        galert("Please add or generate dataset first")
 
       }else
       {
@@ -664,7 +613,7 @@ Frame <- function(){
 
 
       if (length(loma)==0){
-        galert("请先添加或生成数据集")
+        galert("Please add or generate dataset first")
       }else{
         gmessage("Wait")
         biloma = binarize(loma)
@@ -678,7 +627,7 @@ Frame <- function(){
 
 
       if (length(loma)==0){
-        galert("请先添加或生成数据集")
+        galert("Please add or generate dataset first")
       }else{
         gmessage("Wait")
         re <<- biclust::biclust(loma,method = BCQU(),r=1,q=0.06,c=0.95,o=100,f=1)
@@ -691,7 +640,7 @@ Frame <- function(){
     if(identical(svalue(bal_value),'rUnibic')){
 
       if (length(loma)==0){
-        galert("请先添加或生成数据集")
+        galert("Please add or generate dataset first")
       }else{
         gmessage("Wait")
         re <<-  runibic(loma)
@@ -704,7 +653,7 @@ Frame <- function(){
     if(identical(svalue(bal_value),'Plaid')){
 
       if (length(loma)==0){
-        galert("请先添加或生成数据集")
+        galert("Please add or generate dataset first")
       }else{
         gmessage("Wait")
         re <<- biclust(loma, method = BCPlaid())#plaid
@@ -716,7 +665,7 @@ Frame <- function(){
     if(identical(svalue(bal_value),'FABIA')){
 
       if (length(loma)==0){
-        galert("请先添加或生成数据集")
+        galert("Please add or generate dataset first")
       }else
       {
         gmessage("Wait")
@@ -729,16 +678,6 @@ Frame <- function(){
 
     }
 
-    #address
-    # my_addr <- as.numeric(stringr::str_sub(as.vector(data.frame(data_source_id)[,1]),1L,6L))
-    # my_addr_2 <- sapply(my_addr,address_code)
-    # #Verify Result
-    # vrs <- lapply(as.vector(data_source_id),str_ext)
-    # my_vrs <- unlist(plyr::llply(vrs[[1]],VeRe))
-    # all_data <<- data.frame('ID_no'=data_source_id,'Address'=my_addr_2,
-    #                         'Age'=my_age,'Gender'=my_sex,'Checkout'=my_vrs)
-    # my_df <- gdf(all_data, container=gf, do.subset=TRUE)
-
   })
 
   gl_bal <- glabel("Input the index:",container = bg_gl)
@@ -748,7 +687,7 @@ Frame <- function(){
     th = gfile(text = "Select",type = "selectdir",initial.dir=getwd())
     my_path_save = paste0(th,"\\Bicrow.txt")
     my_path_raw = paste0(th,"\\Biccol.txt")
-    #输出两个矩阵birow，bicol
+    #ouput birow，bicol
     k = as.numeric(svalue(se_value))
     if(identical(svalue(bal_value),'FABIA')){
       rb = extractBic(fre)
@@ -821,16 +760,13 @@ Frame <- function(){
     }
   })
 
-  # ##创建几个分割线
-  # gseparator(horizontal = FALSE,container = bg_gl)
-  # gseparator(horizontal = TRUE,container = gf)
-  # gseparator(horizontal = TRUE,container = gf)
-  ##创建几个分割线
+
+  ##
   bg_note <- (container = gf)
   gseparator(horizontal = TRUE,container = gf)
   gseparator(horizontal = TRUE,container = gf)
 
-  #创建lable控件
+  #generate lable
   gl_note <- glabel("Verify the simulate dataset",container=bg_note)
   gbutton("Recovery",container = bg_note,handler = function(h,...){
     my_path_raw = paste0(th,"\\raw.txt")
@@ -876,7 +812,7 @@ Frame <- function(){
           for (pn in 1:tt){
             d = loma[re@RowxNumber[,pn],re@NumberxCol[pn,]]
             d = as.matrix(re@RowxNumber[,1])
-            # 簇维度
+            #
             cd = dim(d)
             score = Get_sc(cd,impr,craw,d)
             score1[1,pn] = score
@@ -934,7 +870,7 @@ Frame <- function(){
             d = loma[re@RowxNumber[,pn],re@NumberxCol[pn,]]
 
             d = as.matrix(re@RowxNumber[,1])
-            # 簇维度
+
             cd = dim(d)
             score = Get_sc(cd,impr,d,craw)
 
@@ -1078,20 +1014,19 @@ Frame <- function(){
     mat = read.table(gene_path, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE)
 
     gene <- unique(mat)
-    # x <- compareCluster(gene_up,  fun = "enrichGO", org.Hs.eg.db,ont = "BP", pAdjustMethod = "BH", pvalueCutoff = 0.01, qvalueCutoff = 0.05)
     if (speva == 1){
       if (syva == 1){
-        gene.df <- bitr(gene,fromType="SYMBOL",toType="ENTREZID", OrgDb = org.Hs.eg.db)#TCGA数据框如果没有进行基因注释，那么fromType应该是Ensembl，各种ID之间可以互相转换,toType可以是一个字符串，也可以是一个向量，看自己需求
+        gene.df <- bitr(gene,fromType="SYMBOL",toType="ENTREZID", OrgDb = org.Hs.eg.db)
       }else
-        gene.df <- bitr(gene,fromType="ENSEMBL",toType="ENTREZID", OrgDb = org.Hs.eg.db)#TCGA数据框如果没有进行基因注释，那么fromType应该是Ensembl，各种ID之间可以互相转换,toType可以是一个字符串，也可以是一个向量，看自己需求
+        gene.df <- bitr(gene,fromType="ENSEMBL",toType="ENTREZID", OrgDb = org.Hs.eg.db)
       gene = gene.df$ENTREZID
       kk <- enrichKEGG(gene = gene, organism = org.Hs.eg.db,pvalueCutoff = 0.05, qvalueCutoff = 0.05)
 
     }else{
       if (syva == 1){
-        gene.df <- bitr(gene,fromType="SYMBOL",toType="ENTREZID", OrgDb = org.Mm.eg.db)#TCGA数据框如果没有进行基因注释，那么fromType应该是Ensembl，各种ID之间可以互相转换,toType可以是一个字符串，也可以是一个向量，看自己需求
+        gene.df <- bitr(gene,fromType="SYMBOL",toType="ENTREZID", OrgDb = org.Mm.eg.db)
       }else{
-        gene.df <- bitr(gene,fromType="ENSEMBL",toType="ENTREZID", OrgDb = org.Mm.eg.db)#TCGA数据框如果没有进行基因注释，那么fromType应该是Ensembl，各种ID之间可以互相转换,toType可以是一个字符串，也可以是一个向量，看自己需求
+        gene.df <- bitr(gene,fromType="ENSEMBL",toType="ENTREZID", OrgDb = org.Mm.eg.db)
 
       }
       gene = gene.df$ENTREZID
@@ -1115,16 +1050,16 @@ Frame <- function(){
 
   })
   #################################################
-  ##设定主窗口的大小
+  ##Set the size of the main window
   size(win) <- c(700, 650)
-  ##主窗口可见
+  ##main window visible
   visible(win) <- TRUE
 
 
 }
 
 Get_sc = function(cd,impr,d1,raw1){
-  # 簇维度
+  #
   cd = dim(d1)
 
   Sc = matrix(c(0),nrow=1,ncol=cd[1])
@@ -1154,7 +1089,7 @@ Get_sc = function(cd,impr,d1,raw1){
 }
 
 Get_data = function(bicluster,loma){
-  #bicluster = rb$bic[6,]
+
   asd = bicluster$biypn
   r = bicluster$bixn
   if (!is_empty(asd) && !is_empty(r)){
@@ -1226,8 +1161,8 @@ executGO = function(genesymbol,speva,syva,pvalue){
   all_num = dim(Go_all_result_enrich)
   all_num = all_num[1]
   if(!is.null(Go_all_result_enrich)){
-    galert("正在作图，请稍等",delay = 6)
-    ##绘制图片
+    galert("Drawing, please wait",delay = 6)
+    ##
     display_number = c(20,20,20)
     BP_result <- as.data.frame(Go_bp)[1:display_number[1],]
     CC_result <- as.data.frame(Go_cc)[1:display_number[2],]
@@ -1245,15 +1180,15 @@ executGO = function(genesymbol,speva,syva,pvalue){
       go_enrich_df$Description = gsub(pattern = "NA","",go_enrich_df$Description)
     }
 
-    #GO柱状图
+    #
     go_enrich_df$type_order = factor(rev(as.integer(rownames(go_enrich_df))), labels=rev(go_enrich_df$Description))
     COLS <- c("#66C3A5", "#8DA1CB", "#FD8D62")
 
 
-    gg1 <- ggplot(data=go_enrich_df, aes(x=type_order,y=GeneNumber, fill=type)) + #横纵轴取值
-                       geom_bar(stat="identity", width=0.8) + #柱状图的宽度，可以自己设置
-                       scale_fill_manual(values = COLS) + ###颜色
-                       coord_flip() + ##这一步是让柱状图横过来，不加的话柱状图是竖着的
+    gg1 <- ggplot(data=go_enrich_df, aes(x=type_order,y=GeneNumber, fill=type)) + #Horizontal and vertical axis values
+                       geom_bar(stat="identity", width=0.8) + #the width of the histogram
+                       scale_fill_manual(values = COLS) + ###color
+                       coord_flip() + ##Make the bar chart sideways
                        xlab("GO term") +
                        ylab("Gene_Number") +
                        labs(title = "The Most Enriched GO Terms")+
