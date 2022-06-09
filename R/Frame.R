@@ -26,7 +26,7 @@ Frame <- function(){
   library(org.Mm.eg.db)
 
   real_path = all_data = data_source = NULL
-
+  result_go = NULL
   # my_path_raw = NULL
 
   # th = gfile(text = "Select",type = "selectdir",initial.dir=getwd())
@@ -1021,7 +1021,13 @@ Frame <- function(){
           jjjj = jjjj + 1
         }
        i = i+ jjjj + 1
-         executGO(genesymbol,speva,syva,pvalue)
+       result_go1 <- executGO(genesymbol,speva,syva,pvalue)
+       derego1 <- dim(result_go1)
+       if (derego1[1]>0){
+         d_cbind <- rbind(result_go,result_go1)
+         result_go <<- d_cbind
+       }
+
 
       }else{
         ti = i+1
@@ -1036,17 +1042,34 @@ Frame <- function(){
         }
         k = k + 1
         i = ti
-         executGO(genesymbol,speva,syva,pvalue)
-      }
+         result_go1 <<- executGO(genesymbol,speva,syva,pvalue)
+         derego1 <- dim(result_go1)
+         if (derego1[1]>0){
+           d_cbind <- rbind(result_go,result_go1)
+           result_go <<- d_cbind
+         }
 
       }
+
+    }
+
+    result_go <<- result_go
 
   })
 
+  gbutton("Save_GO",container = real_note,handler = function(h,...){
+    if (!is.null(result_go)){
+      th = gfile(text = "Select",type = "selectdir",initial.dir=getwd())
+      my_path_save = paste0(th,"\\GOENRICH.txt")
+      write.table(result_go, file = my_path_save,append = FALSE, quote = TRUE, sep = " ",eol = "\n", na = "NA", dec = ".", row.names = F, col.names = F)
+      galert("Output Complete")
+    }else
+      galert("No Data output")
 
+  })
   #################################################
   ##设定主窗口的大小
-  size(win) <- c(700, 580)
+  size(win) <- c(700, 620)
   ##主窗口可见
   visible(win) <- TRUE
 
@@ -1207,5 +1230,5 @@ executGO = function(genesymbol,speva,syva,pvalue){
   }else{
     galert("No enrich item")
   }
-
+  return(Go_all_result_enrich)
 }
