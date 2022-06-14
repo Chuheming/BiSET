@@ -1038,7 +1038,7 @@ Frame <- function(){
 
       }
       gene = gene.df$ENTREZID
-     kk <- enrichKEGG(gene = gene_up, organism = "mmu",pvalueCutoff = 1, qvalueCutoff = 1)
+     kk <- enrichKEGG(gene = gene_up, organism = "mmu",pvalueCutoff = 1, qvalueCutoff = 1,use_internal_data = TRUE)
 
     }
 
