@@ -84,7 +84,7 @@ Frame <- function(){
   bgmc_value <- gedit(text = "100", width = 6, container = bg_gl1)
 
 
-  bi_Ol <- glabel("Backgroud matrix:",container = bg_gl1)
+  bi_Ol <- glabel("Bicluster matrix:",container = bg_gl1)
   bir_value <- gedit(text = "10", width = 6, container = bg_gl1)
   bic_value <- gedit(text = "10", width = 6, container = bg_gl1)
   ###########      Overlapping and Noise   ######
