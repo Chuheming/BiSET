@@ -34,13 +34,13 @@ Frame <- function(){
 
   #Ignore warning
   options(warn = -1)
-  # generate RGTK2 package and GTK Widget
+  # Synthetic RGTK2 package and GTK Widget
   options(guiToolkit="RGtk2")
-  #generate main window
+  #Synthetic main window
   win <- gwindow('R Window',visible = FALSE)
 
-  #generate toolbar
-  # generate open toolbar
+  #Synthetic toolbar
+  # Synthetic open toolbar
   my_open <- gaction(label = "Open", icon = "open", handler = function(h,...){
     #Implement the handler function to open the GUI data that needs to be imported
     real_path = choose.files(caption = "Choose One File (.txt)")
@@ -58,7 +58,7 @@ Frame <- function(){
     data_source <<- data_source_id
   })
 
-  my_about_content <- "The main function of BiSET is to customize the generation of simulated datasets. At the same time, the software provides six biclustering algorithms (CC,Bimax,QUBIC,FABIA,RUnibic,Plaid) to cluster the generated simulated datasets and real datasets. In addition, BiSET can also perform GO enrichment analysis."
+  my_about_content <- "The main function of BiSET is to customize the generation of simulated datasets. At the same time, the software provides six biclustering algorithms (CC,Bimax,QUBIC,FABIA,RUnibic,Plaid) to cluster the Syntheticd simulated datasets and real datasets. In addition, BiSET can also perform GO enrichment analysis."
   my_about <- gaction(label = "About", icon = 'about',handler = function(h,...){
     gmessage(my_about_content,title = "About BiSET",parent = win)
   })
@@ -75,7 +75,7 @@ Frame <- function(){
 
   gf1 <- gframe(horizontal = FALSE, container = win)
   bg_note1 <- (container = gf1)
-  gl_note <- glabel("Generate the Simulation Dataset",container=bg_note1)
+  gl_note <- glabel("Synthetic the Simulation Dataset",container=bg_note1)
   bg_gl1 <- (container = gf1)
   ##### backgroud Matrix and bicluster ########
   bgm_Ol <- glabel("Backgroud matrix:",container = bg_gl1)
@@ -136,7 +136,7 @@ Frame <- function(){
 
 
 
-  gbutton("Generate", container=bg, handler=function(h,...){
+  gbutton("Synthetic", container=bg, handler=function(h,...){
     Pva = svalue(Pa_value)
     if (identical(Pva,'Shift')){
       Pva = 1
@@ -539,7 +539,7 @@ Frame <- function(){
         #my_path_raw = paste0(th,"\\raw.txt")
         #write.table(all_data, file = my_path_save,append = FALSE, quote = TRUE, sep = " ",eol = "\n", na = "NA", dec = ".", row.names = F, col.names = F)
         #write.table(bim, file = my_path_raw,append = FALSE, quote = TRUE, sep = " ",eol = "\n", na = "NA", dec = ".", row.names = F, col.names = F)
-        galert('Generate Data is Successful! ',title = "File Save Success",delay = 6)
+        galert('Synthetic Data is Successful! ',title = "File Save Success",delay = 6)
       }
 
    }
@@ -596,7 +596,7 @@ Frame <- function(){
 
 
       if (length(loma)==0){
-        galert("Please add or generate dataset first")
+        galert("Please add or synthetic dataset first")
 
       }else
       {
@@ -613,7 +613,7 @@ Frame <- function(){
 
 
       if (length(loma)==0){
-        galert("Please add or generate dataset first")
+        galert("Please add or synthetic dataset first")
       }else{
         gmessage("Wait")
         biloma = binarize(loma)
@@ -627,7 +627,7 @@ Frame <- function(){
 
 
       if (length(loma)==0){
-        galert("Please add or generate dataset first")
+        galert("Please add or synthetic dataset first")
       }else{
         gmessage("Wait")
         re <<- biclust::biclust(loma,method = BCQU(),r=1,q=0.06,c=0.95,o=100,f=1)
@@ -640,7 +640,7 @@ Frame <- function(){
     if(identical(svalue(bal_value),'rUnibic')){
 
       if (length(loma)==0){
-        galert("Please add or generate dataset first")
+        galert("Please add or synthetic dataset first")
       }else{
         gmessage("Wait")
         re <<-  runibic(loma)
@@ -653,7 +653,7 @@ Frame <- function(){
     if(identical(svalue(bal_value),'Plaid')){
 
       if (length(loma)==0){
-        galert("Please add or generate dataset first")
+        galert("Please add or synthetic dataset first")
       }else{
         gmessage("Wait")
         re <<- biclust(loma, method = BCPlaid())#plaid
@@ -665,7 +665,7 @@ Frame <- function(){
     if(identical(svalue(bal_value),'FABIA')){
 
       if (length(loma)==0){
-        galert("Please add or generate dataset first")
+        galert("Please add or synthetic dataset first")
       }else
       {
         gmessage("Wait")
@@ -766,7 +766,7 @@ Frame <- function(){
   gseparator(horizontal = TRUE,container = gf)
   gseparator(horizontal = TRUE,container = gf)
 
-  #generate lable
+  #synthetic lable
   gl_note <- glabel("Verify the simulate dataset",container=bg_note)
   gbutton("Recovery",container = bg_note,handler = function(h,...){
     my_path_raw = paste0(th,"\\raw.txt")
