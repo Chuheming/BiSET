@@ -601,7 +601,7 @@ Frame <- function(){
       }else
       {
         gmessage("Wait")
-
+        sbo <<- 1
         re <<- biclust(loma, method=BCCC(), delta=0.5, alpha=1, number=100)
 
         tt = re@Number
@@ -616,6 +616,7 @@ Frame <- function(){
         galert("Please add or synthetic dataset first")
       }else{
         gmessage("Wait")
+        sbo <<- 1
         biloma = binarize(loma)
         re <<- biclust(x=biloma,method=BCBimax(),minc=2,minr=2,number=10)
         tt = re@Number
@@ -630,6 +631,7 @@ Frame <- function(){
         galert("Please add or synthetic dataset first")
       }else{
         gmessage("Wait")
+        sbo <<- 1
         re <<- biclust::biclust(loma,method = BCQU(),r=1,q=0.06,c=0.95,o=100,f=1)
         tt = re@Number
         galert(paste0("The bicluster number is ",tt))
@@ -643,6 +645,7 @@ Frame <- function(){
         galert("Please add or synthetic dataset first")
       }else{
         gmessage("Wait")
+        sbo <<- 1
         re <<-  runibic(loma)
         tt = re@Number
         galert(paste0("The bicluster number is ",tt))
@@ -656,6 +659,7 @@ Frame <- function(){
         galert("Please add or synthetic dataset first")
       }else{
         gmessage("Wait")
+        sbo <<- 1
         re <<- biclust(loma, method = BCPlaid())#plaid
         tt = re@Number
         galert(paste0("The bicluster number is ",tt))
@@ -668,6 +672,7 @@ Frame <- function(){
         galert("Please add or synthetic dataset first")
       }else
       {
+        sbf <<- 1
         gmessage("Wait")
         fre <<- fabia(loma,100,0.1,1000)
         rb = extractBic(fre)
