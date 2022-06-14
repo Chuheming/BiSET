@@ -182,25 +182,29 @@ Frame <- function(){
 
           for (i in 1:numv){
             bv1 = bv
+            av1 = av
             m = 1
-            m = m+(i-1)*numv
+            m = m+(i-1)*size_bir
             mr = m+size_bir-1
             mc = m+size_bic-1
             for (k in m:mr){
               for (kk in m:mc){
-                bgm[kk,k] = av + bv1
+                bgm[kk,k] = av1 + bv1
+                bv1 = bv1 + bv1*0.2
               }
-              bv1 = bv1 + bv1*2
+              av1 = av1 + av1*0.1
             }
           }
 
           #build cluster
           bv1 = bv
+          av1 = av
           for(i in 1:size_bir){
             for (j in 1:size_bic){
-              bim[j,i] = av + bv1
+              bim[j,i] = av1 + bv1
+              bv1 = bv1 + bv1*0.2
             }
-            bv1 = bv1 + bv1*2
+            av1 = av1 + av1*0.1
           }
           all_bim <<- bim
         } else{
@@ -209,24 +213,28 @@ Frame <- function(){
             bo_m = 1
             for (i in 1:numv){
               m = 1
-              m = m+(i-1)*numv
+              m = m+(i-1)*size_bir
               mr = m+size_bir-1
               mc = m+size_bic-1
               gv1 = gv
+              bv1 = bv
               for (k in m:mr){
                 for (kk in m:mc){
-                  bgm[kk,k] = bv * gv1
+                  bgm[kk,k] = bv1 * gv1
+                  gv1 = gv1 + gv1*0.2
                 }
-                gv1 = gv1 + gv1*2
+                bv1 = bv1 + bv1*0.1
               }
             }
             #Build clusters
             gv1 = gv
+            bv1 = bv
             for(i in 1:size_bir){
               for (j in 1:size_bic){
-                bim[j,i] = bv * gv1
+                bim[j,i] = bv1 * gv1
+                gv1 = gv1 + gv1*0.2
               }
-              gv1 = gv1 + gv1*2
+              bv1 = bv1 + bv1*0.1
             }
             all_bim <<- bim
           }else{
@@ -234,7 +242,7 @@ Frame <- function(){
             bo_m = 1
             for (i in 1:numv){
               m = 1
-              m = m+(i-1)*numv
+              m = m+(i-1)*size_bir
               mr = m+size_bir-1
               mc = m+size_bic-1
               bv1 = bv
@@ -244,9 +252,9 @@ Frame <- function(){
                 for (kk in m:mc){
                   bgm[kk,k] = av1 + bv1 * gv1
                   av1 = av1 + av1 * 0.5
-                  bv1 = bv1 + bv1 * 2
+                  bv1 = bv1 + bv1 * 0.2
                 }
-                gv1 = gv1 + gv1*2
+                gv1 = gv1 + gv1*0.2
               }
             }
             #Build clusters
@@ -257,9 +265,9 @@ Frame <- function(){
               for (j in 1:size_bic){
                 bim[j,i] = av1 + bv1 * gv1
                 av1 = av1 + av1 * 0.5
-                bv1 = bv1 + bv1 * 2
+                bv1 = bv1 + bv1 * 0.2
               }
-              gv1 = gv1 + gv1*2
+              gv1 = gv1 + gv1*0.2
             }
             all_bim <<- bim
           }
@@ -277,25 +285,29 @@ Frame <- function(){
 
           for (i in 1:numv){
             bv1 = bv
+            av1 = av
             m = 1
-            m = m+(i-1)*numv
+            m = m+(i-1)*size_bir
             mr = m+size_bir-1
             mc = m+size_bic-1
             for (k in m:mr){
               for (kk in m:mc){
-                bgm[kk,k] = av + bv1
+                bgm[kk,k] = av1 + bv1
+                bv1 = bv1 + bv1*0.2
               }
-              bv1 = bv1 + bv1*2
+              av1 = av1 + av1 * 0.2
             }
           }
 
           #Build clusters
           bv1 = bv
+          av1 = av
           for(i in 1:size_bir){
             for (j in 1:size_bic){
-              bim[j,i] = av + bv1
+              bim[j,i] = av1 + bv1
+              bv1 = bv1 + bv1*2
             }
-            bv1 = bv1 + bv1*2
+            av1 = av1 + av1 * 0.2
           }
           all_bim <<- bim
         } else{
@@ -304,24 +316,28 @@ Frame <- function(){
             bo_m = 1
             for (i in 1:numv){
               m = 1
-              m = m+(i-1)*numv
+              m = m+(i-1)*size_bir
               mr = m+size_bir-1
               mc = m+size_bic-1
               gv1 = gv
+              bv1 = bv
               for (k in m:mr){
                 for (kk in m:mc){
-                  bgm[kk,k] = bv * gv1
+                  bgm[kk,k] = bv1 * gv1
+                  gv1 = gv1 + gv1*0.2
                 }
-                gv1 = gv1 + gv1*2
+                bv1 = bv1 + bv1 * 0.2
               }
             }
             #Build clusters
             gv1 = gv
+            bv1 = bv
             for(i in 1:size_bir){
               for (j in 1:size_bic){
-                bim[j,i] = bv * gv1
+                bim[j,i] = bv1 * gv1
+                gv1 = gv1 + gv1*0.2
               }
-              gv1 = gv1 + gv1*2
+              bv1 = bv1 + bv1 * 0.2
             }
             all_bim <<- bim
           }else{
@@ -329,7 +345,7 @@ Frame <- function(){
             bo_m = 1
             for (i in 1:numv){
               m = 1
-              m = m+(i-1)*numv
+              m = m+(i-1)*size_bir
               mr = m+size_bir-1
               mc = m+size_bic-1
               bv1 = bv
