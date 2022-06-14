@@ -75,7 +75,7 @@ Frame <- function(){
 
   gf1 <- gframe(horizontal = FALSE, container = win)
   bg_note1 <- (container = gf1)
-  gl_note <- glabel("Synthetic the Simulation Dataset",container=bg_note1)
+  gl_note <- glabel("Generate the Simulation Dataset",container=bg_note1)
   bg_gl1 <- (container = gf1)
   ##### backgroud Matrix and bicluster ########
   bgm_Ol <- glabel("Backgroud matrix:",container = bg_gl1)
@@ -136,7 +136,7 @@ Frame <- function(){
 
 
 
-  gbutton("Synthetic", container=bg, handler=function(h,...){
+  gbutton("Generate", container=bg, handler=function(h,...){
     Pva = svalue(Pa_value)
     if (identical(Pva,'Shift')){
       Pva = 1
