@@ -591,7 +591,7 @@ Frame <- function(){
 
   gbutton("Run",container = bg_gl,handler = function(h,...){
 
-    loma = data_source
+    loma <<- data_source
     if (identical(svalue(bal_value),'CC')){
 
 
