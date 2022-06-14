@@ -823,7 +823,7 @@ Frame <- function(){
             score1[1,pn] = score
           }
           score = mean(score1)
-          galert(paste0("The Recovery score is: ",score))
+          galert(paste0("The Relevance score is: ",score))
         }else{
           galert("No Bicluster")
         }
