@@ -733,7 +733,6 @@ Frame <- function(){
       num = dim(re@NumberxCol)
       rnum = dim(re@RowxNumber)
 
-      k = as.numeric(svalue(se_value))
       d = matrix(c(0),nrow = 1,ncol = rnum[1])
       jj = 1
       for (i in 1:rnum[1]){
@@ -747,17 +746,19 @@ Frame <- function(){
 
       for (i in 1:num[2]){
         if (identical(re@NumberxCol[k,i],TRUE)){
-          cc[k,jj] = i; # condition location
+          cc[1,jj] = i; # condition location
           jj = jj+1
         }
       }
       b = which(d==0)
       d = as.matrix(d[-b])
       d = t(d)
+      print(d)
 
       b = which(cc==0)
       cc = as.matrix(cc[-b])
       cc = t(cc)
+      print(cc)
       write.table(d, file = my_path_save,append = FALSE, quote = TRUE, sep = " ",eol = "\n", na = "NA", dec = ".", row.names = F, col.names = F)
       write.table(cc, file = my_path_raw,append = FALSE, quote = TRUE, sep = " ",eol = "\n", na = "NA", dec = ".", row.names = F, col.names = F)
       galert(paste0('Successful! The results are preserved in ',my_path_save),title = "File Save Success",delay = 6)
