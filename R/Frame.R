@@ -22,6 +22,7 @@ Frame <- function(){
   library(fabia)
   #GO enrichment
   library(clusterProfiler)
+  library(KEGG.db)
   library(org.Hs.eg.db)
   library(org.Mm.eg.db)
 
@@ -1017,16 +1018,17 @@ Frame <- function(){
     pvalue = as.numeric(svalue(p_value))
 
     gene_path = choose.files(caption = "Choose One File (.txt)")
-    mat = read.table(gene_path, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE)
+    mat = as.matrix(read.table(gene_path, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
 
     gene <- unique(mat)
+
     if (speva == 1){
       if (syva == 1){
         gene.df <- bitr(gene,fromType="SYMBOL",toType="ENTREZID", OrgDb = org.Hs.eg.db)
       }else
         gene.df <- bitr(gene,fromType="ENSEMBL",toType="ENTREZID", OrgDb = org.Hs.eg.db)
       gene = gene.df$ENTREZID
-      kk <- enrichKEGG(gene = gene, organism = org.Hs.eg.db,pvalueCutoff = 0.05, qvalueCutoff = 0.05)
+      kk <- enrichKEGG(gene = gene, organism = "hsa",pvalueCutoff = 1, qvalueCutoff = 1,use_internal_data = TRUE)
 
     }else{
       if (syva == 1){
@@ -1036,7 +1038,7 @@ Frame <- function(){
 
       }
       gene = gene.df$ENTREZID
-     kk <- enrichKEGG(gene = gene_up, organism = org.Mm.eg.db,pvalueCutoff = 0.05, qvalueCutoff = 0.05)
+     kk <- enrichKEGG(gene = gene_up, organism = "mmu",pvalueCutoff = 1, qvalueCutoff = 1)
 
     }
 
