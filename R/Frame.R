@@ -178,98 +178,20 @@ Frame <- function(){
 
         if (Pva==1){
           # Shift partten
-          bo_m= 1
+          out = getshift(numv,av,bv,size_bir,size_bic,bim,bgm)
 
-          for (i in 1:numv){
-            bv1 = bv
-            av1 = av
-            m = 1
-            m = m+(i-1)*size_bir
-            mr = m+size_bir-1
-            mc = m+size_bic-1
-            for (k in m:mr){
-              for (kk in m:mc){
-                bgm[kk,k] = av1 + bv1
-                bv1 = bv1 + bv1*0.2
-              }
-              av1 = av1 + av1*0.1
-            }
-          }
-
-          #build cluster
-          bv1 = bv
-          av1 = av
-          for(i in 1:size_bir){
-            for (j in 1:size_bic){
-              bim[j,i] = av1 + bv1
-              bv1 = bv1 + bv1*0.2
-            }
-            av1 = av1 + av1*0.1
-          }
-          all_bim <<- bim
+          all_bim <<- out.bim
         } else{
           if (Pva == 2){
             # scale partten
-            bo_m = 1
-            for (i in 1:numv){
-              m = 1
-              m = m+(i-1)*size_bir
-              mr = m+size_bir-1
-              mc = m+size_bic-1
-              gv1 = gv
-              bv1 = bv
-              for (k in m:mr){
-                for (kk in m:mc){
-                  bgm[kk,k] = bv1 * gv1
-                  gv1 = gv1 + gv1*0.2
-                }
-                bv1 = bv1 + bv1*0.1
-              }
-            }
-            #Build clusters
-            gv1 = gv
-            bv1 = bv
-            for(i in 1:size_bir){
-              for (j in 1:size_bic){
-                bim[j,i] = bv1 * gv1
-                gv1 = gv1 + gv1*0.2
-              }
-              bv1 = bv1 + bv1*0.1
-            }
-            all_bim <<- bim
+            out = getscale(numv,gv,bv,size_bir,size_bic,bim,bgm)
+
+            all_bim <<- out.bim
           }else{
             #shift-scale partten
-            bo_m = 1
-            for (i in 1:numv){
-              m = 1
-              m = m+(i-1)*size_bir
-              mr = m+size_bir-1
-              mc = m+size_bic-1
-              bv1 = bv
-              gv1 = gv
-              av1 = av
-              for (k in m:mr){
-                for (kk in m:mc){
-                  bgm[kk,k] = av1 + bv1 * gv1
-                  av1 = av1 + av1 * 0.5
-                  bv1 = bv1 + bv1 * 0.2
-                }
-                gv1 = gv1 + gv1*0.2
-              }
-            }
-            #Build clusters
-            bv1 = bv
-            gv1 = gv
-            av1 = av
-            for(i in 1:size_bir){
-              for (j in 1:size_bic){
-                bim[j,i] = av1 + bv1 * gv1
-                av1 = av1 + av1 * 0.5
-                bv1 = bv1 + bv1 * 0.2
-              }
-              gv1 = gv1 + gv1*0.2
-            }
-            all_bim <<- bim
+            out = getshiht_scale(numv,av,gv,bv,size_bir,size_bic,bim,bgm)
+
+            all_bim <<- out.bim
           }
         }
 
@@ -281,97 +203,22 @@ Frame <- function(){
         # implant bicluster
         if (Pva==1){
           # shift
-          bo_m= 1
-
-          for (i in 1:numv){
-            bv1 = bv
-            av1 = av
-            m = 1
-            m = m+(i-1)*size_bir
-            mr = m+size_bir-1
-            mc = m+size_bic-1
-            for (k in m:mr){
-              for (kk in m:mc){
-                bgm[kk,k] = av1 + bv1
-                bv1 = bv1 + bv1*0.2
-              }
-              av1 = av1 + av1 * 0.2
-            }
-          }
-
-          #Build clusters
-          bv1 = bv
-          av1 = av
-          for(i in 1:size_bir){
-            for (j in 1:size_bic){
-              bim[j,i] = av1 + bv1
-              bv1 = bv1 + bv1*2
-            }
-            av1 = av1 + av1 * 0.2
-          }
+          out = getshift(numv,av,bv,size_bir,size_bic,bim,bgm)
+          bim <<- out.bim
+          bgm <<- out.bgm
           all_bim <<- bim
         } else{
           if (Pva == 2){
             # scale
-            bo_m = 1
-            for (i in 1:numv){
-              m = 1
-              m = m+(i-1)*size_bir
-              mr = m+size_bir-1
-              mc = m+size_bic-1
-              gv1 = gv
-              bv1 = bv
-              for (k in m:mr){
-                for (kk in m:mc){
-                  bgm[kk,k] = bv1 * gv1
-                  gv1 = gv1 + gv1*0.2
-                }
-                bv1 = bv1 + bv1 * 0.2
-              }
-            }
-            #Build clusters
-            gv1 = gv
-            bv1 = bv
-            for(i in 1:size_bir){
-              for (j in 1:size_bic){
-                bim[j,i] = bv1 * gv1
-                gv1 = gv1 + gv1*0.2
-              }
-              bv1 = bv1 + bv1 * 0.2
-            }
+            out = getscale(numv,gv,bv,size_bir,size_bic,bim,bgm)
+            bim <<- out.bim
+            bgm <<- out.bgm
             all_bim <<- bim
           }else{
             #shift-scale partten
-            bo_m = 1
-            for (i in 1:numv){
-              m = 1
-              m = m+(i-1)*size_bir
-              mr = m+size_bir-1
-              mc = m+size_bic-1
-              bv1 = bv
-              gv1 = gv
-              av1 = av
-              for (k in m:mr){
-                for (kk in m:mc){
-                  bgm[kk,k] = av1 + bv1 * gv1
-                  av1 = av1 + av1 * 0.5
-                  bv1 = bv1 + bv1 * 2
-                }
-                gv1 = gv1 + gv1*2
-              }
-            }
-            #Build clusters
-            bv1 = bv
-            gv1 = gv
-            av1 = av
-            for(i in 1:size_bir){
-              for (j in 1:size_bic){
-                bim[j,i] = av1 + bv1 * gv1
-                av1 = av1 + av1 * 0.5
-                bv1 = bv1 + bv1 * 2
-              }
-              gv1 = gv1 + gv1*2
-            }
+            out = getshiht_scale(numv,av,gv,bv,size_bir,size_bic,bim,bgm)
+            bim <<- out.bim
+            bgm <<- out.bgm
             all_bim <<- bim
           }
         }
@@ -383,160 +230,21 @@ Frame <- function(){
         #no noise ,has overlapping (only in shift-scale partten)
         # The overlapping interval defaults to two rows and five columns
         #Build clusters
-        bv1 = bv
-        gv1 = gv
-        av1 = av
-        for(i in 1:size_bir){
-          for (j in 1:size_bic){
-            bim[j,i] = av1 + bv1 * gv1
-            av1 = av1 + av1 * 0.05
-            bv1 = bv1 + bv1 * 0.02
-          }
-          gv1 = gv1 + gv1*0.02
-        }
+        out = getover(gv,bv,av,size_bir,size_bic,bim,bgm)
+
+        bim <<- out.bim
+        bgm <<- out.bgm
         all_bim <<- bim
-
-        fbim = matrix(c(0),nrow = size_bir,ncol = size_bic)
-        for (i in 1:size_bir){
-          temp_i = size_bir-i+1
-          fbim[i,] <- bim[temp_i,]
-        }
-
-            bo_m = 1
-            for (i in 1:numv){
-              m = 1
-
-              #column start position
-              cm = m+(i-1)*(size_bic-5)
-              #line start position
-              m = m+(i-1)*(size_bir-2)
-              #line end positon
-              mr = m+size_bir-1
-              fi1 = 3
-              for (k in 1:size_bir){
-                if (i%%2==0){
-                  #odd i put fbim
-
-                    if (k<=2){
-                     jc <- cm+5
-                      jcc = cm + size_bic-1
-                      kk = 2-k+1
-                      bgm[m,jc:jcc] = fbim[kk,1:5]
-                      m = m + 1
-                    }else{
-                        j2 = cm + size_bir-1
-                        bgm[m,cm:j2] = fbim[fi1,1:size_bic]
-                        m = m + 1
-                        fi1 = fi1 + 1
-                    }
-
-
-                }else{
-                  #
-                  if (i>1){
-
-                    if (k<=2){
-                      jc <- cm+5
-                      jcc = cm + size_bic-1
-                      kk = 2-k+1
-                      bgm[m,jc:jcc] = bim[kk,6:size_bic]
-                      m = m + 1
-                    }else{
-                      j2 = cm + size_bir-1
-                      bgm[m,cm:j2] = bim[fi1,1:size_bic]
-                      m = m + 1
-                      fi1 = fi1 + 1
-                    }
-
-                  }else{
-                    trj2 = cm+ size_bic-1
-
-                    bgm[k,cm:trj2] = bim[k,]
-                  }
-                }
-              }
-            }
-
-
-
 
       }else{
         #noise , overlapping
         for (i in 1:size_bgmr){
           bgm[i,] = rnorm(size_bgmc,mean = 0, sd = 1)
         }
-
-        bv1 = bv
-        gv1 = gv
-        av1 = av
-        for(i in 1:size_bir){
-          for (j in 1:size_bic){
-            bim[j,i] = av1 + bv1 * gv1
-            av1 = av1 + av1 * 0.05
-            bv1 = bv1 + bv1 * 0.02
-          }
-          gv1 = gv1 + gv1*0.02
-        }
+        out = getover(gv,bv,av,size_bir,size_bic,bim,bgm)
+        bim <<- out.bim
+        bgm <<- out.bgm
         all_bim <<- bim
-        fbim = matrix(c(0),nrow = size_bir,ncol = size_bic)
-        for (i in 1:size_bir){
-          temp_i = size_bir-i+1
-          fbim[i,] <- bim[temp_i,]
-        }
-
-        bo_m = 1
-        for (i in 1:numv){
-          m = 1
-
-          cm = m+(i-1)*(size_bic-5)
-
-          m = m+(i-1)*(size_bir-2)
-
-          mr = m+size_bir-1
-          fi1 = 3
-          for (k in 1:size_bir){
-            if (i%%2==0){
-
-              if (k<=2){
-                jc <- cm+5
-                jcc = cm + size_bic-1
-                kk = 2-k+1
-                bgm[m,jc:jcc] = fbim[kk,1:5]
-                m = m + 1
-              }else{
-                j2 = cm + size_bir-1
-                bgm[m,cm:j2] = fbim[fi1,1:size_bic]
-                m = m + 1
-                fi1 = fi1 + 1
-              }
-
-
-            }else{
-
-              if (i>1){
-
-                if (k<=2){
-                  jc <- cm+5
-                  jcc = cm + size_bic-1
-                  kk = 2-k+1
-                  bgm[m,jc:jcc] = bim[kk,6:size_bic]
-                  m = m + 1
-                }else{
-                  j2 = cm + size_bir-1
-                  bgm[m,cm:j2] = bim[fi1,1:size_bic]
-                  m = m + 1
-                  fi1 = fi1 + 1
-                }
-
-              }else{
-                trj2 = cm+ size_bic-1
-
-                bgm[k,cm:trj2] = bim[k,]
-              }
-            }
-          }
-        }
-
       }
 
     }
@@ -943,7 +651,7 @@ Frame <- function(){
       speva = 0
 
     pvalue = as.numeric(svalue(p_value))
-
+    acount = 0 #calculate the number of gross enrich cluster
     gene_path = choose.files(caption = "Choose One File (.txt)")
     mat = read.table(gene_path, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE)
 
@@ -965,13 +673,16 @@ Frame <- function(){
         k = k + 1
       }
     }
+    sizedimmat = dim(location_sybom)
+    total = sizedimmat[1]
+
     k = 1
     facount = 1
     gsl = 1
     i = 1
     jjjj = 1
     while (i < dimmat[1]){
-      sizedimmat = dim(location_sybom)
+
       if (sizedimmat[1]==1){
         genesymbol = matrix(c(0),nrow = dimmat-1,ncol = 1)
 
@@ -987,19 +698,32 @@ Frame <- function(){
        if (derego1[1]>0){
          d_cbind <- rbind(result_go,result_go1)
          result_go <<- d_cbind
+         acount = acount + 1
        }
 
 
       }else{
         ti = i+1
         kt = k+1
-        sizek = location_sybom[kt,1]-location_sybom[k,1]-1
-        genesymbol = matrix(c(0),nrow = sizek,ncol = 1)
-        gsl = 1
-        while (ti<location_sybom[kt,1]){
-          genesymbol[gsl,1] = mat[ti,1]
-          gsl = gsl + 1
-          ti = ti + 1
+        if (kt<=total){
+          sizek = location_sybom[kt,1]-location_sybom[k,1]-1
+          genesymbol = matrix(c(0),nrow = sizek,ncol = 1)
+          gsl = 1
+          while (ti<location_sybom[kt,1]){
+            genesymbol[gsl,1] = mat[ti,1]
+            gsl = gsl + 1
+            ti = ti + 1
+          }
+        }
+        else{
+          sizek = dimmat[1]-location_sybom[k,1]+1
+          genesymbol = matrix(c(0),nrow = sizek,ncol = 1)
+          gsl = 1
+          while (ti<dimmat[1]){
+            genesymbol[gsl,1] = mat[ti,1]
+            gsl = gsl + 1
+            ti = ti + 1
+          }
         }
         k = k + 1
         i = ti
@@ -1008,6 +732,7 @@ Frame <- function(){
          if (derego1[1]>0){
            d_cbind <- rbind(result_go,result_go1)
            result_go <<- d_cbind
+           acount = acount + 1
          }
 
       }
@@ -1015,6 +740,7 @@ Frame <- function(){
     }
 
     result_go <<- result_go
+    galert(paste0("Total: ",total,";","Enrich: ",count,"."))
 
   })
 
@@ -1237,4 +963,186 @@ executGO = function(genesymbol,speva,syva,pvalue){
     galert("No enrich item")
   }
   return(Go_all_result_enrich)
+}
+
+getshift = function(numv,av,bv,size_bir,size_bic,bim,bgm){
+  bo_m= 1
+
+  for (i in 1:numv){
+
+    av1 = av
+    m = 1
+    m = m+(i-1)*size_bir
+    mr = m+size_bir-1
+    mc = m+size_bic-1
+    for (k in m:mr){
+      bv1 = bv
+      for (kk in m:mc){
+        bgm[kk,k] = av1 + bv1
+        bv1 = bv1 + bv1*0.2
+      }
+      av1 = av1 + av1*0.2
+    }
+  }
+
+  #build cluster
+
+  av1 = av
+  for(i in 1:size_bir){
+    bv1 = bv
+    for (j in 1:size_bic){
+      bim[j,i] = av1 + bv1
+      bv1 = bv1 + bv1*0.2
+    }
+    av1 = av1 + av1*0.2
+  }
+  return(list(bim,bgm))
+}
+
+getscale = function(numv,gv,bv,size_bir,size_bic,bim,bgm){
+  bo_m = 1
+  for (i in 1:numv){
+    m = 1
+    m = m+(i-1)*size_bir
+    mr = m+size_bir-1
+    mc = m+size_bic-1
+    gv1 = gv
+
+    for (k in m:mr){
+      bv1 = bv
+      for (kk in m:mc){
+        bgm[kk,k] = bv1 * gv1
+        gv1 = gv1 + gv1*0.02
+      }
+      bv1 = bv1 + bv1*0.02
+    }
+  }
+  #Build clusters
+  gv1 = gv
+
+  for(i in 1:size_bir){
+    bv1 = bv
+    for (j in 1:size_bic){
+      bim[j,i] = bv1 * gv1
+      gv1 = gv1 + gv1*0.2
+    }
+    bv1 = bv1 + bv1*0.1
+  }
+  return(list(bim,bgm))
+}
+
+getshiht_scale = function(numv,av,gv,bv,size_bir,size_bic,bim,bgm){
+  bo_m = 1
+  for (i in 1:numv){
+    m = 1
+    m = m+(i-1)*size_bir
+    mr = m+size_bir-1
+    mc = m+size_bic-1
+
+    gv1 = gv
+    for (k in m:mr){
+      bv1 = bv
+      av1 = av
+      for (kk in m:mc){
+        bgm[kk,k] = av1 + bv1 * gv1
+        av1 = av1 + av1 * 0.05
+        bv1 = bv1 + bv1 * 0.2
+      }
+      gv1 = gv1 + gv1*0.02
+    }
+  }
+  #Build clusters
+
+  gv1 = gv
+
+  for(i in 1:size_bir){
+    bv1 = bv
+    av1 = av
+    for (j in 1:size_bic){
+      bim[j,i] = av1 + bv1 * gv1
+      av1 = av1 + av1 * 0.05
+      bv1 = bv1 + bv1 * 0.2
+    }
+    gv1 = gv1 + gv1*0.02
+  }
+  return(list(bim,bgm))
+}
+
+getover = function(gv,bv,av,size_bir,size_bic,bim,bgm){
+  gv1 = gv
+
+  for(i in 1:size_bir){
+    bv1 = bv
+    av1 = av
+    for (j in 1:size_bic){
+      bim[j,i] = av1 + bv1 * gv1
+      av1 = av1 + av1 * 0.05
+      bv1 = bv1 + bv1 * 0.2
+    }
+    gv1 = gv1 + gv1*0.02
+  }
+  all_bim <<- bim
+
+  fbim = matrix(c(0),nrow = size_bir,ncol = size_bic)
+  for (i in 1:size_bir){
+    temp_i = size_bir-i+1
+    fbim[i,] <- bim[temp_i,]
+  }
+
+  bo_m = 1
+  for (i in 1:numv){
+    m = 1
+
+    #column start position
+    cm = m+(i-1)*(size_bic-5)
+    #line start position
+    m = m+(i-1)*(size_bir-2)
+    #line end positon
+    mr = m+size_bir-1
+    fi1 = 3
+    for (k in 1:size_bir){
+      if (i%%2==0){
+        #odd i put fbim
+
+        if (k<=2){
+          jc <- cm+5
+          jcc = cm + size_bic-1
+          kk = 2-k+1
+          bgm[m,jc:jcc] = fbim[kk,1:5]
+          m = m + 1
+        }else{
+          j2 = cm + size_bir-1
+          bgm[m,cm:j2] = fbim[fi1,1:size_bic]
+          m = m + 1
+          fi1 = fi1 + 1
+        }
+
+
+      }else{
+        #
+        if (i>1){
+
+          if (k<=2){
+            jc <- cm+5
+            jcc = cm + size_bic-1
+            kk = 2-k+1
+            sc = size_bic-5
+            bgm[m,jc:jcc] = bim[kk,1:sc]
+            m = m + 1
+          }else{
+            j2 = cm + size_bir-1
+            bgm[m,cm:j2] = bim[fi1,1:size_bic]
+            m = m + 1
+            fi1 = fi1 + 1
+          }
+
+        }else{
+          trj2 = cm+ size_bic-1
+
+          bgm[k,cm:trj2] = bim[k,]
+        }
+      }
+    }
+  }
+  return(list(bim,bgm))
 }
