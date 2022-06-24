@@ -179,19 +179,20 @@ Frame <- function(){
         if (Pva==1){
           # Shift partten
           out = getshift(numv,av,bv,size_bir,size_bic,bim,bgm)
+          bo_m = 1
+          all_bim <<- out$bim
 
-          all_bim <<- out.bim
         } else{
           if (Pva == 2){
             # scale partten
             out = getscale(numv,gv,bv,size_bir,size_bic,bim,bgm)
-
-            all_bim <<- out.bim
+            bo_m = 1
+            all_bim <<- out$bim
           }else{
             #shift-scale partten
             out = getshiht_scale(numv,av,gv,bv,size_bir,size_bic,bim,bgm)
-
-            all_bim <<- out.bim
+            bo_m = 1
+            all_bim <<- out$bim
           }
         }
 
@@ -204,22 +205,25 @@ Frame <- function(){
         if (Pva==1){
           # shift
           out = getshift(numv,av,bv,size_bir,size_bic,bim,bgm)
-          bim <<- out.bim
-          bgm <<- out.bgm
+          bim <<- out$bim
+          bgm <<- out$bgm
           all_bim <<- bim
+          bo_m = 1
         } else{
           if (Pva == 2){
             # scale
             out = getscale(numv,gv,bv,size_bir,size_bic,bim,bgm)
-            bim <<- out.bim
-            bgm <<- out.bgm
+            bim <<- out$bim
+            bgm <<- out$bgm
             all_bim <<- bim
+            bo_m = 1
           }else{
             #shift-scale partten
             out = getshiht_scale(numv,av,gv,bv,size_bir,size_bic,bim,bgm)
-            bim <<- out.bim
-            bgm <<- out.bgm
+            bim <<- out$bim
+            bgm <<- out$bgm
             all_bim <<- bim
+            bo_m = 1
           }
         }
       }
@@ -230,10 +234,10 @@ Frame <- function(){
         #no noise ,has overlapping (only in shift-scale partten)
         # The overlapping interval defaults to two rows and five columns
         #Build clusters
-        out = getover(gv,bv,av,size_bir,size_bic,bim,bgm)
-
-        bim <<- out.bim
-        bgm <<- out.bgm
+        out = getover(gv,bv,av,size_bir,size_bic,bim,bgm,numv)
+        bo_m = 1
+        bim <<- out$bim
+        bgm <<- out$bgm
         all_bim <<- bim
 
       }else{
@@ -241,10 +245,11 @@ Frame <- function(){
         for (i in 1:size_bgmr){
           bgm[i,] = rnorm(size_bgmc,mean = 0, sd = 1)
         }
-        out = getover(gv,bv,av,size_bir,size_bic,bim,bgm)
-        bim <<- out.bim
-        bgm <<- out.bgm
+        out = getover(gv,bv,av,size_bir,size_bic,bim,bgm,numv)
+        bim = out$bim
+        bgm <<- out$bgm
         all_bim <<- bim
+        bo_m <<- 1
       }
 
     }
@@ -264,7 +269,7 @@ Frame <- function(){
         #my_path_raw = paste0(th,"\\raw.txt")
         #write.table(all_data, file = my_path_save,append = FALSE, quote = TRUE, sep = " ",eol = "\n", na = "NA", dec = ".", row.names = F, col.names = F)
         #write.table(bim, file = my_path_raw,append = FALSE, quote = TRUE, sep = " ",eol = "\n", na = "NA", dec = ".", row.names = F, col.names = F)
-        galert('Synthetic Data is Successful! ',title = "File Save Success",delay = 6)
+        galert('Synthetic Data success! ',title = "File Save Success",delay = 6)
       }
 
    }
@@ -281,7 +286,7 @@ Frame <- function(){
       my_path_raw = paste0(th,"\\raw.txt")
       write.table(all_data, file = my_path_save,append = FALSE, quote = TRUE, sep = " ",eol = "\n", na = "NA", dec = ".", row.names = F, col.names = F)
       write.table(all_bim, file = my_path_raw,append = FALSE, quote = TRUE, sep = " ",eol = "\n", na = "NA", dec = ".", row.names = F, col.names = F)
-      galert(paste0('Successful! The results are preserved in ',my_path_save,'\\data_result.txt'),title = "File Save Success",delay = 6)
+      galert(paste0('Success! The results are preserved in ',my_path_save,'\\data_result.txt'),title = "File Save Success",delay = 6)
 
     }else{
       galert('There is no output for the time',title = "File Save Failure",delay = 6)
@@ -450,7 +455,7 @@ Frame <- function(){
 
         write.table(r, file = my_path_save,append = FALSE, quote = TRUE, sep = " ",eol = "\n", na = "NA", dec = ".", row.names = F, col.names = F)
         write.table(asd, file = my_path_raw,append = FALSE, quote = TRUE, sep = " ",eol = "\n", na = "NA", dec = ".", row.names = F, col.names = F)
-        galert(paste0('Successful! The results are preserved in ',my_path_save),title = "File Save Success",delay = 6)
+        galert(paste0('Success! The results are preserved in ',my_path_save),title = "File Save Success",delay = 6)
 
 
     }else{
@@ -486,7 +491,7 @@ Frame <- function(){
       print(cc)
       write.table(d, file = my_path_save,append = FALSE, quote = TRUE, sep = " ",eol = "\n", na = "NA", dec = ".", row.names = F, col.names = F)
       write.table(cc, file = my_path_raw,append = FALSE, quote = TRUE, sep = " ",eol = "\n", na = "NA", dec = ".", row.names = F, col.names = F)
-      galert(paste0('Successful! The results are preserved in ',my_path_save),title = "File Save Success",delay = 6)
+      galert(paste0('Success! The results are preserved in ',my_path_save),title = "File Save Success",delay = 6)
 
     }
   })
@@ -996,7 +1001,7 @@ getshift = function(numv,av,bv,size_bir,size_bic,bim,bgm){
     }
     av1 = av1 + av1*0.2
   }
-  return(list(bim,bgm))
+  return(list(bim = bim,bgm = bgm))
 }
 
 getscale = function(numv,gv,bv,size_bir,size_bic,bim,bgm){
@@ -1028,7 +1033,7 @@ getscale = function(numv,gv,bv,size_bir,size_bic,bim,bgm){
     }
     bv1 = bv1 + bv1*0.1
   }
-  return(list(bim,bgm))
+  return(list(bim = bim,bgm = bgm))
 }
 
 getshiht_scale = function(numv,av,gv,bv,size_bir,size_bic,bim,bgm){
@@ -1065,10 +1070,10 @@ getshiht_scale = function(numv,av,gv,bv,size_bir,size_bic,bim,bgm){
     }
     gv1 = gv1 + gv1*0.02
   }
-  return(list(bim,bgm))
+  return(list(bim = bim,bgm = bgm))
 }
 
-getover = function(gv,bv,av,size_bir,size_bic,bim,bgm){
+getover = function(gv,bv,av,size_bir,size_bic,bim,bgm,numv){
   gv1 = gv
 
   for(i in 1:size_bir){
@@ -1144,5 +1149,5 @@ getover = function(gv,bv,av,size_bir,size_bic,bim,bgm){
       }
     }
   }
-  return(list(bim,bgm))
+  return(list(bim = bim,bgm = bgm))
 }
