@@ -20,6 +20,7 @@ Frame <- function(){
   library(runibic)
   library(QUBIC)
   library(fabia)
+  library(BiBitR)
   #GO enrichment
   library(clusterProfiler)
   library(KEGG.db)
@@ -178,21 +179,30 @@ Frame <- function(){
 
         if (Pva==1){
           # Shift partten
+
           out = getshift(numv,av,bv,size_bir,size_bic,bim,bgm)
+
           bo_m = 1
-          all_bim <<- out$bim
+          #all_bim <<- out$bim
+          bgm1 <<- out$bgm
+          bim1 <<- out$bim
+
 
         } else{
           if (Pva == 2){
             # scale partten
             out = getscale(numv,gv,bv,size_bir,size_bic,bim,bgm)
             bo_m = 1
-            all_bim <<- out$bim
+
+            bgm1 <<- out$bgm
+            bim1 <<- out$bim
           }else{
             #shift-scale partten
             out = getshiht_scale(numv,av,gv,bv,size_bir,size_bic,bim,bgm)
             bo_m = 1
-            all_bim <<- out$bim
+
+            bgm1 <<- out$bgm
+            bim1 <<- out$bim
           }
         }
 
@@ -205,24 +215,24 @@ Frame <- function(){
         if (Pva==1){
           # shift
           out = getshift(numv,av,bv,size_bir,size_bic,bim,bgm)
-          bim <<- out$bim
-          bgm <<- out$bgm
-          all_bim <<- bim
+          bim1 <<- out$bim
+          bgm1 <<- out$bgm
+
           bo_m = 1
         } else{
           if (Pva == 2){
             # scale
             out = getscale(numv,gv,bv,size_bir,size_bic,bim,bgm)
-            bim <<- out$bim
-            bgm <<- out$bgm
-            all_bim <<- bim
+            bim1 <<- out$bim
+            bgm1 <<- out$bgm
+
             bo_m = 1
           }else{
             #shift-scale partten
             out = getshiht_scale(numv,av,gv,bv,size_bir,size_bic,bim,bgm)
-            bim <<- out$bim
-            bgm <<- out$bgm
-            all_bim <<- bim
+            bim1 <<- out$bim
+            bgm1 <<- out$bgm
+
             bo_m = 1
           }
         }
@@ -236,9 +246,9 @@ Frame <- function(){
         #Build clusters
         out = getover(gv,bv,av,size_bir,size_bic,bim,bgm,numv)
         bo_m = 1
-        bim <<- out$bim
-        bgm <<- out$bgm
-        all_bim <<- bim
+        bim1 <<- out$bim
+        bgm1 <<- out$bgm
+
 
       }else{
         #noise , overlapping
@@ -246,18 +256,21 @@ Frame <- function(){
           bgm[i,] = rnorm(size_bgmc,mean = 0, sd = 1)
         }
         out = getover(gv,bv,av,size_bir,size_bic,bim,bgm,numv)
-        bim = out$bim
-        bgm <<- out$bgm
-        all_bim <<- bim
+        bim1 = out$bim
+        bgm1 <<- out$bgm
+
         bo_m <<- 1
       }
 
     }
     if (bo_m == 1){
-      all_data <<- bgm
-      all_bim <<- bim
-      data_source <<- bgm
+      all_data <<- bgm1
+      all_bim <<- bim1
+      data_source <<- bgm1
+
       pl <<- 1
+
+
 
       if (isEmpty(all_data)){
         galert('There is no output for the time',title = "File Save Failure",delay = 6)
@@ -312,7 +325,7 @@ Frame <- function(){
 
   ## 一个筛选框
   gl_bal <- glabel("Biclustering Algorithm:",container = bg_gl)
-  bal_value <- gWidgets::gdroplist(items = c('CC','Bimax','Qubic','rUnibic','Plaid','FABIA'),selected = 1, container = bg_gl)
+  bal_value <- gWidgets::gdroplist(items = c('CC','Bimax','Qubic','rUnibic','BiBit','Plaid','FABIA'),selected = 1, container = bg_gl)
   gseparator(horizontal = FALSE,container = bg_gl)
 
   #Button
@@ -322,6 +335,7 @@ Frame <- function(){
   gbutton("Run",container = bg_gl,handler = function(h,...){
 
     loma <<- data_source
+
     if (identical(svalue(bal_value),'CC')){
 
 
@@ -330,12 +344,31 @@ Frame <- function(){
 
       }else
       {
-        gmessage("Wait")
-        sbo <<- 1
-        re <<- biclust(loma, method=BCCC(), delta=0.5, alpha=1, number=100)
+        son_window = gwindow("Set_threshold",visible = FALSE)
+        son_g = ggroup(cont = son_window)
 
-        tt = re@Number
-        galert(paste0("The bicluster number is ",tt))
+        gl_note <- glabel("delta:",container=son_window)
+        minr_value <- gedit(text = "0.5", width = 4, container = son_window)
+        gl_note <- glabel("alpha:",container=son_window)
+        minc_value <- gedit(text="1",width = 4, container = son_window)
+        gl_note <- glabel("Number:",container=son_window)
+        numcc_value <- gedit(text="100",width = 4, container = son_window)
+
+        b_cc = gbutton("OK", cont=son_g, expand=TRUE)
+        addHandlerClicked(b_cc, function(...) {          ## adding a callback to an event
+          gmessage("Wait")
+          sbo <<- 1
+          minR <- as.numeric(svalue(minr_value))
+          minC <- as.numeric(svalue(minc_value))
+          Num_cc <- as.numeric(svalue(numcc_value))
+          re <<- biclust(loma, method=BCCC(), delta=minR, alpha=minC, number=Num_cc)
+
+          tt = re@Number
+          galert(paste0("The bicluster number is ",tt))
+        })
+
+        visible(son_window) = TRUE
+
 
       }
     }
@@ -345,12 +378,37 @@ Frame <- function(){
       if (length(loma)==0){
         galert("Please add or synthetic dataset first")
       }else{
-        gmessage("Wait")
-        sbo <<- 1
-        biloma = binarize(loma)
-        re <<- biclust(x=biloma,method=BCBimax(),minc=2,minr=2,number=10)
-        tt = re@Number
-        galert(paste0("The bicluster number is ",tt))
+
+        son_window1 = gwindow("Set_threshold",visible = FALSE)
+        son_g1 = ggroup(cont = son_window1)
+
+        gl_note1 <- glabel("minr:",container=son_window1)
+        minr_value1 <- gedit(text = "2", width = 4, container = son_window1)
+        gl_note1 <- glabel("minc:",container=son_window1)
+        minc_value1 <- gedit(text="2",width = 4, container = son_window1)
+        gl_note1 <- glabel("Number:",container=son_window1)
+        numcc_value1 <- gedit(text="100",width = 4, container = son_window1)
+
+        b_bimax = gbutton("OK", cont=son_g1, expand=TRUE)
+        addHandlerClicked(b_bimax, function(...) {          ## adding a callback to an event
+          gmessage("Wait")
+
+          bi_r = as.numeric(svalue(minr_value1))
+          bi_c = as.numeric(svalue(minc_value1))
+          bi_num = as.numeric(svalue(numcc_value1))
+
+          sbo <<- 1
+          biloma = binarize_C(loma)
+
+          re <<- biclust(x=biloma,method=BCBimax(),minc=bi_c,minr=bi_r,number=bi_num)
+          tt = re@Number
+          galert(paste0("The bicluster number is ",tt))
+
+        })
+
+        visible(son_window1) = TRUE
+
+
       }
 
     }
@@ -360,11 +418,72 @@ Frame <- function(){
       if (length(loma)==0){
         galert("Please add or synthetic dataset first")
       }else{
-        gmessage("Wait")
-        sbo <<- 1
-        re <<- biclust::biclust(loma,method = BCQU(),r=1,q=0.06,c=0.95,o=100,f=1)
-        tt = re@Number
-        galert(paste0("The bicluster number is ",tt))
+
+        son_window2 = gwindow("Set_threshold",visible = FALSE)
+        son_g2 = ggroup(cont = son_window2)
+
+        gl_note2 <- glabel("r:",container=son_window2)
+        r_value2 <- gedit(text = "1", width = 4, container = son_window2)
+        gl_note2 <- glabel("q:",container=son_window2)
+        q_value2 <- gedit(text="0.06",width = 4, container = son_window2)
+        gl_note2 <- glabel("c:",container=son_window2)
+        c_value2 <- gedit(text="0.95",width = 4, container = son_window2)
+        gl_note2 <- glabel("o:",container=son_window2)
+        o_value2 <- gedit(text="100",width = 4, container = son_window2)
+        gl_note2 <- glabel("f:",container=son_window2)
+        f_value2 <- gedit(text="1",width = 4, container = son_window2)
+
+        b_QUBIC = gbutton("OK", cont=son_g2, expand=TRUE)
+        addHandlerClicked(b_QUBIC, function(...) {          ## adding a callback to an event
+          gmessage("Wait")
+
+          qub_r = as.numeric(svalue(r_value2))
+          qub_q = as.numeric(svalue(q_value2))
+          qub_c = as.numeric(svalue(c_value2))
+          qub_o = as.numeric(svalue(o_value2))
+          qub_f = as.numeric(svalue(f_value2))
+
+          sbo <<- 1
+          re <<- biclust::biclust(loma,method = BCQU(),r=qub_r,q=qub_q,c=qub_c,o=qub_o,f=qub_f)
+          tt = re@Number
+          galert(paste0("The bicluster number is ",tt))
+
+        })
+
+        visible(son_window2) = TRUE
+
+      }
+
+    }
+    if(identical(svalue(bal_value),'BiBit')){
+      if (length(loma)==0){
+        galert("Please add or synthetic dataset first")
+      }else{
+
+        son_window4 = gwindow("Set_threshold",visible = FALSE)
+        son_g4 = ggroup(cont = son_window4)
+
+        gl_note4 <- glabel("minr:",container=son_window4)
+        bibit_r <- gedit(text = "10", width = 4, container = son_window4)
+        gl_note4 <- glabel("minc:",container=son_window4)
+        bibit_c <- gedit(text="10",width = 4, container = son_window4)
+
+        b_bibit = gbutton("OK", cont=son_g4, expand=TRUE)
+        addHandlerClicked(b_bibit, function(...) {
+
+          bit_minr = as.numeric(svalue(bibit_r))
+          bit_minc = as.numeric(svalue(bibit_c))
+
+          gmessage("Wait")
+          sbo <<- 1
+          biloma = binarize_C(loma)
+          re <<-  BiBitR::bibit(biloma, minr = bit_minr, minc = bit_minc)
+          tt = re@Number
+          galert(paste0("The bicluster number is ",tt))
+
+        })
+
+        visible(son_window4) = TRUE
 
       }
 
@@ -374,6 +493,8 @@ Frame <- function(){
       if (length(loma)==0){
         galert("Please add or synthetic dataset first")
       }else{
+
+
         gmessage("Wait")
         sbo <<- 1
         re <<-  runibic(loma)
@@ -402,12 +523,32 @@ Frame <- function(){
         galert("Please add or synthetic dataset first")
       }else
       {
-        sbf <<- 1
-        gmessage("Wait")
-        fre <<- fabia(loma,100,0.1,1000)
-        rb = extractBic(fre)
-        lrb = length(rb)
-        galert(paste0("The bicluster number is ",lrb))
+
+        son_window3 = gwindow("Set_threshold",visible = FALSE)
+        son_g3 = ggroup(cont = son_window3)
+
+        gl_note3 <- glabel("num:",container=son_window3)
+        num_value3 <- gedit(text = "1", width = 4, container = son_window3)
+        gl_note3 <- glabel("threshold:",container=son_window3)
+        ts_value3 <- gedit(text="0.06",width = 4, container = son_window3)
+        gl_note3 <- glabel("Cycle:",container=son_window3)
+        c_value3 <- gedit(text = "1", width = 4, container = son_window3)
+
+        b_fabia = gbutton("OK", cont=son_g3, expand=TRUE)
+        addHandlerClicked(b_fabia, function(...) {
+          fabia_num = as.numeric(svalue(num_value3))
+          fabia_ts = as.numeric(svalue(ts_value3))
+          fabia_c = as.numeric(svalue(c_value3))
+          sbf <<- 1
+          gmessage("Wait")
+          fre <<- fabia(loma,fabia_num,fabia_ts,fabia_c)
+          rb = extractBic(fre)
+          lrb = length(rb)
+          galert(paste0("The bicluster number is ",lrb))
+
+          })
+
+        visible(son_window3) = TRUE
 
       }
 
@@ -1151,3 +1292,22 @@ getover = function(gv,bv,av,size_bir,size_bic,bim,bgm,numv){
   }
   return(list(bim = bim,bgm = bgm))
 }
+
+binarize_C = function(R){
+  x = dim(R)
+  X = matrix(c(0),nrow = x[1],ncol = x[2])
+  for (i in 1:x[1]){
+    xmax = max(R[i,])
+    xmin = min(R[i,])
+    threshold = xmin + (xmax+xmin)/2
+    # threshold = xmin + (xmax-xmin)/2
+    for (j in 1:x[2]){
+      if (R[i,j]<threshold)
+        X[i,j] = 0
+      else
+        X[i,j] = 1
+    }
+  }
+  return(X)
+}
+
