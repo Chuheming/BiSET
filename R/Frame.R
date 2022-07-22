@@ -344,7 +344,7 @@ Frame <- function(){
 
       }else
       {
-        son_window = gwindow("Set_threshold",visible = FALSE)
+        son_window = gwindow("Set CC threshold",visible = FALSE)
         son_g = ggroup(cont = son_window)
 
         gl_note <- glabel("delta:",container=son_window)
@@ -358,6 +358,7 @@ Frame <- function(){
         addHandlerClicked(b_cc, function(...) {          ## adding a callback to an event
           gmessage("Wait")
           sbo <<- 1
+          sbf <<- 0
           minR <- as.numeric(svalue(minr_value))
           minC <- as.numeric(svalue(minc_value))
           Num_cc <- as.numeric(svalue(numcc_value))
@@ -379,7 +380,7 @@ Frame <- function(){
         galert("Please add or synthetic dataset first")
       }else{
 
-        son_window1 = gwindow("Set_threshold",visible = FALSE)
+        son_window1 = gwindow("Set Bimax threshold",visible = FALSE)
         son_g1 = ggroup(cont = son_window1)
 
         gl_note1 <- glabel("minr:",container=son_window1)
@@ -398,6 +399,7 @@ Frame <- function(){
           bi_num = as.numeric(svalue(numcc_value1))
 
           sbo <<- 1
+          sbf <<- 0
           biloma = binarize_C(loma)
 
           re <<- biclust(x=biloma,method=BCBimax(),minc=bi_c,minr=bi_r,number=bi_num)
@@ -419,7 +421,7 @@ Frame <- function(){
         galert("Please add or synthetic dataset first")
       }else{
 
-        son_window2 = gwindow("Set_threshold",visible = FALSE)
+        son_window2 = gwindow("Set QUBIC threshold",visible = FALSE)
         son_g2 = ggroup(cont = son_window2)
 
         gl_note2 <- glabel("r:",container=son_window2)
@@ -444,6 +446,7 @@ Frame <- function(){
           qub_f = as.numeric(svalue(f_value2))
 
           sbo <<- 1
+          sbf <<- 0
           re <<- biclust::biclust(loma,method = BCQU(),r=qub_r,q=qub_q,c=qub_c,o=qub_o,f=qub_f)
           tt = re@Number
           galert(paste0("The bicluster number is ",tt))
@@ -460,7 +463,7 @@ Frame <- function(){
         galert("Please add or synthetic dataset first")
       }else{
 
-        son_window4 = gwindow("Set_threshold",visible = FALSE)
+        son_window4 = gwindow("Set BiBit threshold",visible = FALSE)
         son_g4 = ggroup(cont = son_window4)
 
         gl_note4 <- glabel("minr:",container=son_window4)
@@ -476,6 +479,7 @@ Frame <- function(){
 
           gmessage("Wait")
           sbo <<- 1
+          sbf <<- 0
           biloma = binarize_C(loma)
           re <<-  BiBitR::bibit(biloma, minr = bit_minr, minc = bit_minc)
           tt = re@Number
@@ -497,6 +501,7 @@ Frame <- function(){
 
         gmessage("Wait")
         sbo <<- 1
+        sbf <<- 0
         re <<-  runibic(loma)
         tt = re@Number
         galert(paste0("The bicluster number is ",tt))
@@ -511,6 +516,7 @@ Frame <- function(){
       }else{
         gmessage("Wait")
         sbo <<- 1
+        sbf <<- 0
         re <<- biclust(loma, method = BCPlaid())#plaid
         tt = re@Number
         galert(paste0("The bicluster number is ",tt))
@@ -524,7 +530,7 @@ Frame <- function(){
       }else
       {
 
-        son_window3 = gwindow("Set_threshold",visible = FALSE)
+        son_window3 = gwindow("Set FABIA threshold",visible = FALSE)
         son_g3 = ggroup(cont = son_window3)
 
         gl_note3 <- glabel("num:",container=son_window3)
@@ -540,10 +546,11 @@ Frame <- function(){
           fabia_ts = as.numeric(svalue(ts_value3))
           fabia_c = as.numeric(svalue(c_value3))
           sbf <<- 1
+          sbo <<- 0
           gmessage("Wait")
           fre <<- fabia(loma,fabia_num,fabia_ts,fabia_c)
           rb = extractBic(fre)
-          lrb = length(rb)
+          lrb = rb$np
           galert(paste0("The bicluster number is ",lrb))
 
           })
@@ -649,7 +656,8 @@ Frame <- function(){
     my_path_raw = paste0(th,"\\raw.txt")
     raw = as.matrix(read.table(my_path_raw, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
     craw <<- raw
-    impr <<- dim(raw)
+    #impr <<- dim(raw)
+
     if (sbf == 1){
       if (identical(svalue(bal_value),'FABIA')){
         rb = extractBic(fre)
@@ -659,11 +667,12 @@ Frame <- function(){
           bicluster = rb$bic[i,]
           d = Get_data(bicluster,loma)
 
+
           cd = dim(d)
           if (is.null(cd)){
             score1[1,i] = 0
           }else{
-            score = Get_sc(cd,impr,craw,d)
+            score = Get_sc(impr,cd,craw,d)
 
             score1[1,i] = score
           }
@@ -691,7 +700,7 @@ Frame <- function(){
             d = as.matrix(re@RowxNumber[,1])
             #
             cd = dim(d)
-            score = Get_sc(cd,impr,craw,d)
+            score = Get_sc(impr,cd,craw,d)
             score1[1,pn] = score
           }
           score = mean(score1)
@@ -714,7 +723,7 @@ Frame <- function(){
      if (sbf == 1){
       if (identical(svalue(bal_value),'FABIA')){
         rb = extractBic(fre)
-        lrb = length(rb)
+        lrb = rb$np
         score1 = matrix(c(0),nrow = 1, ncol = lrb)
         for (i in 1:lrb){
           bicluster = rb$bic[i,]
@@ -766,6 +775,47 @@ Frame <- function(){
 
   })
 
+  gbutton("Others",container = bg_note,handler = function(h,...){
+    other_window = gwindow("Metrics",visible = FALSE)
+    other_g = ggroup(cont = other_window)
+    F_ow = gframe(horizontal = FALSE,container = other_window)
+    other_note <- glabel("Number of Bic:",container=F_ow)
+    num_value_other <- gedit(text = "1", width = 4, container = F_ow)
+    other_bal <- glabel("Metrics:",container = F_ow)
+    metrics_value <- gWidgets::gdroplist(items = c('VE','MSR','SMSR','VAR'),selected = 1, container = F_ow)
+
+    gbutton("Calculate",container = F_ow, handler = function(h,...){
+      sequence <- as.numeric(svalue(num_value_other))
+      if (identical(svalue(bal_value),'FABIA')){
+        rb1 = extractBic(fre)
+        bicluster_value = rb1$bic[sequence,]
+        dvalue = Get_data(bicluster_value,loma)
+
+      }else{
+        dvalue = loma[re@RowxNumber[,sequence],re@NumberxCol[sequence,]]
+      }
+
+      if (identical(svalue(metrics_value),'VE')){
+          VE_value = GET_VE(dvalue)
+          galert(paste0('VE: ',VE_value),title = "VE",delay = 6)
+      }else{
+        if (identical(svalue(metrics_value),'MSR')){
+          MSR_value = GET_MSR(dvalue)
+          galert(paste0('MSR: ',MSR_value),title = "MSR_value",delay = 6)
+        }else{
+          if (identical(svalue(metrics_value),'SMSR')){
+            SMSR_value = GET_SMSR(dvalue)
+            galert(paste0('SMSR: ',SMSR_value),title = "SMSR_value",delay = 6)
+          }else{
+            VAR_value = GET_VAR(dvalue)
+            galert(paste0('VAR: ',VAR_value),title = "VAR_value",delay = 6)
+          }
+        }
+      }
+    })
+
+    visible(other_window) = TRUE
+  })
   ##################################################
   ### Go enrichment
   ###
@@ -999,7 +1049,8 @@ Get_data = function(bicluster,loma){
       r[1,i] = gsub('[gene]','',r[1,i])
     }
     for (j in 1:ra[2]){
-      asd[1,j] = gsub('[V]','',asd[1,j])
+      asd[1,j] = gsub('[sample]','',asd[1,j])
+
     }
     r = as.matrix(t(as.numeric(r)))
     asd = as.matrix(t(as.numeric(asd)))
@@ -1311,3 +1362,105 @@ binarize_C = function(R){
   return(X)
 }
 
+GET_VE = function(x){
+  dimx = dim(x)
+  row = dimx[1]
+  col = dimx[2]
+  num_sum = row*col
+  mean_x = 0
+  sum_X = 0
+  for (i in 1:row){
+    mean_x = mean_x + sum(x[i,])
+  }
+  sum_x = mean_x
+  mean_x = mean_x/(row*col)
+
+  Sv = matrix(c(0),nrow = 1,ncol = row)
+
+  for (i in 1:row){
+    num = 0
+    for (j in 1:col){
+      num = num + x[i,j]
+    }
+    Sv[1,i] = num/col
+  }
+  mean_sd = sum(Sv)/row
+  Sd = matrix(c(0),nrow = 1, ncol = row)
+  for (i in 1:row){
+    sd = 0
+    for (j in 1:row){
+      sd = sd + (Sv[1,j]-mean_sd)*(Sv[1,j]-mean_sd)
+    }
+    Sd[1,i] = sqrt(sd/(row-1))
+  }
+  for (i in 1:row){
+    roh = (Sv[1,i]-mean_sd)/Sd[1,i]
+    for (j in 1:col){
+      sd_b = num_sum*x[i,j]-sum_x
+      b = (x[i,j]-mean_x)/sd_b
+      sum_X = sum_X + abs(b-roh)
+    }
+  }
+  value = sum_X/num_sum
+  return(value)
+}
+
+GET_MSR = function(x){
+  dimx = dim(x)
+  row = dimx[1]
+  col = dimx[2]
+  num_sum = row*col
+  mean_x = 0
+  for (i in 1:row){
+    mean_x = mean_x + sum(x[i,])
+  }
+  mean_x = mean_x/num_sum
+  t = 0
+  for (i in 1:row){
+    for (j in 1: col){
+      t = t + (x[i,j]-sum(x[i,])/col-sum(x[,j])/row+mean_x)*(x[i,j]-sum(x[i,])/col-sum(x[,j])/row+mean_x)
+    }
+  }
+  value = t/num_sum
+  return(value)
+}
+
+GET_SMSR = function(x){
+  dimx = dim(x)
+  row = dimx[1]
+  col = dimx[2]
+  num_sum = row*col
+  mean_x = 0
+  for (i in 1:row){
+    mean_x = mean_x + sum(x[i,])
+  }
+  mean_x = mean_x/num_sum
+  t = 0
+  for (i in 1:row){
+    for (j in 1: col){
+      t = t + ((sum(x[i,])/col*sum(x[,j])/row)-(x[i,j]*mean_x)*(sum(x[i,])/col*sum(x[,j])/row)-(x[i,j]*mean_x))/((sum(x[i,])/col)*(sum(x[i,])/col)*(sum(x[,j])/row)*(sum(x[,j])/row))
+    }
+  }
+  value = t/num_sum
+  return(value)
+}
+
+GET_VAR = function(x){
+  dimx = dim(x)
+  row = dimx[1]
+  col = dimx[2]
+  num_sum = row*col
+  mean_x = 0
+  for (i in 1:row){
+    mean_x = mean_x + sum(x[i,])
+  }
+  mean_x = mean_x/num_sum
+  t = 0
+  for (i in 1:row){
+    for (j in 1: col){
+      t = t + (x[i,j]-mean_x)*(x[i,j]-mean_x)
+    }
+  }
+  value = t/num_sum
+  return(value)
+}
