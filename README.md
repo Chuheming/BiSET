@@ -4,6 +4,10 @@ Install the package:
 
 devtools::install_github('Chuheming/BiSET')
 
+Start Running the package:
+
+BiSET：：Frame()
+
 BiSET can generate the synthetic dataset to verify the biclustering performance according to two evaluate method, Relevance and Recovery.
 
 # Usage
@@ -30,3 +34,4 @@ You only select the gene Symbol or ENSENBL and select the dataset specials, and 
 Then, click the button 'GO Analysis' or KEGG Analysis.
 
 Similarly, you also can save the enrichment resutl when you click the button 'Save_GO'
+
