@@ -354,7 +354,7 @@ Frame <- function(){
         gl_note <- glabel("Number:",container=son_window)
         numcc_value <- gedit(text="100",width = 4, container = son_window)
 
-        b_cc = gbutton("OK", cont=son_g, expand=TRUE)
+        b_cc = gbutton("Run", cont=son_g, expand=TRUE)
         addHandlerClicked(b_cc, function(...) {          ## adding a callback to an event
           gmessage("Wait")
           sbo <<- 1
@@ -390,7 +390,7 @@ Frame <- function(){
         gl_note1 <- glabel("Number:",container=son_window1)
         numcc_value1 <- gedit(text="100",width = 4, container = son_window1)
 
-        b_bimax = gbutton("OK", cont=son_g1, expand=TRUE)
+        b_bimax = gbutton("Run", cont=son_g1, expand=TRUE)
         addHandlerClicked(b_bimax, function(...) {          ## adding a callback to an event
           gmessage("Wait")
 
@@ -435,7 +435,7 @@ Frame <- function(){
         gl_note2 <- glabel("f:",container=son_window2)
         f_value2 <- gedit(text="1",width = 4, container = son_window2)
 
-        b_QUBIC = gbutton("OK", cont=son_g2, expand=TRUE)
+        b_QUBIC = gbutton("Run", cont=son_g2, expand=TRUE)
         addHandlerClicked(b_QUBIC, function(...) {          ## adding a callback to an event
           gmessage("Wait")
 
@@ -471,7 +471,7 @@ Frame <- function(){
         gl_note4 <- glabel("minc:",container=son_window4)
         bibit_c <- gedit(text="10",width = 4, container = son_window4)
 
-        b_bibit = gbutton("OK", cont=son_g4, expand=TRUE)
+        b_bibit = gbutton("Run", cont=son_g4, expand=TRUE)
         addHandlerClicked(b_bibit, function(...) {
 
           bit_minr = as.numeric(svalue(bibit_r))
@@ -540,7 +540,7 @@ Frame <- function(){
         gl_note3 <- glabel("Cycle:",container=son_window3)
         c_value3 <- gedit(text = "1", width = 4, container = son_window3)
 
-        b_fabia = gbutton("OK", cont=son_g3, expand=TRUE)
+        b_fabia = gbutton("Run", cont=son_g3, expand=TRUE)
         addHandlerClicked(b_fabia, function(...) {
           fabia_num = as.numeric(svalue(num_value3))
           fabia_ts = as.numeric(svalue(ts_value3))
@@ -786,32 +786,142 @@ Frame <- function(){
 
     gbutton("Calculate",container = F_ow, handler = function(h,...){
       sequence <- as.numeric(svalue(num_value_other))
-      if (identical(svalue(bal_value),'FABIA')){
-        rb1 = extractBic(fre)
-        bicluster_value = rb1$bic[sequence,]
-        dvalue = Get_data(bicluster_value,loma)
+      if (sequence>0){
+        if (identical(svalue(bal_value),'FABIA')){
+          rb1 = extractBic(fre)
+          bicluster_value = rb1$bic[sequence,]
+          dvalue = Get_data(bicluster_value,loma)
+        }else{
+          dvalue = loma[re@RowxNumber[,sequence],re@NumberxCol[sequence,]]
+        }
 
-      }else{
-        dvalue = loma[re@RowxNumber[,sequence],re@NumberxCol[sequence,]]
-      }
-
-      if (identical(svalue(metrics_value),'VE')){
+        if (identical(svalue(metrics_value),'VE')){
           VE_value = GET_VE(dvalue)
           galert(paste0('VE: ',VE_value),title = "VE",delay = 6)
-      }else{
-        if (identical(svalue(metrics_value),'MSR')){
-          MSR_value = GET_MSR(dvalue)
-          galert(paste0('MSR: ',MSR_value),title = "MSR_value",delay = 6)
         }else{
-          if (identical(svalue(metrics_value),'SMSR')){
-            SMSR_value = GET_SMSR(dvalue)
-            galert(paste0('SMSR: ',SMSR_value),title = "SMSR_value",delay = 6)
+          if (identical(svalue(metrics_value),'MSR')){
+            MSR_value = GET_MSR(dvalue)
+            galert(paste0('MSR: ',MSR_value),title = "MSR_value",delay = 6)
           }else{
-            VAR_value = GET_VAR(dvalue)
-            galert(paste0('VAR: ',VAR_value),title = "VAR_value",delay = 6)
+              if (identical(svalue(metrics_value),'SMSR')){
+                  SMSR_value = GET_SMSR(dvalue)
+                  galert(paste0('SMSR: ',SMSR_value),title = "SMSR_value",delay = 6)
+              }else{
+                  VAR_value = GET_VAR(dvalue)
+                  galert(paste0('VAR: ',VAR_value),title = "VAR_value",delay = 6)
+              }
           }
         }
+      }else{
+        if (sequence == 0){
+          if (identical(svalue(metrics_value),'VE')){
+            if (identical(svalue(bal_value),'FABIA')){
+              rb1 = extractBic(fre)
+              n = rb1$np
+              num_va = 0
+              for (ri in 1:n){
+                bicluster_value = rb1$bic[ri,]
+                dvalue = Get_data(bicluster_value,loma)
+                VE_value = GET_VE(dvalue)
+                num_va = num_va + VE_value
+              }
+              VE_value = num_va/n
+              galert(paste0('VE: ',VE_value),title = "VE_value",delay = 6)
+            }else{
+              n = re@Number
+              num_va = 0
+              for (ri in 1:n){
+                dvalue = loma[re@RowxNumber[,ri],re@NumberxCol[ri,]]
+                VE_value = GET_VE(dvalue)
+                num_va = num_va + VE_value
+              }
+              VE_value = num_va/n
+              galert(paste0('VE: ',VE_value),title = "VE_value",delay = 6)
+            }
+
+          }else{
+          if (identical(svalue(metrics_value),'MSR')){
+            if (identical(svalue(bal_value),'FABIA')){
+              rb1 = extractBic(fre)
+              n = rb1$np
+              num_va = 0
+              for (ri in 1:n){
+                bicluster_value = rb1$bic[ri,]
+                dvalue = Get_data(bicluster_value,loma)
+                MSR_value = GET_MSR(dvalue)
+                num_va = num_va + MSR_value
+              }
+              MSR_value = num_va/n
+              galert(paste0('MSR: ',MSR_value),title = "MSR_value",delay = 6)
+            }else{
+              n = re@Number
+              num_va = 0
+              for (ri in 1:n){
+                dvalue = loma[re@RowxNumber[,ri],re@NumberxCol[ri,]]
+                MSR_value = GET_MSR(dvalue)
+                num_va = num_va + MSR_value
+              }
+              MSR_value = num_va/n
+              galert(paste0('MSR: ',MSR_value),title = "MSR_value",delay = 6)
+            }
+          }else{
+            if (identical(svalue(metrics_value),'SMSR')){
+              if (identical(svalue(bal_value),'FABIA')){
+                rb1 = extractBic(fre)
+                n = rb1$np
+                num_va = 0
+                for (ri in 1:n){
+                  bicluster_value = rb1$bic[ri,]
+                  dvalue = Get_data(bicluster_value,loma)
+                  SMSR_value = GET_SMSR(dvalue)
+                  num_va = num_va + SMSR_value
+                }
+                SMSR_value = num_va/n
+                galert(paste0('MSR: ',SMSR_value),title = "SMSR_value",delay = 6)
+              }else{
+                n = re@Number
+                num_va = 0
+                for (ri in 1:n){
+                  dvalue = loma[re@RowxNumber[,ri],re@NumberxCol[ri,]]
+                  SMSR_value = GET_SMSR(dvalue)
+                  num_va = num_va + SMSR_value
+                }
+                SMSR_value = num_va/n
+                galert(paste0('MSR: ',SMSR_value),title = "SMSR_value",delay = 6)
+              }
+
+            }else{
+              if (identical(svalue(bal_value),'FABIA')){
+                rb1 = extractBic(fre)
+                n = rb1$np
+                num_va = 0
+                for (ri in 1:n){
+                  bicluster_value = rb1$bic[ri,]
+                  dvalue = Get_data(bicluster_value,loma)
+                  VAR_value = GET_VAR(dvalue)
+                  num_va = num_va + VAR_value
+                }
+                VAR_value = num_va/n
+                galert(paste0('MSR: ',VAR_value),title = "VAR_value",delay = 6)
+              }else{
+                n = re@Number
+                num_va = 0
+                for (ri in 1:n){
+                  dvalue = loma[re@RowxNumber[,ri],re@NumberxCol[ri,]]
+                  VAR_value = GET_VAR(dvalue)
+                  num_va = num_va + VAR_value
+                }
+                VAR_value = num_va/n
+                galert(paste0('MSR: ',VAR_value),title = "VAR_value",delay = 6)
+              }
+            }
+          }
+        }
+        }else{
+          galert("Input error, please try again!")
+        }
       }
+
     })
 
     visible(other_window) = TRUE
@@ -997,7 +1107,7 @@ Frame <- function(){
   })
   #################################################
   ##Set the size of the main window
-  size(win) <- c(700, 650)
+  size(win) <- c(700, 670)
   ##main window visible
   visible(win) <- TRUE
 
