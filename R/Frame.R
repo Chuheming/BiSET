@@ -102,7 +102,7 @@ Frame <- function(){
 
 
   #Overlapping
-  gl_Ol <- glabel("Overlapping_level:",container = bg_gl1)
+  gl_Ol <- glabel("Overlapping:",container = bg_gl1)
   Ol_value <- gWidgets::gdroplist(items = c('0','1'),selected = 1, container = bg_gl1)
   gseparator(horizontal = FALSE, container = bg_gl1)
 
@@ -139,7 +139,22 @@ Frame <- function(){
 
 
   gbutton("Generate", container=bg, handler=function(h,...){
-    Pva = svalue(Pa_value)
+    new_window = gwindow("Synthetic",visible = FALSE)
+    new_g = ggroup(cont = new_window)
+    N_ow = gframe(horizontal = FALSE,container = new_window)
+    N_note <- glabel("Alpha increment value per run:",container=N_ow)
+    al_value <- gedit(text = "0.02", width = 8, container = N_ow)
+    N_note <- glabel("Beta increment value per run:",container=N_ow)
+    bt_value <- gedit(text = "0.02", width = 8, container = N_ow)
+    N_note <- glabel("Gamma increment value per run:",container=N_ow)
+    gm_value <- gedit(text = "0.1", width = 8, container = N_ow)
+
+    a_al = as.numeric(svalue(al_value))
+    a_bt = as.numeric(svalue(bt_value))
+    a_gm = as.numeric(svalue(gm_value))
+
+    gbutton("Continue",container = N_ow, handler = function(h,...){
+      Pva = svalue(Pa_value)
     if (identical(Pva,'Shift')){
       Pva = 1
     }else{
@@ -180,7 +195,7 @@ Frame <- function(){
         if (Pva==1){
           # Shift partten
 
-          out = getshift(numv,av,bv,size_bir,size_bic,bim,bgm)
+          out = getshift(numv,av,bv,size_bir,size_bic,bim,bgm,a_al,a_bt,a_gm)
 
           bo_m = 1
           #all_bim <<- out$bim
@@ -191,14 +206,14 @@ Frame <- function(){
         } else{
           if (Pva == 2){
             # scale partten
-            out = getscale(numv,gv,bv,size_bir,size_bic,bim,bgm)
+            out = getscale(numv,gv,bv,size_bir,size_bic,bim,bgm,a_al,a_bt,a_gm)
             bo_m = 1
 
             bgm1 <<- out$bgm
             bim1 <<- out$bim
           }else{
             #shift-scale partten
-            out = getshiht_scale(numv,av,gv,bv,size_bir,size_bic,bim,bgm)
+            out = getshiht_scale(numv,av,gv,bv,size_bir,size_bic,bim,bgm,a_al,a_bt,a_gm)
             bo_m = 1
 
             bgm1 <<- out$bgm
@@ -214,7 +229,7 @@ Frame <- function(){
         # implant bicluster
         if (Pva==1){
           # shift
-          out = getshift(numv,av,bv,size_bir,size_bic,bim,bgm)
+          out = getshift(numv,av,bv,size_bir,size_bic,bim,bgm,a_al,a_bt,a_gm)
           bim1 <<- out$bim
           bgm1 <<- out$bgm
 
@@ -222,14 +237,14 @@ Frame <- function(){
         } else{
           if (Pva == 2){
             # scale
-            out = getscale(numv,gv,bv,size_bir,size_bic,bim,bgm)
+            out = getscale(numv,gv,bv,size_bir,size_bic,bim,bgm,a_al,a_bt,a_gm)
             bim1 <<- out$bim
             bgm1 <<- out$bgm
 
             bo_m = 1
           }else{
             #shift-scale partten
-            out = getshiht_scale(numv,av,gv,bv,size_bir,size_bic,bim,bgm)
+            out = getshiht_scale(numv,av,gv,bv,size_bir,size_bic,bim,bgm,a_al,a_bt,a_gm)
             bim1 <<- out$bim
             bgm1 <<- out$bgm
 
@@ -239,29 +254,61 @@ Frame <- function(){
       }
 
     }else{
+      overlap_window = gwindow("Overlapping",visible = FALSE)
+      overlap_g = ggroup(cont = overlap_window)
+      O_ow = gframe(horizontal = FALSE,container = overlap_window)
+      OL_note <- glabel("Number of Row overlapping:",container=O_ow)
+      Ro_value <- gedit(text = "5", width = 4, container = O_ow)
+      OL_note <- glabel("Number of Column overlapping:",container=O_ow)
+      Co_value <- gedit(text = "2", width = 4, container = O_ow)
+      gbutton("Generate",container = O_ow, handler = function(h,...){
 
-      if (level_noise == 0){
-        #no noise ,has overlapping (only in shift-scale partten)
-        # The overlapping interval defaults to two rows and five columns
-        #Build clusters
-        out = getover(gv,bv,av,size_bir,size_bic,bim,bgm,numv)
-        bo_m = 1
-        bim1 <<- out$bim
-        bgm1 <<- out$bgm
+        rv = as.numeric(svalue(Ro_value))
+        cv = as.numeric(svalue(Co_value))
+        if (rv<size_bir&&rv>0){
+          if (cv<size_bic&&cv>0){
+            if (level_noise == 0){
+                #no noise ,has overlapping (only in shift-scale partten)
+                # The overlapping interval defaults to two rows and five columns
+                #Build clusters
+
+                out = getover(gv,bv,av,size_bir,size_bic,bim,bgm,numv,rv,cv,a_al,a_bt,a_gm)
+                bo_m = 1
+                bim1 <<- out$bim
+                bgm1 <<- out$bgm
 
 
-      }else{
-        #noise , overlapping
-        for (i in 1:size_bgmr){
-          bgm[i,] = rnorm(size_bgmc,mean = 0, sd = 1)
+            }else{
+                #noise , overlapping
+                for (i in 1:size_bgmr){
+                  bgm[i,] = rnorm(size_bgmc,mean = 0, sd = 1)
+                }
+                out = getover(gv,bv,av,size_bir,size_bic,bim,bgm,numv,rv,cv,a_al,a_bt,a_gm)
+                bim1 = out$bim
+                bgm1 <<- out$bgm
+
+                bo_m <<- 1
+            }
+          }else
+            galert("Overlapping column value are not acceptable!")
+        }else
+          galert("Overlapping row value are not acceptable!")
+        if (bo_m == 1){
+          all_data <<- bgm1
+          all_bim <<- bim1
+          data_source <<- bgm1
+          pl <<- 1
+          if (isEmpty(all_data)){
+            galert('There is no output for the time',title = "File Save Failure",delay = 6)
+          }else{
+            galert('Synthetic Data success! ',title = "File Save Success",delay = 6)
+          }
+
         }
-        out = getover(gv,bv,av,size_bir,size_bic,bim,bgm,numv)
-        bim1 = out$bim
-        bgm1 <<- out$bgm
 
-        bo_m <<- 1
-      }
+      })
 
+      visible(overlap_window) = TRUE
     }
     if (bo_m == 1){
       all_data <<- bgm1
@@ -286,6 +333,9 @@ Frame <- function(){
       }
 
    }
+    })
+    visible(new_window) = TRUE
+
 
 
   })
@@ -1272,7 +1322,7 @@ executGO = function(genesymbol,speva,syva,pvalue){
   return(Go_all_result_enrich)
 }
 
-getshift = function(numv,av,bv,size_bir,size_bic,bim,bgm){
+getshift = function(numv,av,bv,size_bir,size_bic,bim,bgm,a_al,a_bt,a_gm){
   bo_m= 1
 
   for (i in 1:numv){
@@ -1286,9 +1336,9 @@ getshift = function(numv,av,bv,size_bir,size_bic,bim,bgm){
       bv1 = bv
       for (kk in m:mc){
         bgm[kk,k] = av1 + bv1
-        bv1 = bv1 + bv1*0.2
+        bv1 = bv1 + bv1*a_bt
       }
-      av1 = av1 + av1*0.2
+      av1 = av1 + av1*a_al
     }
   }
 
@@ -1299,14 +1349,14 @@ getshift = function(numv,av,bv,size_bir,size_bic,bim,bgm){
     bv1 = bv
     for (j in 1:size_bic){
       bim[j,i] = av1 + bv1
-      bv1 = bv1 + bv1*0.2
+      bv1 = bv1 + bv1*a_bt
     }
-    av1 = av1 + av1*0.2
+    av1 = av1 + av1*a_al
   }
   return(list(bim = bim,bgm = bgm))
 }
 
-getscale = function(numv,gv,bv,size_bir,size_bic,bim,bgm){
+getscale = function(numv,gv,bv,size_bir,size_bic,bim,bgm,a_al,a_bt,a_gm){
   bo_m = 1
   for (i in 1:numv){
     m = 1
@@ -1319,9 +1369,9 @@ getscale = function(numv,gv,bv,size_bir,size_bic,bim,bgm){
       bv1 = bv
       for (kk in m:mc){
         bgm[kk,k] = bv1 * gv1
-        gv1 = gv1 + gv1*0.02
+        gv1 = gv1 + gv1*a_gm
       }
-      bv1 = bv1 + bv1*0.02
+      bv1 = bv1 + bv1*a_bt
     }
   }
   #Build clusters
@@ -1331,14 +1381,14 @@ getscale = function(numv,gv,bv,size_bir,size_bic,bim,bgm){
     bv1 = bv
     for (j in 1:size_bic){
       bim[j,i] = bv1 * gv1
-      gv1 = gv1 + gv1*0.2
+      gv1 = gv1 + gv1*a_gm
     }
-    bv1 = bv1 + bv1*0.1
+    bv1 = bv1 + bv1*a_bt
   }
   return(list(bim = bim,bgm = bgm))
 }
 
-getshiht_scale = function(numv,av,gv,bv,size_bir,size_bic,bim,bgm){
+getshiht_scale = function(numv,av,gv,bv,size_bir,size_bic,bim,bgm,a_al,a_bt,a_gm){
   bo_m = 1
   for (i in 1:numv){
     m = 1
@@ -1352,10 +1402,10 @@ getshiht_scale = function(numv,av,gv,bv,size_bir,size_bic,bim,bgm){
       av1 = av
       for (kk in m:mc){
         bgm[kk,k] = av1 + bv1 * gv1
-        av1 = av1 + av1 * 0.05
-        bv1 = bv1 + bv1 * 0.2
+        av1 = av1 + av1 * a_al
+        bv1 = bv1 + bv1 * a_bt
       }
-      gv1 = gv1 + gv1*0.02
+      gv1 = gv1 + gv1*a_gm
     }
   }
   #Build clusters
@@ -1367,15 +1417,15 @@ getshiht_scale = function(numv,av,gv,bv,size_bir,size_bic,bim,bgm){
     av1 = av
     for (j in 1:size_bic){
       bim[j,i] = av1 + bv1 * gv1
-      av1 = av1 + av1 * 0.05
-      bv1 = bv1 + bv1 * 0.2
+      av1 = av1 + av1 * a_al
+      bv1 = bv1 + bv1 * a_bt
     }
-    gv1 = gv1 + gv1*0.02
+    gv1 = gv1 + gv1*a_gm
   }
   return(list(bim = bim,bgm = bgm))
 }
 
-getover = function(gv,bv,av,size_bir,size_bic,bim,bgm,numv){
+getover = function(gv,bv,av,size_bir,size_bic,bim,bgm,numv,rv,cv,a_al,a_bt,a_gm){
   gv1 = gv
 
   for(i in 1:size_bir){
@@ -1383,10 +1433,10 @@ getover = function(gv,bv,av,size_bir,size_bic,bim,bgm,numv){
     av1 = av
     for (j in 1:size_bic){
       bim[j,i] = av1 + bv1 * gv1
-      av1 = av1 + av1 * 0.05
-      bv1 = bv1 + bv1 * 0.2
+      av1 = av1 + av1 * a_al
+      bv1 = bv1 + bv1 * a_bt
     }
-    gv1 = gv1 + gv1*0.02
+    gv1 = gv1 + gv1*a_gm
   }
   all_bim <<- bim
 
@@ -1401,21 +1451,21 @@ getover = function(gv,bv,av,size_bir,size_bic,bim,bgm,numv){
     m = 1
 
     #column start position
-    cm = m+(i-1)*(size_bic-5)
+    cm = m+(i-1)*(size_bic-cv)
     #line start position
-    m = m+(i-1)*(size_bir-2)
+    m = m+(i-1)*(size_bir-rv)
     #line end positon
     mr = m+size_bir-1
-    fi1 = 3
+    fi1 = rv + 1
     for (k in 1:size_bir){
       if (i%%2==0){
         #odd i put fbim
 
-        if (k<=2){
-          jc <- cm+5
+        if (k<=rv){
+          jc <- cm+cv
           jcc = cm + size_bic-1
-          kk = 2-k+1
-          bgm[m,jc:jcc] = fbim[kk,1:5]
+          kk = rv-k+1
+          bgm[m,jc:jcc] = fbim[kk,1:cv]
           m = m + 1
         }else{
           j2 = cm + size_bir-1
@@ -1429,11 +1479,11 @@ getover = function(gv,bv,av,size_bir,size_bic,bim,bgm,numv){
         #
         if (i>1){
 
-          if (k<=2){
-            jc <- cm+5
+          if (k<=rv){
+            jc <- cm+cv
             jcc = cm + size_bic-1
-            kk = 2-k+1
-            sc = size_bic-5
+            kk = rv-k+1
+            sc = size_bic-cv
             bgm[m,jc:jcc] = bim[kk,1:sc]
             m = m + 1
           }else{
