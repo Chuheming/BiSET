@@ -7,9 +7,9 @@ devtools::install_github('Chuheming/BiSET')
 Start Running the package:
 
 
-1   library(BiSET)
+1,   library(BiSET)
 
-2   BiSET：：Frame()
+2,   BiSET：：Frame()
 
 
 BiSET can generate the synthetic dataset to verify the biclustering performance according to two evaluate method, Relevance and Recovery.
