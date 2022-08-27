@@ -782,8 +782,21 @@ Frame <- function(){
 
   })
   gbutton("Relevance",container = bg_note,handler = function(h,...){
-    my_path_raw = paste0(th,"\\raw.txt")
-    raw = as.matrix(read.table(my_path_raw, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
+    if(length(real_path)==0){
+      my_path_raw = paste0(th,"raw.txt")
+      raw = as.matrix(read.table(my_path_raw, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
+      galert('The biclust loaded Successfully!',delay = 2)
+    }else{
+      if (grepl("data_result.txt",real_path)){
+
+        my_path_raw = gsub("data_result.txt","raw.txt",real_path)
+
+        raw = as.matrix(read.table(my_path_raw, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
+        galert('The biclust loaded Successfully!',delay = 2)
+      }else{
+        galert('PLease input the raw bicluster data!',delay = 2)
+      }
+    }
     craw <<- raw
     impr <<- dim(raw)
      if (sbf == 1){
