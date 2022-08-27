@@ -751,11 +751,7 @@ Frame <- function(){
       if (sbo == 1){
         tt = re@Number
         if(tt>0){
-          rownum = re@RowxNumber
-          score1 = matrix(c(0),nrow = 1, ncol = tt)
-          num = dim(re@NumberxCol)
 
-          rnum = dim(re@RowxNumber)
           rownum = re@RowxNumber
           score1 = matrix(c(0),nrow = 1, ncol = tt)
           num = dim(re@NumberxCol)
@@ -763,7 +759,7 @@ Frame <- function(){
           rnum = dim(re@RowxNumber)
           for (pn in 1:tt){
             d = loma[re@RowxNumber[,pn],re@NumberxCol[pn,]]
-            d = as.matrix(re@RowxNumber[,1])
+            #d = as.matrix(re@RowxNumber[,1])
             #
             cd = dim(d)
             score = Get_sc(impr,cd,craw,d)
@@ -803,10 +799,12 @@ Frame <- function(){
       if (identical(svalue(bal_value),'FABIA')){
         rb = extractBic(fre)
         lrb = rb$np
+
         score1 = matrix(c(0),nrow = 1, ncol = lrb)
         for (i in 1:lrb){
           bicluster = rb$bic[i,]
           d = Get_data(bicluster,loma)
+
           cd = dim(d)
           if (is.null(cd)){
             score1[1,i] = 0
@@ -817,7 +815,7 @@ Frame <- function(){
           }
 
         }
-        score = max(score1)
+        score = mean(score1)
         galert(paste0("The Relevance score is: ",score))
 
       }
@@ -825,6 +823,7 @@ Frame <- function(){
 
       if (sbo == 1){
         tt = re@Number
+
         if (tt>0){
           rownum = re@RowxNumber
           score1 = matrix(c(0),nrow = 1, ncol = tt)
@@ -834,14 +833,14 @@ Frame <- function(){
           for (pn in 1:tt){
             d = loma[re@RowxNumber[,pn],re@NumberxCol[pn,]]
 
-            d = as.matrix(re@RowxNumber[,1])
+            #d = as.matrix(re@RowxNumber[,1])
 
-            cd = dim(d)
             score = Get_sc(cd,impr,d,craw)
 
             score1[1,pn] = score
           }
-          score = max(score1)
+
+          score = mean(score1)
           galert(paste0("The Relevance score is: ",score))
         }else{
           galert("No bicluster")
@@ -1205,19 +1204,15 @@ Get_sc = function(cd,impr,d1,raw1){
     {
       ints = intersect(d1[i,],raw1[j,])
       s = dim(as.matrix(ints))
-      intsr = s[2]
-
-      if ( sc < intsr){
-        sc = intsr
-        nsc = dim(as.matrix(union(d1[i,],raw1[j,])))
-
-        unsc = nsc[2]
+      intsr = s[1]
+      nsc = dim(as.matrix(union(d1[i,],raw1[j,])))
+      unsc = nsc[1]
+      scoret = intsr/unsc
+      if ( sc < scoret){
+        sc = scoret
       }
     }
-    if (unsc>0){
-      Sc[1,i] = sc/unsc
-
-    }
+    Sc[1,i] = sc
   }
   X = sum(Sc)/cd[1]
   return (X)
