@@ -45,7 +45,8 @@ Frame <- function(){
   # Synthetic open toolbar
   my_open <- gaction(label = "Open", icon = "open", handler = function(h,...){
     #Implement the handler function to open the GUI data that needs to be imported
-    real_path = choose.files(caption = "Choose One File (.txt)")
+    real_path <<- choose.files(caption = "Choose One File (.txt)")
+    print(real_path)
     if(length(real_path)==0)
       galert('Please Select the Files to be Processed', title = "Tips", delay = 6)
     else{
@@ -703,8 +704,23 @@ Frame <- function(){
   #synthetic lable
   gl_note <- glabel("Verify the simulate dataset",container=bg_note)
   gbutton("Recovery",container = bg_note,handler = function(h,...){
-    my_path_raw = paste0(th,"\\raw.txt")
-    raw = as.matrix(read.table(my_path_raw, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
+
+    if(length(real_path)==0){
+      my_path_raw = paste0(th,"raw.txt")
+      raw = as.matrix(read.table(my_path_raw, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
+      galert('The biclust loaded Successfully!',delay = 2)
+    }else{
+      if (grepl("data_result.txt",real_path)){
+
+        my_path_raw = gsub("data_result.txt","raw.txt",real_path)
+
+        raw = as.matrix(read.table(my_path_raw, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
+      galert('The biclust loaded Successfully!',delay = 2)
+      }else{
+        galert('PLease input the raw bicluster data!',delay = 2)
+      }
+    }
+
     craw <<- raw
     #impr <<- dim(raw)
 
