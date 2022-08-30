@@ -727,7 +727,7 @@ Frame <- function(){
     if (sbf == 1){
       if (identical(svalue(bal_value),'FABIA')){
         rb = extractBic(fre)
-        lrb = length(rb)
+        lrb = rb$np
         score1 = matrix(c(0),nrow = 1, ncol = lrb)
         for (i in 1:lrb){
           bicluster = rb$bic[i,]
