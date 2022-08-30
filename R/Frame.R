@@ -703,7 +703,7 @@ Frame <- function(){
 
   #synthetic lable
   gl_note <- glabel("Verify the simulate dataset",container=bg_note)
-  gbutton("Recovery",container = bg_note,handler = function(h,...){
+  gbutton("Relevance",container = bg_note,handler = function(h,...){
 
     if(length(real_path)==0){
       my_path_raw = paste0(th,"raw.txt")
@@ -777,7 +777,7 @@ Frame <- function(){
 
 
   })
-  gbutton("Relevance",container = bg_note,handler = function(h,...){
+  gbutton("Recovery",container = bg_note,handler = function(h,...){
     if(length(real_path)==0){
       my_path_raw = paste0(th,"raw.txt")
       raw = as.matrix(read.table(my_path_raw, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
