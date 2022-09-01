@@ -703,19 +703,19 @@ Frame <- function(){
 
   #synthetic lable
   gl_note <- glabel("Verify the simulate dataset",container=bg_note)
-  gbutton("Relevance",container = bg_note,handler = function(h,...){
+  gbutton("Recovery",container = bg_note,handler = function(h,...){
 
     if(length(real_path)==0){
       my_path_raw = paste0(th,"raw.txt")
       raw = as.matrix(read.table(my_path_raw, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
-      galert('The biclust loaded Successfully!',delay = 2)
+
     }else{
       if (grepl("data_result.txt",real_path)){
 
         my_path_raw = gsub("data_result.txt","raw.txt",real_path)
 
         raw = as.matrix(read.table(my_path_raw, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
-      galert('The biclust loaded Successfully!',delay = 2)
+
       }else{
         galert('PLease input the raw bicluster data!',delay = 2)
       }
@@ -777,18 +777,18 @@ Frame <- function(){
 
 
   })
-  gbutton("Recovery",container = bg_note,handler = function(h,...){
+  gbutton("Relevance",container = bg_note,handler = function(h,...){
     if(length(real_path)==0){
       my_path_raw = paste0(th,"raw.txt")
       raw = as.matrix(read.table(my_path_raw, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
-      galert('The biclust loaded Successfully!',delay = 2)
+
     }else{
       if (grepl("data_result.txt",real_path)){
 
         my_path_raw = gsub("data_result.txt","raw.txt",real_path)
 
         raw = as.matrix(read.table(my_path_raw, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
-        galert('The biclust loaded Successfully!',delay = 2)
+
       }else{
         galert('PLease input the raw bicluster data!',delay = 2)
       }
@@ -816,7 +816,7 @@ Frame <- function(){
 
         }
         score = mean(score1)
-        galert(paste0("The Relevance score is: ",score))
+        galert(paste0("The Relevance score is: ",score),delay = 6)
 
       }
     }else{
@@ -841,7 +841,7 @@ Frame <- function(){
           }
 
           score = mean(score1)
-          galert(paste0("The Relevance score is: ",score))
+          galert(paste0("The Relevance score is: ",score),delay = 6)
         }else{
           galert("No bicluster")
         }
@@ -1251,7 +1251,14 @@ Get_data = function(bicluster,loma){
       r[1,i] = gsub('[gene]','',r[1,i])
     }
     for (j in 1:ra[2]){
-      asd[1,j] = gsub('[sample]','',asd[1,j])
+      col_data = grepl("V",asd[1,j])
+
+      if (col_data){
+        asd[1,j] = gsub('[V]','',asd[1,j])
+
+      }else{
+        asd[1,j] = gsub('[sample]','',asd[1,j])
+      }
 
     }
     r = as.matrix(t(as.numeric(r)))
