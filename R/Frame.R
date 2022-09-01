@@ -1195,26 +1195,44 @@ Frame <- function(){
 Get_sc = function(cd,impr,d1,raw1){
   #
   cd = dim(d1)
+  A1 = unique(c(d1))
+  a1 = length(A1)
+  rara = dim(raw1)
 
-  Sc = matrix(c(0),nrow=1,ncol=cd[1])
-  for (i in 1 : cd[1]){
+  #Sc = matrix(c(0),nrow=1,ncol=cd[1])
+  Sc = matrix(c(0),nrow=1,ncol=a1)
+  # for (i in 1 : cd[1]){
+  #   sc = 0
+  #   unsc = 0
+  #   for (j in 1:impr[1])
+  #   {
+  #     ints = intersect(d1[i,],raw1[j,])
+  #     s = dim(as.matrix(ints))
+  #     intsr = s[1]
+  #     nsc = dim(as.matrix(union(d1[i,],raw1[j,])))
+  #     unsc = nsc[1]
+  #     scoret = intsr/unsc
+  #     if ( sc < scoret){
+  #       sc = scoret
+  #     }
+  #   }
+  #   Sc[1,i] = sc
+  # }
+  for (i in 1:a1){
     sc = 0
-    unsc = 0
-    for (j in 1:impr[1])
-    {
-      ints = intersect(d1[i,],raw1[j,])
-      s = dim(as.matrix(ints))
-      intsr = s[1]
-      nsc = dim(as.matrix(union(d1[i,],raw1[j,])))
-      unsc = nsc[1]
-      scoret = intsr/unsc
-      if ( sc < scoret){
-        sc = scoret
+    for (j in 1:rara[1]){
+      for (k in 1:rara[2]){
+        if (A1[i]==raw1[j,k]){
+          sc = sc + 1
+        }
+      }
+      if (sc>1){
+        sc = 1
       }
     }
     Sc[1,i] = sc
   }
-  X = sum(Sc)/cd[1]
+  X = sum(Sc)/(cd[1]*cd[2])
   return (X)
 }
 
