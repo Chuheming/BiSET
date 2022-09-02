@@ -1199,7 +1199,7 @@ Get_sc = function(cd,impr,d1,raw1){
   a1 = length(A1)
   rara = dim(raw1)
 
-  #Sc = matrix(c(0),nrow=1,ncol=cd[1])
+  # Sc = matrix(c(0),nrow=1,ncol=cd[1])
   Sc = matrix(c(0),nrow=1,ncol=a1)
   # for (i in 1 : cd[1]){
   #   sc = 0
@@ -1218,6 +1218,7 @@ Get_sc = function(cd,impr,d1,raw1){
   #   }
   #   Sc[1,i] = sc
   # }
+  # X = sum(Sc)/cd[1]
   for (i in 1:a1){
     sc = 0
     for (j in 1:rara[1]){

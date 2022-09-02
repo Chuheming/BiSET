@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: gWidgets interface for RGtk2Extras data editor widget</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body><div class="container">
+
+<table width="100%" summary="page for gdfedit {gWidgetsRGtk2}"><tr><td>gdfedit {gWidgetsRGtk2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>gWidgets interface for RGtk2Extras data editor widget</h2>
+
+<h3>Description</h3>
+
+<p>An alternative widget for editing a data frame using the
+RGtk2DfEdit package
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+gdfedit(items = NULL,
+        name = paste(deparse(substitute(items)), "1", sep="."),
+        container = NULL, ..., toolkit = guiToolkit())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>items</code></td>
+<td>
+<p>data frame to be edited</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>Name of data frame to save value to</p>
+</td></tr>
+<tr valign="top"><td><code>container</code></td>
+<td>
+<p>An optional container to attach widget to</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Can be used to overide default colors.</p>
+</td></tr>
+<tr valign="top"><td><code>toolkit</code></td>
+<td>
+<p>Which GUI toolkit to use</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>gdf</code> widget is used for editing data frames, but does not
+have the most natural keyboard handling. The <span class="pkg">RGtk2Extras</span> package by
+Tom Taverner provides a more powerful and easier to use interface for editing data
+frame, and this wraps that widget into gWidgetsRGtk2.
+</p>
+<p>The <code>addHandlerColumnClicked</code> function can be used to add a
+handler to the event when a column header is clicked. The component of
+the first argument <code>column.no</code> contains the column number.
+</p>
+<p>This widget is a bit different from the others as it is not imported
+from gWidgets. As such, it won't exist until this
+<span class="pkg">gWidgetsRGtk2</span> package is loaded. In practical terms, you need
+to realize a widget before this one can be realized.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code>gtable</code></p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+w&lt;-gwindow()
+g&lt;-ggroup(cont=w)
+df&lt;-gdfedit(iris, cont=g)
+
+## check names
+names(df)
+names(df)[1]&lt;-"new"
+rownames(df)
+colnames(df)
+
+## check [
+df[,]
+df[1,]
+df[,1]
+
+## no [&lt;- function
+## check dim stuff
+dim(df)
+length(df)
+
+## handler
+
+addHandlerColumnClicked(df, handler&lt;-function(h,...) {
+  print(h$column.no)
+})
+
+	
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>gWidgetsRGtk2</em> version 0.0-86 <a href="00Index.html">Index</a>]</div>
+</div></body></html>
