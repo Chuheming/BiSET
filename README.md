@@ -1,4 +1,4 @@
-# BiSET
+# BiSEAT
 
 The R version for developing BiSEAT toolbox is 4-1-3. Thus, please make sure that R version >= 4-1-3 when running BiSEAT.
 
