@@ -11,6 +11,7 @@ Start Running the package:
 
 2,   BiSET：：Frame()
 
+Please note that the "gWidgets2" package needs to be downloaded manually because it has been removed from the R language. Here, the "gWidgets2" package that needs to be downloaded manually has been uploaded to the folder "Packages". Please copy all the packages in the "Packages" folder to the R library with version greater than or equal to 4-1-3 when running the BiSEAT toolbox.
 
 BiSET can generate the synthetic dataset to verify the biclustering performance according to two evaluate method, Relevance and Recovery.
 
