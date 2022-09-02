@@ -39,7 +39,7 @@ Finally, you can click the button 'Save_Bic' to solve the result.
 This function will help you easily to get the enrichment result.
 The format of the analyzed gene sample is as follows:
 
-Symobol
+Symbol
 
 A
 
