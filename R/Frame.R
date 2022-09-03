@@ -25,8 +25,15 @@ Frame <- function(){
   if (!require("runibic", quietly = TRUE))
     BiocManager::install("runibic")
   library(runibic)
-  if (!require("QUBIC", quietly = TRUE))
+  if (!require("QUBIC", quietly = TRUE)){
+    install.packages("biclust")
+
+    install.packages("Rcpp")
+    install.packages("RcppArmadillo")
+    BiocManager::install("Bioconductor")
     devtools::install_github("zy26/QUBIC")
+  }
+
   library(QUBIC)
   library(fabia)
   #GO enrichment
