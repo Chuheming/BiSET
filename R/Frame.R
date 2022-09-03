@@ -1,6 +1,9 @@
 
 
 Frame <- function(){
+
+  if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
   #GUI
   library(tidyverse)
   library(stringr)
@@ -17,6 +20,8 @@ Frame <- function(){
   #Biclustering algorithm
   library(biclust)
   library(BiBitR)
+  if (!require("runibic", quietly = TRUE))
+    BiocManager::install("runibic")
   library(runibic)
   library(QUBIC)
   library(fabia)
