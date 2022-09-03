@@ -18,7 +18,7 @@ Frame <- function(){
   #图
   library(dplyr)
   library(ggplot2)
-  library(AnnotationDbi)
+
   #Biclustering algorithm
   library(biclust)
   library(BiBitR)
@@ -40,7 +40,7 @@ Frame <- function(){
   if (!require("org.Mm.eg.db", quietly = TRUE))
     BiocManager::install("org.Mm.eg.db")
   library(org.Mm.eg.db)
-
+  library(AnnotationDbi)
   real_path = all_data = data_source = NULL
   result_go = NULL
   # my_path_raw = NULL
