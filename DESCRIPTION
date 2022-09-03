@@ -20,7 +20,10 @@ Imports:
         ggplot2,
         biclust,
         BiBitR,
-        AnnotationDbi,
+        org.Hs.eg.db,
+        org.Mm.eg.db,
+        KEGG.db,
+        clusterProfiler,
 
 
 
