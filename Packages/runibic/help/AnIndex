@@ -1,0 +1,13 @@
+runibic-package	runibic
+backtrackLCS	backtrackLCS
+BCUnibic	runibic
+BCUnibic-class	BCUnibic-class
+BCUnibicD	runibic
+BCUnibicD-class	BCUnibicD-class
+calculateLCS	calculateLCS
+cluster	cluster
+pairwiseLCS	pairwiseLCS
+runibic	runibic
+runiDiscretize	runiDiscretize
+set_runibic_params	set_runibic_params
+unisort	unisort

@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Calculate a matrix of Longest Common Subsequence (LCS)...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pairwiseLCS {runibic}"><tr><td>pairwiseLCS {runibic}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Calculate a matrix of Longest Common Subsequence (LCS) 
+between a pair of numeric vectors</h2>
+
+<h3>Description</h3>
+
+<p>This function calculates the matrix with Longest Common Subsequence (LCS)
+between two numeric vectors. From given matrix we can locate the size 
+of the Longest Common Subsequence in the last column in the last row.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+pairwiseLCS(x, y)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>an integer vector</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>an integer vector</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a matrix computed using dynamic programming
+that stores the Longest Common Subsequence (LCS) between two vectors A and B.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../runibic/help/runibic.html">runibic</a></code>  <code><a href="../../runibic/help/calculateLCS.html">calculateLCS</a></code> <code><a href="../../runibic/help/backtrackLCS.html">backtrackLCS</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+A &lt;- c(1, 2, 3, 4, 5)
+B &lt;- c(1, 2, 4)
+pairwiseLCS(A, B)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>runibic</em> version 1.14.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

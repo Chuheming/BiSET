@@ -1,0 +1,60 @@
+Version 1.3.3
+Fixing warnings.
+
+Version 1.2.5
+Removing warnings.
+
+Version 1.2.4
+Updating references.
+
+Version 1.2.3
+Improvement of results for sets with a small number of columns.
+
+Version 1.2.2
+Fixing build warning/errors on Windows/OSX.
+
+Version 1.2.1
+Synchronizing the last change with Bioconductor 3.7
+
+Version 1.0.3
+Applying previous releases in the dev branch.
+
+Version 1.0.2
+Fix: modification of default parameters for small datasets in order to keep consistency between different sizes of the input.
+
+Version 0.99.14
+Updating tutorial, adding citation.
+
+Version 0.99.13
+Documentation to the package was updated. 
+
+Version 0.99.9
+Including required biocViews. Refactoring R code.
+
+Version 0.99.8
+Code optimizations.
+
+Version 0.99.6
+Parallel version using OpenMP.
+
+Version 0.99.5
+Fixing discretize() function bug.
+
+Version 0.99.2
+Improved performance of functions in package.
+Removing some errors and warnings.
+
+Version 0.99.1
+Compatibility with SummarizedExperiment.
+Providing documentation and examples.
+
+Version 0.99.0
+Development of the runibic package prototype completed.
+First upload to Bioconductor.
+
+Version 0.90.1
+Working version of UniBic algorithm.
+
+
+
+

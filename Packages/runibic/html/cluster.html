@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Calculate biclusters from sorted list of LCS scores and row...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cluster {runibic}"><tr><td>cluster {runibic}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Calculate biclusters from sorted list of LCS scores and row indices</h2>
+
+<h3>Description</h3>
+
+<p>This function search for biclusters in the input matrix. 
+The calculations are based on the integer matrix with indexes 
+indicating positions of j-th smallest element in each row 
+and the results from calculations of Longest Common Subsequence 
+between all rows in the input matrix. The paramteres of this function can be
+obtained from other functions provided by this package.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cluster(discreteInput, discreteInputValues, scores, geneOne, geneTwo, rowNumber,
+  colNumber)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>discreteInput</code></td>
+<td>
+<p>an integer matrix with indices of sorted columns</p>
+</td></tr>
+<tr valign="top"><td><code>discreteInputValues</code></td>
+<td>
+<p>an integer matrix with discrete values</p>
+</td></tr>
+<tr valign="top"><td><code>scores</code></td>
+<td>
+<p>a numeric vector with LCS length</p>
+</td></tr>
+<tr valign="top"><td><code>geneOne</code></td>
+<td>
+<p>a numeric vector with first row indexes 
+from pairwise LCS calculation</p>
+</td></tr>
+<tr valign="top"><td><code>geneTwo</code></td>
+<td>
+<p>a numeric vector with second row indexes 
+from pairwise LCS calculation</p>
+</td></tr>
+<tr valign="top"><td><code>rowNumber</code></td>
+<td>
+<p>a int with number of rows in the input matrix</p>
+</td></tr>
+<tr valign="top"><td><code>colNumber</code></td>
+<td>
+<p>a int with number of columns in the input matrix</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a list with information of found biclusters
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../runibic/help/runibic.html">runibic</a></code> <code><a href="../../runibic/help/calculateLCS.html">calculateLCS</a></code> <code><a href="../../runibic/help/unisort.html">unisort</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+A &lt;- matrix( c(4,3,1,2,5,8,6,7,9,10,11,12),nrow=4,byrow=TRUE)
+iA &lt;- unisort(A)
+lcsResults &lt;- calculateLCS(A)
+cluster(iA, A, lcsResults$lcslen, lcsResults$a, lcsResults$b, nrow(A), ncol(A))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>runibic</em> version 1.14.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

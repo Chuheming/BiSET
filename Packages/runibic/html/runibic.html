@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: runibic: parallel row-based biclustering algorithm for...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for runibic {runibic}"><tr><td>runibic {runibic}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>runibic: parallel row-based biclustering algorithm
+for analysis of gene expression data in R</h2>
+
+<h3>Description</h3>
+
+<p><code><a href="../../runibic/help/runibic.html">runibic</a></code> is a package that contains much faster parallel version of one of the most accurate biclustering algorithms, UniBic.
+The original method was reimplemented from C to C++11, OpenMP was added for parallelization.
+</p>
+<p>If you use this package, please cite it as:
+Patryk Orzechowski, Artur Pańszczyk, Xiuzhen Huang, Jason H Moore; 
+&quot;runibic: a Bioconductor package for parallel row-based biclustering of gene expression data&quot;;
+Bioinformatics, 2018, bty512,
+doi: https://doi.org/10.1093/bioinformatics/bty512
+</p>
+<p>Each of the following functions <code><a href="../../runibic/help/BCUnibic.html">BCUnibic</a></code>, <code><a href="../../runibic/help/BCUnibicD.html">BCUnibicD</a></code>, 
+<code><a href="../../runibic/help/runibic.html">runibic</a></code> perform biclustering
+using UniBic biclustering algorithm. The major difference
+between the functions is that <code><a href="../../runibic/help/BCUnibicD.html">BCUnibicD</a></code> require a discretized matrix, 
+whilst <code><a href="../../runibic/help/BCUnibic.html">BCUnibic</a></code> (or <code><a href="../../runibic/help/runibic.html">runibic</a></code>)
+could be applied to numeric one.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+BCUnibic(x = NULL, t = 0.95, q = 0, f = 1, nbic = 100, div = 0,
+  useLegacy = FALSE)
+
+BCUnibicD(x = NULL, t = 0.95, q = 0, f = 1, nbic = 100, div = 0,
+  useLegacy = FALSE)
+
+runibic(x = NULL, t = 0.95, q = 0, f = 1, nbic = 100, div = 0, useLegacy=FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>numeric or integer matrix (depends on the function)</p>
+</td></tr>
+<tr valign="top"><td><code>t</code></td>
+<td>
+<p>consistency level of the block (0.5-1.0].</p>
+</td></tr>
+<tr valign="top"><td><code>q</code></td>
+<td>
+<p>a double value for quantile discretization</p>
+</td></tr>
+<tr valign="top"><td><code>f</code></td>
+<td>
+<p>filtering overlapping blocks (default 1 do not remove any blocks)</p>
+</td></tr>
+<tr valign="top"><td><code>nbic</code></td>
+<td>
+<p>maximum number of biclusters in output</p>
+</td></tr>
+<tr valign="top"><td><code>div</code></td>
+<td>
+<p>number of ranks for up(down)-regulated genes: default: 0==ncol(x)</p>
+</td></tr>
+<tr valign="top"><td><code>useLegacy</code></td>
+<td>
+<p>boolean value for using legacy parameter settings</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>For a given input matrix we first perform discretization and create index matrix using <code><a href="../../runibic/help/runiDiscretize.html">runiDiscretize</a></code> function.
+The discretization is performed taking into account quantiles of the data.
+The resulting index matrix allows to detect order-preserving trends between each pair of the rows
+irrespective to the order of columns.
+After the ranking, the matrix is split by rows into subgroups based on the significance of the future biclusters.
+In each of the chunks, we calculate pairwise calculations of Longest Common Subsequence LCS between all pairs of the rows.
+LCS calculations are performed using dynamic programming and determine the longest order-preserving trend between each pair of the rows.
+After partitioning the matrix strict order-preserving biclusters are determined and later expanded
+to approximate-trend biclusters within <code><a href="../../runibic/help/cluster.html">cluster</a></code> function.
+</p>
+<p>This package provides 3 main functions:
+<code><a href="../../runibic/help/runibic.html">runibic</a></code> and <code><a href="../../runibic/help/BCUnibic.html">BCUnibic</a></code> perform UniBic biclustering algorithm on numeric data, whilst
+<code><a href="../../runibic/help/BCUnibicD.html">BCUnibicD</a></code> could be applied to integer ones. The latter two methods are compatible with <code><a href="../../biclust/help/Biclust.html">Biclust</a></code> class.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code><a href="../../biclust/help/Biclust.html">Biclust</a></code> object with detected biclusters
+</p>
+
+
+<h3>Functions</h3>
+
+
+<ul>
+<li> <p><code>BCUnibic</code>: <code><a href="../../runibic/help/BCUnibic.html">BCUnibic</a></code> performs biclustering using UniBic on numeric matrix.
+It is intended to use as a method called from <code><a href="../../biclust/help/biclust.html">biclust</a></code>.
+</p>
+</li>
+<li> <p><code>BCUnibicD</code>: perform biclustering using UniBic on integer matrix.
+It is intended to use as a method called from <code><a href="../../biclust/help/biclust.html">biclust</a></code>.
+</p>
+</li>
+<li> <p><code>runibic</code>: perform biclustering using UniBic on numeric matrix.
+</p>
+</li></ul>
+
+
+<h3>Author(s)</h3>
+
+<p>Patryk Orzechowski <a href="patryk.orzechowski@gmail.com">patryk.orzechowski@gmail.com</a>, Artur Pańszczyk <a href="panszczyk.artur@gmail.com">panszczyk.artur@gmail.com</a>
+</p>
+
+
+<h3>References</h3>
+
+<p>Wang, Zhenjia, et al. &quot;UniBic: Sequential row-based biclustering algorithm for analysis of gene expression data.&quot; Scientific reports 6 (2016): 23466.
+</p>
+<p>Patryk Orzechowski, Artur Pańszczyk, Xiuzhen Huang, Jason H. Moore: &quot;runibic: a Bioconductor package for parallel row-based biclustering of gene expression data&quot;, bioRxiv (2017): 210682, doi: https://doi.org/10.1101/210682
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../runibic/help/runiDiscretize.html">runiDiscretize</a></code> <code><a href="../../runibic/help/set_runibic_params.html">set_runibic_params</a></code> <code><a href="../../runibic/help/BCUnibic-class.html">BCUnibic-class</a></code> <code><a href="../../runibic/help/BCUnibicD-class.html">BCUnibicD-class</a></code> <code><a href="../../runibic/help/unisort.html">unisort</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+A &lt;- matrix(replicate(100, rnorm(100)), nrow=100, byrow=TRUE)
+runibic(A)
+BCUnibic(A)
+BCUnibic(A, t = 0.95, q = 0, f = 1, nbic = 100, div = 0)
+B &lt;- runiDiscretize(A)
+runibic(B)
+BCUnibicD(B, t = 0.95, q = 0, f = 1, nbic = 100, div = 0)
+biclust::biclust(A, method=BCUnibic(), t = 0.95, q = 0, f = 1, nbic = 100, div = 0)
+biclust::biclust(B, method=BCUnibicD(), t = 0.95, q = 0, f = 1, nbic = 100, div = 0)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>runibic</em> version 1.14.0 <a href="00Index.html">Index</a>]</div>
+</body></html>
