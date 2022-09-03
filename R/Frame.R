@@ -38,7 +38,7 @@ Frame <- function(){
   library(fabia)
   #GO enrichment
   if (!require("clusterProfiler", quietly = TRUE))
-    BiocManager::install("clusterProfiler")
+    BiocManager::install("clusterProfiler",indenpendences=TRUE, force = TRUE)
   library(clusterProfiler)
   library(KEGG.db)
   if (!require("org.Hs.eg.db", quietly = TRUE))
