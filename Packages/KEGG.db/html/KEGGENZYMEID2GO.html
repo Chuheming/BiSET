@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: An annotation data object that maps Enzyme Commission numbers...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body><div class="container">
+
+<table width="100%" summary="page for KEGGENZYMEID2GO {KEGG.db}"><tr><td>KEGGENZYMEID2GO {KEGG.db}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>An annotation data object that maps Enzyme Commission numbers to
+Gene Ontology identifiers</h2>
+
+<h3>Description</h3>
+
+<p>KEGGENZYMEID2GO maps Enzyme Commission numbers to Gene Ontoloty
+(GO) identifiers 
+</p>
+
+
+<h3>Details</h3>
+
+<p>This is an R object containing key and value pairs. Keys are
+Enzyme Commission numbers and values are GO identifiers. Values are vectors of
+length 1. Enzyme Commission numbers that can not be mapped to a GO
+term are assigned a value NA.
+</p>
+<p>Mappings were based on data provided by: Gene Ontology External Link  
+http://www.geneontology.org/external2go  
+With a date stamp from the source of: 2015-Sepec2go27
+</p>
+
+
+<h3>References</h3>
+
+<p><a href="ftp://ftp.genome.ad.jp/pub/kegg/pathways">ftp://ftp.genome.ad.jp/pub/kegg/pathways</a>
+</p>
+
+
+<h3>See Also</h3>
+
+
+<ul>
+<li> <p><code><a href="../../AnnotationDbi/help/AnnotationDb-class.html">AnnotationDb-class</a></code> for use of
+the <code>select()</code> interface.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+## select() interface:
+## Objects in this package can be accessed using the select() interface
+## from the AnnotationDbi package. See ?select for details.
+
+## Bimap interface:
+xx &lt;- as.list(KEGGENZYMEID2GO)
+if(length(xx) &gt; 0){
+    # Get the value of the first key
+    xx[[1]]
+    # Get values for a few keys
+    if(length(xx) &gt;= 3)
+        xx[1:3]
+    }
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>KEGG.db</em> version 3.2.3 <a href="00Index.html">Index</a>]</div>
+</div></body></html>
