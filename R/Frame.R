@@ -30,9 +30,15 @@ Frame <- function(){
   library(QUBIC)
   library(fabia)
   #GO enrichment
+  if (!require("clusterProfiler", quietly = TRUE))
+    BiocManager::install("clusterProfiler")
   library(clusterProfiler)
   library(KEGG.db)
+  if (!require("org.Hs.eg.db", quietly = TRUE))
+    BiocManager::install("org.Hs.eg.db")
   library(org.Hs.eg.db)
+  if (!require("org.Mm.eg.db", quietly = TRUE))
+    BiocManager::install("org.Mm.eg.db")
   library(org.Mm.eg.db)
 
   real_path = all_data = data_source = NULL
