@@ -33,6 +33,8 @@ Frame <- function(){
   if (!require("clusterProfiler", quietly = TRUE))
     BiocManager::install("clusterProfiler")
   library(clusterProfiler)
+  if (!require("KEGG.db", quietly = TRUE))
+    BiocManager::install("KEGG.db")
   library(KEGG.db)
   if (!require("org.Hs.eg.db", quietly = TRUE))
     BiocManager::install("org.Hs.eg.db")
