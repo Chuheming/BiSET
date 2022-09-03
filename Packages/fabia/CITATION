@@ -1,0 +1,31 @@
+citHeader("To cite package 'fabia' in publications use:")
+
+citEntry(entry="article",
+         title="{FABIA}: {F}actor Analysis for Bicluster Acquisition",
+         author=personList(as.person("Sepp Hochreiter"),
+                           as.person("Ulrich Bodenhofer"),
+                           as.person("Martin Heusel"),
+                           as.person("Andreas Mayr"),
+                           as.person("Andreas Mitterecker"),
+                           as.person("Adetayo Kasim"),
+                           as.person("Tatsiana Khamiakova"),
+                           as.person("Suzy Van Sanden"),
+                           as.person("Dan Lin"),
+                           as.person("Willem Talloen"),
+                           as.person("Luc Bijnens"),
+                           as.person("Hinrich W. H. G\"{o}hlmann"),
+                           as.person("Ziv Shkedy"),
+                           as.person("Djork-Arn\'e Clevert")),
+         journal="Bioinformatics",
+         volume="26",
+         number="12",
+         pages="1520-1527",
+         note="doi:10.1093/bioinformatics/btq227",
+         year="2010",
+         textVersion =
+             paste("S. Hochreiter et al.,",
+                   "FABIA: Factor Analysis for Bicluster Acquisition",
+                   "Bioinformatics 26(12):1520-1527, 2010."))
+
+citFooter("To obtain the references in BibTex format, enter",
+          "'toBibtex(citation(\"fabia\"))'")

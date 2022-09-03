@@ -4,6 +4,8 @@ Frame <- function(){
 
   if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
+  if (!require("devtools", quietly = TRUE))
+    install.packages("devtools")
   #GUI
   library(tidyverse)
   library(stringr)
@@ -23,9 +25,10 @@ Frame <- function(){
   if (!require("runibic", quietly = TRUE))
     BiocManager::install("runibic")
   library(runibic)
+  if (!require("QUBIC", quietly = TRUE))
+    devtools::install_github("zy26/QUBIC")
   library(QUBIC)
   library(fabia)
-  library(BiBitR)
   #GO enrichment
   library(clusterProfiler)
   library(KEGG.db)

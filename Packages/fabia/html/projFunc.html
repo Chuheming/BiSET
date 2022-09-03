@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Projection of a Vector to a Sparse Vector</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for projFunc {fabia}"><tr><td>projFunc {fabia}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Projection of a Vector to a Sparse Vector</h2>
+
+<h3>Description</h3>
+
+<p><code>projFunc</code>: <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> implementation of  <code>projFunc</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+
+projFunc(s, k1, k2)
+
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>s</code></td>
+<td>
+<p>data vector.</p>
+</td></tr>
+<tr valign="top"><td><code>k1</code></td>
+<td>
+<p>sparseness, l1 norm constraint.</p>
+</td></tr>
+<tr valign="top"><td><code>k2</code></td>
+<td>
+<p>l2 norm constraint.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The projection is done according to Hoyer, 2004: given an
+<i>l_1</i>-norm and an <i>l_2</i>-norm minimize the Euclidean distance
+to the original vector.
+The projection is a convex quadratic problem which is solved
+iteratively where at each iteration at least one component is set to
+zero.
+</p>
+<p>In the applications,
+instead of the  <i>l_1</i>-norm a sparseness measurement is used
+which relates the <i>l_1</i>-norm to the <i>l_2</i>-norm.
+</p>
+<p>Implementation in <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>.
+</p>
+
+
+<h3>Value</h3>
+
+<table summary="R valueblock">
+<tr valign="top"><td><code>v</code></td>
+<td>
+<p>sparse projected vector.</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Sepp Hochreiter</p>
+
+
+<h3>References</h3>
+
+<p>Patrik O. Hoyer,
+&lsquo;Non-negative Matrix Factorization with Sparseness Constraints&rsquo;,
+Journal of Machine Learning Research 5:1457-1469, 2004.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../fabia/help/fabia.html">fabia</a></code>,
+<code><a href="../../fabia/help/fabias.html">fabias</a></code>,
+<code><a href="../../fabia/help/fabiap.html">fabiap</a></code>,
+<code><a href="../../fabia/help/fabi.html">fabi</a></code>,
+<code><a href="../../fabia/help/fabiasp.html">fabiasp</a></code>,
+<code><a href="../../fabia/help/mfsc.html">mfsc</a></code>,
+<code><a href="../../fabia/help/nmfdiv.html">nmfdiv</a></code>,
+<code><a href="../../fabia/help/nmfeu.html">nmfeu</a></code>,
+<code><a href="../../fabia/help/nmfsc.html">nmfsc</a></code>,
+<code><a href="../../fabia/help/extractPlot.html">extractPlot</a></code>,
+<code><a href="../../fabia/help/extractBic.html">extractBic</a></code>,
+<code><a href="../../fabia/help/plotBicluster.html">plotBicluster</a></code>,
+<code><a href="../../fabia/help/Factorization.html">Factorization</a></code>,
+<code><a href="../../fabia/help/projFuncPos.html">projFuncPos</a></code>,
+<code><a href="../../fabia/help/projFunc.html">projFunc</a></code>,
+<code><a href="../../fabia/help/estimateMode.html">estimateMode</a></code>,
+<code><a href="../../fabia/help/makeFabiaData.html">makeFabiaData</a></code>,
+<code><a href="../../fabia/help/makeFabiaDataBlocks.html">makeFabiaDataBlocks</a></code>,
+<code><a href="../../fabia/help/makeFabiaDataPos.html">makeFabiaDataPos</a></code>,
+<code><a href="../../fabia/help/makeFabiaDataBlocksPos.html">makeFabiaDataBlocksPos</a></code>,
+<code><a href="../../fabia/help/matrixImagePlot.html">matrixImagePlot</a></code>,
+<code><a href="../../fabia/help/fabiaDemo.html">fabiaDemo</a></code>,
+<code><a href="../../fabia/help/fabiaVersion.html">fabiaVersion</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+#---------------
+# DEMO
+#---------------
+
+size &lt;- 30
+sparseness &lt;- 0.7
+
+s &lt;- as.vector(rnorm(size))
+sp &lt;- sqrt(1.0*size)-(sqrt(1.0*size)-1.0)*sparseness
+
+ss &lt;- projFunc(s,k1=sp,k2=1)
+
+s
+ss
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fabia</em> version 2.38.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,797 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Factorization instances</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for Factorization-class {fabia}"><tr><td>Factorization-class {fabia}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Factorization instances</h2>
+
+<h3>Description</h3>
+
+<p><code>Factorization</code> is a class to store results of matrix
+factorization algorithms. It has been designed for biclustering but
+can be used for  &quot;principal component analysis&quot;,
+&quot;singular value decomposition&quot;, &quot;independent component analysis&quot;,
+&quot;factor analysis&quot;, and &quot;non-negative matrix factorization&quot;.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+
+
+## S4 method for signature 'Factorization'
+plot(x, Rm=NULL, Cm=NULL, dim = c(1, 2),
+    zoom = rep(1, 2), col.group = NULL,
+    colors = c("orange1", "red", rainbow(length(unique(col.group)),
+               start=2/6, end=4/6)),
+    col.areas = TRUE, col.symbols = c(1, rep(2, length(unique(col.group)))),
+    sampleNames = TRUE, rot = rep(-1, length(dim)),
+    labels = NULL, label.tol = 0.1, lab.size = 0.725, col.size = 10,
+    row.size = 10, do.smoothScatter = FALSE, 
+    do.plot = TRUE, ... )
+
+## S4 method for signature 'Factorization'
+show(object)
+
+## S4 method for signature 'Factorization'
+showSelected(object, which=c(1,2,3,4))
+
+## S4 method for signature 'Factorization'
+summary(object, ...) 
+
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code></code></td>
+<td>
+<p><b>PLOT:</b></p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>object of the class <code>Factorization</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>Rm</code></td>
+<td>
+<p>row weighting vector. If <code>NULL</code>, it defaults to
+<code>rep(1,nrow(L(x)))</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>Cm</code></td>
+<td>
+<p>column weighting vector. If <code>NULL</code>, it defaults to
+<code>rep(1,ncol(Z(x)))</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>dim</code></td>
+<td>
+<p>optional principal factors that are plotted along the
+horizontal and vertical axis. Defaults to <code>c(1,2)</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>zoom</code></td>
+<td>
+<p>optional zoom factor for row and column items. Defaults to
+<code>c(1,1)</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>col.group</code></td>
+<td>
+<p>optional vector (character or numeric) indicating the
+different groupings of the columns. Defaults to 1.</p>
+</td></tr>
+<tr valign="top"><td><code>colors</code></td>
+<td>
+<p>vector specifying the colors for the annotation of the plot;
+the first two elements concern the rows; the third till the last element
+concern the columns; the first element will be used to color the unlabeled
+rows; the second element for the labeled rows and the remaining elements to
+give different colors to different groups of columns. Defaults to
+<code>c("orange1", "red", rainbow(length(unique(col.group)),
+    start=2/6, end=4/6))</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>col.areas</code></td>
+<td>
+<p>logical value indicating whether columns should be
+plotted as squares with areas proportional to their marginal mean
+and colors representing the different groups (<code>TRUE</code>), or with
+symbols representing the groupings and identical size
+(<code>FALSE</code>). Defaults to <code>TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>col.symbols</code></td>
+<td>
+<p>vector of symbols when <code>col.areas=FALSE</code>
+corresponds to the <code>pch</code> argument of the function <code>plot</code>.
+Defaults to <code>c(1, rep(2, length(unique(col.group))))</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>sampleNames</code></td>
+<td>
+<p>either a logical vector of length one or a character vector
+of length equal to the number of samples in the dataset. If a
+logical is provided, sample names will be displayed on the plot
+(<code>TRUE</code>; default) or not (<code>FALSE</code>); if a character vector
+is provided, the names provided will be used to label the samples
+instead of the default column names.</p>
+</td></tr>
+<tr valign="top"><td><code>rot</code></td>
+<td>
+<p>rotation of plot. Defaults to <code>c(-1,-1)</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>labels</code></td>
+<td>
+<p>character vector to be used for labeling points on the graph;
+if <code>NULL</code> (default), the row names of <code>x</code> are used instead.</p>
+</td></tr>
+<tr valign="top"><td><code>label.tol</code></td>
+<td>
+<p>numerical value specifying either the percentile
+(<code>label.tol&lt;=1</code>) of rows or the number of rows
+(<code>label.tol&gt;1</code>) most distant from the plot-center (0,0) that
+are labeled and are plotted as circles with area proportional to the
+marginal means of the original data. Defaults to <code>1</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>lab.size</code></td>
+<td>
+<p>size of identifying labels for row- and column-items
+as <code>cex</code> parameter of the <code>text</code> function. Defaults to
+<code>0.725</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>col.size</code></td>
+<td>
+<p>size of the column symbols in mm. Defaults to <code>10</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>row.size</code></td>
+<td>
+<p>size of the row symbols in mm. Defaults to <code>10</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>do.smoothScatter</code></td>
+<td>
+<p>use smoothScatter or not instead of plotting
+individual points. Defaults to <code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>do.plot</code></td>
+<td>
+<p>produce a plot or not. Defaults to <code>TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>further arguments are passed on to <code>eqscaleplotLoc</code>
+which draws the canvas for the plot; useful for adding a <code>main</code>
+or a custom <code>sub</code>.</p>
+</td></tr>
+<tr valign="top"><td><code></code></td>
+<td>
+<p><b>SHOW:</b></p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>An instance of <code><a href="../help/Factorization-class.html">Factorization-class</a></code>
+.</p>
+</td></tr>
+<tr valign="top"><td><code></code></td>
+<td>
+<p><b>SHOWSELECTED:</b></p>
+</td></tr>
+<tr valign="top"><td><code></code></td>
+<td>
+<p>see <code>object</code> at <code>show</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>which</code></td>
+<td>
+<p>used to provide a
+list of which plots should be generated: 1=the
+information content of biclusters, 2=the information content of
+samples, 3=the loadings per bicluster, 4=the factors per bicluster,
+default c(1,2,3,4).</p>
+</td></tr>
+<tr valign="top"><td><code></code></td>
+<td>
+<p><b>SUMMARY:</b></p>
+</td></tr>
+<tr valign="top"><td><code></code></td>
+<td>
+<p>see <code>object</code> at <code>show</code>.</p>
+</td></tr>
+<tr valign="top"><td><code></code></td>
+<td>
+<p>... further arguments.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+
+<dl>
+<dt><b>Plot</b></dt><dd><p>Produces a biplot of a matrix factorization result stored in an
+instance of the Factorization class.</p>
+</dd>
+</dl>
+<p>The function <code>plot</code> is based on
+the function <code>plot.mpm</code> in the <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> package <code>mpm</code>
+(Version: 1.0-16, Date: 2009-08-26, Title: Multivariate Projection
+Methods, Maintainer: Tobias Verbeke &lt;tobias.verbeke@openanalytics.be&gt;,
+Author: Luc Wouters &lt;wouters_luc@telenet.be&gt;).
+</p>
+<p>Biclusters are found by sparse factor analysis where <em>both</em> the factors
+and the loadings are sparse.
+</p>
+<p>Essentially the model is the sum of
+outer products of vectors:
+</p>
+<p style="text-align: center;"><i>X  =  &sum;_{i=1}^{p} &lambda;_i  z_i^T  +  U</i></p>
+
+<p>where the number of summands  <i>p</i>
+is the number of biclusters.
+The matrix factorization is
+</p>
+<p style="text-align: center;"><i>X  =  L  Z  +  U</i></p>
+
+<p>Here <i>&lambda;_i</i> are from <i>R^n</i>, <i>z_i</i> from
+<i>R^l</i>, <i>L</i> from <i>R^{n \times p}</i>,
+<i>Z</i> from <i>R^{p \times l}</i>, and <i>X</i>, <i>U</i>
+from <i>R^{n \times l}</i>.
+</p>
+<p>For noise free projection like independent component analysis
+we set the noise term to zero: <i>U=0</i>.
+</p>
+<p>The argument <code>label.tol</code> can be used to select the
+most informative rows, i.e. rows that are most distant from the
+center of the plot
+(smaller 1: percentage of rows, larger 1: number of rows). 
+</p>
+<p>Only these row-items are then labeled and represented as circles with
+their areas proportional to the row weighting.
+</p>
+<p>If the column-items are grouped these groups can be visualized by
+colors given  by <code>col.group</code>.
+</p>
+<dl>
+<dt><b>Show</b></dt><dd><p>Statistics of a matrix factorization result stored in
+an instance of the Factorization class.</p>
+</dd>
+</dl>
+<p>This function supplies statistics on a matrix factorization result
+which is stored as an instance of
+<code><a href="../help/Factorization-class.html">Factorization-class</a></code>.
+</p>
+<p>The following is plotted:
+</p>
+
+<ol>
+<li><p>the information content of biclusters.
+</p>
+</li>
+<li><p>the information content of samples.
+</p>
+</li>
+<li><p>the loadings per bicluster.
+</p>
+</li>
+<li><p>the factors per bicluster.
+</p>
+</li></ol>
+
+<dl>
+<dt><b>ShowSelected</b></dt><dd>
+<p>Lists selected statistics of a matrix factorization
+result stored in an instance of the Factorization class.</p>
+</dd>
+</dl>
+<p>This function supplies selected statistics on a matrix factorization result
+which is stored as an instance of
+<code><a href="../help/Factorization-class.html">Factorization-class</a></code>.
+</p>
+<p>The following is plotted depending on the display selection
+variable <code>which</code>:
+</p>
+
+<ol>
+<li><p>the information content of biclusters.
+</p>
+</li>
+<li><p>the information content of samples.
+</p>
+</li>
+<li><p>the loadings per bicluster.
+</p>
+</li>
+<li><p>the factors per bicluster.
+</p>
+</li></ol>
+
+<dl>
+<dt><b>Summary</b></dt><dd><p> Summary of matrix factorization result stored in an instance
+of the Factorization class.</p>
+</dd>
+</dl>
+<p>This function gives information on a matrix factorization result
+which is stored as an instance of
+<code><a href="../help/Factorization-class.html">Factorization-class</a></code>.
+</p>
+<p>The summary consists of following items:
+</p>
+
+<ol>
+<li><p>the number or rows and columns of the original matrix.
+</p>
+</li>
+<li><p>the number of clusters for rows and columns is given.
+</p>
+</li>
+<li><p>for the row cluster the information content is given.
+</p>
+</li>
+<li><p>for each column its information is given.
+</p>
+</li>
+<li><p>for each column cluster a summary is given.
+</p>
+</li>
+<li><p>for each row cluster a summary is given.
+</p>
+</li></ol>
+
+
+
+
+<h3>Value</h3>
+
+<table summary="R valueblock">
+<tr valign="top"><td><code></code></td>
+<td>
+<p><b>FACTORIZATION:</b></p>
+</td></tr>
+<tr valign="top"><td><code></code></td>
+<td>
+<p>An instance of <code><a href="../help/Factorization-class.html">Factorization-class</a></code>
+.</p>
+</td></tr>
+<tr valign="top"><td><code></code></td>
+<td>
+<p><b>PLOT:</b></p>
+</td></tr>
+<tr valign="top"><td><code>Rows</code></td>
+<td>
+<p>a list with the X and Y coordinates of the rows and
+an indication <code>Select</code> of whether the row was selected
+according to <code>label.tol</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>Columns</code></td>
+<td>
+<p>a list with the X and Y coordinates of the columns.</p>
+</td></tr>
+<tr valign="top"><td><code></code></td>
+<td>
+<p><b>SHOW:</b></p>
+</td></tr>
+<tr valign="top"><td><code></code></td>
+<td>
+<p>no value.</p>
+</td></tr>
+<tr valign="top"><td><code></code></td>
+<td>
+<p><b>SHOWSELECTED:</b></p>
+</td></tr>
+<tr valign="top"><td><code></code></td>
+<td>
+<p>no value.</p>
+</td></tr>
+<tr valign="top"><td><code></code></td>
+<td>
+<p><b>SUMMARY:</b></p>
+</td></tr>
+<tr valign="top"><td><code></code></td>
+<td>
+<p>no value.</p>
+</td></tr>
+</table>
+
+
+<h3>Slots</h3>
+
+<p>Objects of class <code>Factorization</code> have the following slots:
+</p>
+
+<dl>
+<dt><code>parameters</code>:</dt><dd><p>Saves parameters of the factorization
+method in a list: (&quot;method&quot;,&quot;number of cycles&quot;,&quot;sparseness
+weight&quot;,&quot;sparseness prior for loadings&quot;,&quot;sparseness prior for
+factors&quot;,&quot;number biclusters&quot;,&quot;projection sparseness loadings&quot;,
+&quot;projection sparseness factors&quot;,&quot;initialization range&quot;,&quot;are loadings
+rescaled after each iterations&quot;,&quot;normalization = scaling of
+rows&quot;,&quot;centering method of rows&quot;,&quot;parameter for method&quot;).</p>
+</dd>
+<dt><code>n</code>:</dt><dd><p> number of rows, left dimension.</p>
+</dd>
+<dt><code>p1</code>:</dt><dd><p> right dimension of left matrix.</p>
+</dd>
+<dt><code>p2</code>:</dt><dd><p> left dimension of right matrix.</p>
+</dd>
+<dt><code>l</code>:</dt><dd><p> number of columns, right dimension.</p>
+</dd>
+<dt><code>center</code>:</dt><dd><p> vector of the centers.</p>
+</dd>
+<dt><code>scaleData</code>:</dt><dd><p> vector of the scaling factors.</p>
+</dd>
+<dt><code>X</code>:</dt><dd><p> centered and scaled data matrix n x l.</p>
+</dd>
+<dt><code>L</code>:</dt><dd><p> left matrix n x p1.</p>
+</dd> 
+<dt><code>Z</code>:</dt><dd><p> right matrix p2 x l.</p>
+</dd>
+<dt><code>M</code>:</dt><dd><p> middle matrix p1 x p2.</p>
+</dd>
+<dt><code>LZ</code>:</dt><dd><p> matrix L x M x Z.</p>
+</dd>
+<dt><code>U</code>:</dt><dd><p> noise matrix.</p>
+</dd>
+<dt><code>avini</code>:</dt><dd><p>  information of each bicluster, vector
+of length p2.</p>
+</dd> 
+<dt><code>xavini</code>:</dt><dd><p>  information extracted from each sample, vector
+of length l.</p>
+</dd> 
+<dt><code>ini</code>:</dt><dd><p> information of each bicluster in each
+sample, matrix p2 x l.</p>
+</dd>
+<dt><code>Psi</code>:</dt><dd><p> noise variance per row, vector of length n.</p>
+</dd>
+<dt><code>lapla</code>:</dt><dd><p> prior information for each sample,
+vector of length l.</p>
+</dd>    
+</dl>
+
+
+
+<h3>Constructor</h3>
+
+<p>Constructor of
+class Factorization.
+</p>
+<p><code>Factorization(parameters=list(),n=1,p1=1,p2=1,l=1,center=as.vector(1),scaleData=as.vector(1),X=as.matrix(1),L=as.matrix(1),Z=as.matrix(1),M=as.matrix(1),LZ=as.matrix(1),U=as.matrix(1),avini=as.vector(1),xavini=as.vector(1),ini=as.matrix(1),Psi=as.vector(1),lapla=as.matrix(1))</code>
+</p>
+
+
+<h3>Accessors</h3>
+
+<p>In the following <code>x</code> denotes a Factorization object.
+</p>
+
+<dl>
+<dt></dt><dd>
+<p><code>parameters(x)</code>, <code>parameters(x) &lt;- value</code>:
+Returns or sets <code>parameters</code>, where the return value and
+<code>value</code> are both an instance of <code>list</code>. Parameters of the factorization
+method are stored in a list: (&quot;method&quot;,&quot;number of cycles&quot;,&quot;sparseness
+weight&quot;,&quot;sparseness prior for loadings&quot;,&quot;sparseness prior for
+factors&quot;,&quot;number biclusters&quot;,&quot;projection sparseness loadings&quot;,
+&quot;projection sparseness factors&quot;,&quot;initialization range&quot;,&quot;are loadings
+rescaled after each iterations&quot;,&quot;normalization = scaling of
+rows&quot;,&quot;centering method of rows&quot;,&quot;parameter for method&quot;).
+</p>
+</dd>
+<dt></dt><dd>
+<p><code>n(x)</code>, <code>n(x) &lt;- value</code>:
+Returns or sets <code>n</code>, where the return value and
+<code>value</code> are both an instance of <code>numeric</code>. Number of rows, left dimension.
+</p>
+</dd>
+<dt></dt><dd>
+<p><code>p1(x)</code>, <code>p1(x) &lt;- value</code>:
+Returns or sets <code>p1</code>, where the return value and
+<code>value</code> are both an instance of <code>numeric</code>. Right dimension of left matrix
+</p>
+</dd>
+<dt></dt><dd>
+<p><code>p2(x)</code>, <code>p2(x) &lt;- value</code>:
+Returns or sets <code>p2</code>, where the return value and
+<code>value</code> are both an instance of <code>numeric</code>.
+Left dimension of right matrix.
+</p>
+</dd>
+<dt></dt><dd>
+<p><code>l(x)</code>, <code>l(x) &lt;- value</code>:
+Returns or sets <code>l</code>, where the return value and
+<code>value</code> are both an instance of <code>numeric</code>.
+Number of columns, right dimension.
+</p>
+</dd>
+<dt></dt><dd>
+<p><code>center(x)</code>, <code>center(x) &lt;- value</code>:
+Returns or sets <code>center</code>, where the return value and
+<code>value</code> are both an instance of <code>numeric</code>.
+Vector of the centers.
+</p>
+</dd>
+<dt></dt><dd>
+<p><code>scaleData(x)</code>, <code>scaleData(x) &lt;- value</code>:
+Returns or sets <code>scaleData</code>, where the return value and
+<code>value</code> are both an instance of <code>numeric</code>.
+Vector of the scaling factors.
+</p>
+</dd>
+<dt></dt><dd>
+<p><code>X(x)</code>, <code>X(x) &lt;- value</code>:
+Returns or sets <code>X</code>, where the return value and
+<code>value</code> are both an instance of <code>matrix</code>.
+Centered and scaled data matrix n x l.
+</p>
+</dd>
+<dt></dt><dd>
+<p><code>L(x)</code>, <code>L(x) &lt;- value</code>:
+Returns or sets <code>L</code>, where the return value and
+<code>value</code> are both an instance of <code>matrix</code>.
+Left matrix n x p1.
+</p>
+</dd>
+<dt></dt><dd>
+<p><code>Z(x)</code>, <code>Z(x) &lt;- value</code>:
+Returns or sets <code>Z</code>, where the return value and
+<code>value</code> are both an instance of <code>matrix</code>.
+Right matrix p2 x l.
+</p>
+</dd>
+<dt></dt><dd>
+<p><code>M(x)</code>, <code>M(x) &lt;- value</code>:
+Returns or sets <code>M</code>, where the return value and
+<code>value</code> are both an instance of <code>matrix</code>.
+Middle matrix p1 x p2.
+</p>
+</dd>
+<dt></dt><dd>
+<p><code>LZ(x)</code>, <code>LZ(x) &lt;- value</code>:
+Returns or sets <code>LZ</code>, where the return value and
+<code>value</code> are both an instance of <code>matrix</code>.
+Matrix L x M x Z.
+</p>
+</dd>
+<dt></dt><dd>
+<p><code>U(x)</code>, <code>U(x) &lt;- value</code>:
+Returns or sets <code>U</code>, where the return value and
+<code>value</code> are both an instance of <code>matrix</code>.
+Noise matrix.
+</p>
+</dd>
+<dt></dt><dd>
+<p><code>avini(x)</code>, <code>avini(x) &lt;- value</code>:
+Returns or sets <code>avini</code>, where the return value and
+<code>value</code> are both an instance of <code>numeric</code>.
+Information of each bicluster, vector
+of length p2.
+</p>
+</dd>
+<dt></dt><dd>
+<p><code>xavini(x)</code>, <code>xavini(x) &lt;- value</code>:
+Returns or sets <code>xavini</code>, where the return value and
+<code>value</code> are both an instance of <code>numeric</code>.
+Information extracted from each sample, vector
+of length l.
+</p>
+</dd>
+<dt></dt><dd>
+<p><code>ini(x)</code>, <code>ini(x) &lt;- value</code>:
+Returns or sets <code>ini</code>, where the return value and
+<code>value</code> are both an instance of <code>matrix</code>.
+Information of each bicluster in each
+sample, matrix p2 x l.
+</p>
+</dd>
+<dt></dt><dd>
+<p><code>Psi(x)</code>, <code>Psi(x) &lt;- value</code>:
+Returns or sets <code>Psi</code>, where the return value and
+<code>value</code> are both an instance of <code>numeric</code>.
+Noise variance per row, vector of length n.
+</p>
+</dd>
+<dt></dt><dd>
+<p><code>lapla(x)</code>, <code>lapla(x) &lt;- value</code>:
+Returns or sets <code>lapla</code>, where the return value and
+<code>value</code> are both an instance of <code>matrix</code>.
+Prior information for each sample,
+vector of length l.
+</p>
+</dd>
+</dl>
+
+
+
+<h3>Signatures</h3>
+
+
+<dl>
+<dt>plot</dt><dd><p><code>signature(x = "Factorization", y = "missing")</code></p>
+</dd></dl>
+<p> Plot of a matrix factorization result
+</p>
+<dl>
+<dt>show</dt><dd><p><code>signature(object = "Factorization")</code></p>
+</dd></dl>
+<p> Display statistics of a matrix factorization result
+</p>
+<dl>
+<dt>showSelected</dt><dd><p><code>signature(object = "Factorization", which =
+  "numeric")</code></p>
+</dd></dl>
+<p> Display
+particular statistics of a matrix factorization result
+</p>
+<dl>
+<dt>summary</dt><dd><p><code>signature(object = "Factorization")</code></p>
+</dd></dl>
+<p> Summary of matrix factorization result
+</p>
+
+
+
+<h3>Functions that return objects of this class</h3>
+
+<p>Factorization objects are returned by <code>fabia</code>, <code>fabias</code>, <code>fabiap</code>,
+<code>fabiasp</code>,  <code>mfsc</code>, <code>nmfsc</code>,
+<code>nmfdiv</code>, and <code>nmfeu</code>.</p>
+
+
+<h3>Extension to store results of other methods</h3>
+
+<p>The class <code>Factorization</code> may contain the result of different matrix factorization
+methods. The methods may be generative or not.
+</p>
+<p>Methods my be &quot;singular value decomposition&quot; (M contains singular values
+as well as avini, L and Z are orthonormal matrices),
+&quot;independent component analysis&quot; (Z contains the projection/sources, L is the
+mixing matrix, M is unity), &quot;factor analysis&quot; (Z contains factors, L the loadings,
+M is unity, U the noise, Psi the noise covariance, lapla is a
+variational parameter for non-Gaussian factors, avini and ini are the
+information the factors convey about the observations).      
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Sepp Hochreiter</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../fabia/help/fabia.html">fabia</a></code>,
+<code><a href="../../fabia/help/fabias.html">fabias</a></code>,
+<code><a href="../../fabia/help/fabiap.html">fabiap</a></code>,
+<code><a href="../../fabia/help/fabi.html">fabi</a></code>,
+<code><a href="../../fabia/help/fabiasp.html">fabiasp</a></code>,
+<code><a href="../../fabia/help/mfsc.html">mfsc</a></code>,
+<code><a href="../../fabia/help/nmfdiv.html">nmfdiv</a></code>,
+<code><a href="../../fabia/help/nmfeu.html">nmfeu</a></code>,
+<code><a href="../../fabia/help/nmfsc.html">nmfsc</a></code>,
+<code><a href="../../fabia/help/extractPlot.html">extractPlot</a></code>,
+<code><a href="../../fabia/help/extractBic.html">extractBic</a></code>,
+<code><a href="../../fabia/help/plotBicluster.html">plotBicluster</a></code>,
+<code><a href="../../fabia/help/Factorization.html">Factorization</a></code>,
+<code><a href="../../fabia/help/projFuncPos.html">projFuncPos</a></code>,
+<code><a href="../../fabia/help/projFunc.html">projFunc</a></code>,
+<code><a href="../../fabia/help/estimateMode.html">estimateMode</a></code>,
+<code><a href="../../fabia/help/makeFabiaData.html">makeFabiaData</a></code>,
+<code><a href="../../fabia/help/makeFabiaDataBlocks.html">makeFabiaDataBlocks</a></code>,
+<code><a href="../../fabia/help/makeFabiaDataPos.html">makeFabiaDataPos</a></code>,
+<code><a href="../../fabia/help/makeFabiaDataBlocksPos.html">makeFabiaDataBlocksPos</a></code>,
+<code><a href="../../fabia/help/matrixImagePlot.html">matrixImagePlot</a></code>,
+<code><a href="../../fabia/help/fabiaDemo.html">fabiaDemo</a></code>,
+<code><a href="../../fabia/help/fabiaVersion.html">fabiaVersion</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+###################
+# TEST
+###################
+
+
+#------------------
+#   PLOT
+#------------------
+
+
+
+n=200
+l=100
+p=4
+
+dat &lt;- makeFabiaDataBlocks(n = n,l= l,p = p,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X &lt;- dat[[1]]
+ZC &lt;- dat[[3]]
+LC &lt;- dat[[4]]
+
+
+resEx &lt;- fabia(X,p,0.01,400)
+
+
+gclab &lt;- rep.int(0,l)
+gllab &lt;- rep.int(0,n)
+clab &lt;- as.character(1:l)
+llab &lt;- as.character(1:n)
+for (i in 1:p){
+ for (j in ZC[i]){
+     clab[j] &lt;- paste(as.character(i),"_",clab[j],sep="")
+ }
+ for (j in LC[i]){
+     llab[j] &lt;- paste(as.character(i),"_",llab[j],sep="")
+ }
+ gclab[unlist(ZC[i])] &lt;- gclab[unlist(ZC[i])] + p^i
+ gllab[unlist(LC[i])] &lt;- gllab[unlist(LC[i])] + p^i
+}
+
+
+groups &lt;- gclab
+
+colnames(X(resEx)) &lt;- clab
+
+rownames(X(resEx)) &lt;- llab
+
+
+plot(resEx,dim=c(1,2),label.tol=0.1,col.group = groups,lab.size=0.6)
+plot(resEx,dim=c(1,3),label.tol=0.1,col.group = groups,lab.size=0.6)
+plot(resEx,dim=c(2,3),label.tol=0.1,col.group = groups,lab.size=0.6)
+
+
+
+#------------------
+#   SHOW
+#------------------
+
+
+dat &lt;- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X &lt;- dat[[1]]
+
+
+resEx &lt;- fabia(X,3,0.01,100)
+
+show(resEx)
+
+
+
+#------------------
+# SHOWSELECTED
+#------------------
+
+dat &lt;- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X &lt;- dat[[1]]
+
+
+resEx &lt;- fabia(X,3,0.01,100)
+
+showSelected(resEx,which=1)
+showSelected(resEx,which=2)
+
+
+
+#------------------
+# SUMMARY
+#------------------
+
+dat &lt;- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X &lt;- dat[[1]]
+
+
+resEx &lt;- fabia(X,3,0.01,100)
+
+summary(resEx)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fabia</em> version 2.38.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

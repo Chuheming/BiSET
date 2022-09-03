@@ -1,0 +1,279 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extraction of Biclusters</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for extractBic {fabia}"><tr><td>extractBic {fabia}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extraction of Biclusters</h2>
+
+<h3>Description</h3>
+
+<p><code>extractBic</code>: <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> implementation of  <code>extractBic</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+
+extractBic(fact,thresZ=0.5,thresL=NULL)
+
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>fact</code></td>
+<td>
+<p>object of the class <code>Factorization</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>thresZ</code></td>
+<td>
+<p>threshold for sample belonging to bicluster; default 0.5.</p>
+</td></tr>
+<tr valign="top"><td><code>thresL</code></td>
+<td>
+<p>threshold for loading belonging to bicluster (if not
+given it is estimated).</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Essentially the model is the sum of
+outer products of vectors:
+</p>
+<p style="text-align: center;"><i>X  =  &sum;_{i=1}^{p} &lambda;_i   z_i^T  +  U</i></p>
+
+<p>where the number of summands  <i>p</i>
+is the number of biclusters.
+The matrix factorization is
+</p>
+<p style="text-align: center;"><i>X  =  L  Z  +  U</i></p>
+
+<p>Here <i>&lambda;_i</i> are from <i>R^n</i>, <i>z_i</i> from
+<i>R^l</i>, <i>L</i> from <i>R^{n \times p}</i>,
+<i>Z</i> from <i>R^{p \times l}</i>, and <i>X</i>, <i>U</i>
+from <i>R^{n \times l}</i>.
+</p>
+<p><i>U </i> is the Gaussian noise with a diagonal covariance matrix
+which entries are given by <code>Psi</code>.
+</p>
+<p>The <i>Z </i> is locally approximated by a Gaussian with inverse
+variance given by  <code>lapla</code>.
+</p>
+<p>Using these values we can computer
+for each  <i>j</i> the variance <i> z_i</i> given <i> x_j</i>. Here
+</p>
+<p style="text-align: center;"><i> x_j  =  L  z_j  +  u_j</i></p>
+
+<p>This variance can be used to determine the information content
+of a bicluster.
+</p>
+<p>The <i>&lambda;_i </i> and <i>z_i </i> are used to
+extract the bicluster <i>i</i>, where a threshold determines which
+observations and which samples belong the the bicluster.
+</p>
+<p>In <code>bic</code> the biclusters are extracted according to the
+largest absolute values of the component <i>i</i>, i.e.
+the largest values of <i>&lambda;_i </i> and the
+largest values of <i>z_i </i>. The factors <i> z_i</i>
+are normalized to variance 1.
+</p>
+<p>The components of <code>bic</code> are
+<code>binp</code>, <code>bixv</code>,
+<code>bixn</code>, <code>biypv</code>, and <code>biypn</code>.
+</p>
+<p><code>binp</code> give the size of the bicluster: number observations and
+number samples.
+<code>bixv</code> gives the values of the extracted
+observations that have absolute
+values above a threshold. They are sorted. 
+<code>bixn</code> gives  the extracted observation names (e.g. gene names).
+<code>biypv</code> gives the values of the extracted samples that have
+absolute values above a threshold.  They are sorted.
+<code>biypn</code> gives  the names of the extracted samples (e.g. sample names).
+</p>
+<p>In <code>bicopp</code> the opposite clusters to the biclusters are
+given. Opposite means that the negative pattern is present.
+</p>
+<p>The components of opposite clusters <code>bicopp</code> are
+<code>binn</code>, <code>bixv</code>,
+<code>bixn</code>, <code>biypnv</code>, and <code>biynn</code>.
+</p>
+<p><code>binp</code> give the size of the opposite bicluster: number observations and
+number samples.
+<code>bixv</code> gives the values of the extracted
+observations that have absolute
+values above a threshold. They are sorted. 
+<code>bixn</code> gives  the extracted observation names (e.g. gene names).
+<code>biynv</code> gives the values of the opposite extracted samples that have
+absolute values above a threshold.  They are sorted.
+<code>biynn</code> gives  the names of the opposite
+extracted samples (e.g. sample names).
+</p>
+<p>That means the samples are divided into two groups where one group
+shows large positive values and the other group has negative values
+with large absolute values. That means a observation pattern can be
+switched on or switched off relative to the average value.
+</p>
+<p><code>numn</code> gives the indices of <code>bic</code> with components:
+<code>numng</code> = <code>bix</code> and <code>numnp</code>  =  <code>biypn</code>.
+</p>
+<p><code>numn</code> gives the indices of <code>bicopp</code> with components:
+<code>numng</code> = <code>bix</code> and <code>numnn</code>  =  <code>biynn</code>.
+</p>
+<p>Implementation in <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>.
+</p>
+
+
+<h3>Value</h3>
+
+<table summary="R valueblock">
+<tr valign="top"><td><code>bic</code></td>
+<td>
+<p>extracted biclusters.</p>
+</td></tr>
+<tr valign="top"><td><code>numn</code></td>
+<td>
+<p>indexes for the extracted biclusters.</p>
+</td></tr>
+<tr valign="top"><td><code>bicopp</code></td>
+<td>
+<p>extracted opposite biclusters.</p>
+</td></tr>
+<tr valign="top"><td><code>numnopp</code></td>
+<td>
+<p>indexes for the extracted opposite biclusters.</p>
+</td></tr>
+<tr valign="top"><td><code>X</code></td>
+<td>
+<p>scaled and centered data matrix.</p>
+</td></tr>
+<tr valign="top"><td><code>np</code></td>
+<td>
+<p>number of biclusters.</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Sepp Hochreiter</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../fabia/help/fabia.html">fabia</a></code>,
+<code><a href="../../fabia/help/fabias.html">fabias</a></code>,
+<code><a href="../../fabia/help/fabiap.html">fabiap</a></code>,
+<code><a href="../../fabia/help/fabi.html">fabi</a></code>,
+<code><a href="../../fabia/help/fabiasp.html">fabiasp</a></code>,
+<code><a href="../../fabia/help/mfsc.html">mfsc</a></code>,
+<code><a href="../../fabia/help/nmfdiv.html">nmfdiv</a></code>,
+<code><a href="../../fabia/help/nmfeu.html">nmfeu</a></code>,
+<code><a href="../../fabia/help/nmfsc.html">nmfsc</a></code>,
+<code><a href="../../fabia/help/extractPlot.html">extractPlot</a></code>,
+<code><a href="../../fabia/help/extractBic.html">extractBic</a></code>,
+<code><a href="../../fabia/help/plotBicluster.html">plotBicluster</a></code>,
+<code><a href="../../fabia/help/Factorization.html">Factorization</a></code>,
+<code><a href="../../fabia/help/projFuncPos.html">projFuncPos</a></code>,
+<code><a href="../../fabia/help/projFunc.html">projFunc</a></code>,
+<code><a href="../../fabia/help/estimateMode.html">estimateMode</a></code>,
+<code><a href="../../fabia/help/makeFabiaData.html">makeFabiaData</a></code>,
+<code><a href="../../fabia/help/makeFabiaDataBlocks.html">makeFabiaDataBlocks</a></code>,
+<code><a href="../../fabia/help/makeFabiaDataPos.html">makeFabiaDataPos</a></code>,
+<code><a href="../../fabia/help/makeFabiaDataBlocksPos.html">makeFabiaDataBlocksPos</a></code>,
+<code><a href="../../fabia/help/matrixImagePlot.html">matrixImagePlot</a></code>,
+<code><a href="../../fabia/help/fabiaDemo.html">fabiaDemo</a></code>,
+<code><a href="../../fabia/help/fabiaVersion.html">fabiaVersion</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+#---------------
+# TEST
+#---------------
+
+dat &lt;- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X &lt;- dat[[1]]
+Y &lt;- dat[[2]]
+
+
+resEx &lt;- fabia(X,3,0.01,20)
+
+rEx &lt;- extractBic(resEx)
+
+rEx$bic[1,]
+rEx$bic[2,]
+rEx$bic[3,]
+
+
+## Not run: 
+#---------------
+# DEMO1
+#---------------
+
+dat &lt;- makeFabiaDataBlocks(n = 1000,l= 100,p = 10,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X &lt;- dat[[1]]
+Y &lt;- dat[[2]]
+
+
+resToy &lt;- fabia(X,13,0.01,200)
+
+rToy &lt;- extractBic(resToy)
+
+avini(resToy)
+
+rToy$bic[1,]
+rToy$bic[2,]
+rToy$bic[3,]
+
+#---------------
+# DEMO2
+#---------------
+
+
+avail &lt;- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+data(Breast_A)
+
+X &lt;- as.matrix(XBreast)
+
+resBreast &lt;- fabia(X,5,0.1,200)
+
+rBreast &lt;- extractBic(resBreast)
+
+avini(resBreast)
+
+rBreast$bic[1,]
+rBreast$bic[2,]
+rBreast$bic[3,]
+}
+
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fabia</em> version 2.38.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

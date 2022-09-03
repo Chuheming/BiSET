@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Plotting of a Matrix</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for matrixImagePlot {fabia}"><tr><td>matrixImagePlot {fabia}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Plotting of a Matrix</h2>
+
+<h3>Description</h3>
+
+<p><code>matrixImagePlot</code>: <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> implementation of  <code>myImagePlot</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+
+matrixImagePlot(x,xLabels=NULL, yLabels=NULL, zlim=NULL, title=NULL)
+
+
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>the matrix.</p>
+</td></tr>
+<tr valign="top"><td><code>xLabels</code></td>
+<td>
+<p>vector of strings to label the columns
+(default &quot;colnames(x)&quot;).</p>
+</td></tr>
+<tr valign="top"><td><code>yLabels</code></td>
+<td>
+<p>vector of strings to label the rows (default &quot;rownames(x)&quot;).</p>
+</td></tr>
+<tr valign="top"><td><code>zlim</code></td>
+<td>
+<p>vector containing a low and high value to use for the color scale.</p>
+</td></tr>
+<tr valign="top"><td><code>title</code></td>
+<td>
+<p>title of the plot.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Plotting a table of numbers as an image using <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>.
+</p>
+<p>The color scale is based on the highest and lowest values in the
+matrix.
+</p>
+<p>The original <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> code has been obtained by
+<a href="http://www.phaget4.org/R/myImagePlot.R">http://www.phaget4.org/R/myImagePlot.R</a>
+and then has been modified.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Plotting a table of numbers as an image</p>
+
+
+<h3>References</h3>
+
+<p><a href="http://www.phaget4.org/R/myImagePlot.R">http://www.phaget4.org/R/myImagePlot.R</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../fabia/help/fabia.html">fabia</a></code>,
+<code><a href="../../fabia/help/fabias.html">fabias</a></code>,
+<code><a href="../../fabia/help/fabiap.html">fabiap</a></code>,
+<code><a href="../../fabia/help/fabi.html">fabi</a></code>,
+<code><a href="../../fabia/help/fabiasp.html">fabiasp</a></code>,
+<code><a href="../../fabia/help/mfsc.html">mfsc</a></code>,
+<code><a href="../../fabia/help/nmfdiv.html">nmfdiv</a></code>,
+<code><a href="../../fabia/help/nmfeu.html">nmfeu</a></code>,
+<code><a href="../../fabia/help/nmfsc.html">nmfsc</a></code>,
+<code><a href="../../fabia/help/extractPlot.html">extractPlot</a></code>,
+<code><a href="../../fabia/help/extractBic.html">extractBic</a></code>,
+<code><a href="../../fabia/help/plotBicluster.html">plotBicluster</a></code>,
+<code><a href="../../fabia/help/Factorization.html">Factorization</a></code>,
+<code><a href="../../fabia/help/projFuncPos.html">projFuncPos</a></code>,
+<code><a href="../../fabia/help/projFunc.html">projFunc</a></code>,
+<code><a href="../../fabia/help/estimateMode.html">estimateMode</a></code>,
+<code><a href="../../fabia/help/makeFabiaData.html">makeFabiaData</a></code>,
+<code><a href="../../fabia/help/makeFabiaDataBlocks.html">makeFabiaDataBlocks</a></code>,
+<code><a href="../../fabia/help/makeFabiaDataPos.html">makeFabiaDataPos</a></code>,
+<code><a href="../../fabia/help/makeFabiaDataBlocksPos.html">makeFabiaDataBlocksPos</a></code>,
+<code><a href="../../fabia/help/matrixImagePlot.html">matrixImagePlot</a></code>,
+<code><a href="../../fabia/help/fabiaDemo.html">fabiaDemo</a></code>,
+<code><a href="../../fabia/help/fabiaVersion.html">fabiaVersion</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+
+#---------------
+# TEST
+#---------------
+
+dat &lt;- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X &lt;- dat[[1]]
+Y &lt;- dat[[2]]
+
+matrixImagePlot(Y)
+dev.new()
+matrixImagePlot(X)
+
+
+## Not run: 
+#---------------
+# DEMO
+#---------------
+
+dat &lt;- makeFabiaDataBlocks(n = 1000,l= 100,p = 10,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X &lt;- dat[[1]]
+Y &lt;- dat[[2]]
+X &lt;- X- rowMeans(X)
+XX &lt;- (1/ncol(X))*tcrossprod(X)
+dXX &lt;- 1/sqrt(diag(XX)+0.001*as.vector(rep(1,nrow(X))))
+X &lt;- dXX*X
+
+matrixImagePlot(X)
+
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fabia</em> version 2.38.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

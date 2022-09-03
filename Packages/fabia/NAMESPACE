@@ -1,0 +1,91 @@
+useDynLib(fabia)
+
+import("methods","Biobase")
+
+importFrom("graphics", "axis", "barplot", "box", "boxplot", "image",
+           "layout", "lines", "par", "plot", "points", "rect",
+           "smoothScatter", "symbols", "text")
+
+importFrom("grDevices", "colorRampPalette", "dev.interactive",
+           "devAskNewPage", "rainbow", "rgb", "x11")
+
+importFrom("stats", "kmeans", "median", "quantile", "rnorm", "runif")
+
+importFrom("utils", "demo", "packageDescription")
+
+export("fabia",
+       "fabias",
+       "fabiap",
+       "spfabia",
+       "readSamplesSpfabia",
+       "samplesPerFeature",
+       "readSpfabiaResult",
+       "mfsc",
+       "fabiasp",
+       "fabi",
+       "projFunc",
+       "projFuncPos",
+       "estimateMode",
+       "nmfsc",
+       "nmfeu",
+       "nmfdiv",
+       "matrixImagePlot",
+       "plotBicluster",
+       "extractPlot",
+       "extractBic",
+       "makeFabiaData",
+       "makeFabiaDataBlocks",
+       "makeFabiaDataPos",
+       "makeFabiaDataBlocksPos",
+       "fabiaDemo",
+       "fabiaVersion")
+
+exportClasses("Factorization")
+
+exportMethods("plot",
+       "summary",
+       "show",
+       "showSelected",
+       "parameters",
+       "n",
+       "p1",
+       "p2",
+       "l",
+       "center",
+       "scaleData",
+       "X",
+       "L",
+       "Z",
+       "M",
+       "LZ",
+       "U",
+       "avini",
+       "xavini",
+       "ini",
+       "Psi",
+       "lapla",
+       "parameters<-",
+       "n<-",
+       "p1<-",
+       "p2<-",
+       "l<-",
+       "center<-",
+       "scaleData<-",
+       "X<-",
+       "L<-",
+       "Z<-",
+       "M<-",
+       "LZ<-",
+       "U<-",
+       "avini<-",
+       "xavini<-",
+       "ini<-",
+       "Psi<-",
+       "lapla<-")
+
+
+
+
+
+
+

@@ -1,0 +1,491 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Factor Analysis for Bicluster Acquisition: Post-Projection...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for fabiap {fabia}"><tr><td>fabiap {fabia}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Factor Analysis for Bicluster Acquisition: Post-Projection (FABIAP)</h2>
+
+<h3>Description</h3>
+
+<p><code>fabiap</code>: C implementation of  <code>fabiap</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+
+fabiap(X,p=13,alpha=0.01,cyc=500,spl=0,spz=0.5,sL=0.6,sZ=0.6,non_negative=0,random=1.0,center=2,norm=1,scale=0.0,lap=1.0,nL=0,lL=0,bL=0)
+
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>X</code></td>
+<td>
+<p>the data matrix.</p>
+</td></tr>
+<tr valign="top"><td><code>p</code></td>
+<td>
+<p>number of hidden factors = number of biclusters; default = 13.</p>
+</td></tr>
+<tr valign="top"><td><code>alpha</code></td>
+<td>
+<p>sparseness loadings (0-1.0); default = 0.01.</p>
+</td></tr>
+<tr valign="top"><td><code>cyc</code></td>
+<td>
+<p>number of iterations; default = 500.</p>
+</td></tr>
+<tr valign="top"><td><code>spl</code></td>
+<td>
+<p>sparseness prior loadings (0 - 2.0); default = 0 (Laplace).</p>
+</td></tr>
+<tr valign="top"><td><code>spz</code></td>
+<td>
+<p>sparseness factors (0.5 - 2.0); default =  0.5 (Laplace).</p>
+</td></tr>
+<tr valign="top"><td><code>sL</code></td>
+<td>
+<p>final sparseness loadings; default = 0.6.</p>
+</td></tr>
+<tr valign="top"><td><code>sZ</code></td>
+<td>
+<p>final sparseness factors; default = 0.6.</p>
+</td></tr>
+<tr valign="top"><td><code>non_negative</code></td>
+<td>
+<p>Non-negative factors and loadings if non_negative
+&gt; 0; default = 0.</p>
+</td></tr>
+<tr valign="top"><td><code>random</code></td>
+<td>
+<p>&lt;=0: by SVD, &gt;0: random initialization of loadings in
+[-random,random]; default = 1.0.</p>
+</td></tr>
+<tr valign="top"><td><code>center</code></td>
+<td>
+<p>data centering: 1 (mean), 2
+(median), &gt; 2 (mode), 0 (no); default = 2.</p>
+</td></tr>
+<tr valign="top"><td><code>norm</code></td>
+<td>
+<p>data normalization: 1 (0.75-0.25 quantile), &gt;1 (var=1), 0 (no); default = 1.</p>
+</td></tr>
+<tr valign="top"><td><code>scale</code></td>
+<td>
+<p>loading vectors are scaled in each iteration to the given
+variance. 0.0 indicates non scaling; default = 0.0.</p>
+</td></tr>
+<tr valign="top"><td><code>lap</code></td>
+<td>
+<p>minimal value of the variational parameter; default = 1.0.</p>
+</td></tr> 
+<tr valign="top"><td><code>nL</code></td>
+<td>
+<p>maximal number of biclusters at which a row element can participate; default
+= 0 (no limit)</p>
+</td></tr> 
+<tr valign="top"><td><code>lL</code></td>
+<td>
+<p>maximal number of row elements per bicluster; default
+= 0 (no limit)</p>
+</td></tr> 
+<tr valign="top"><td><code>bL</code></td>
+<td>
+<p>cycle at which the nL or lL maximum starts; default
+= 0 (start at the beginning)</p>
+</td></tr> 
+</table>
+
+
+<h3>Details</h3>
+
+<p>Biclusters are found by sparse factor analysis where <em>both</em> the factors
+and the loadings are sparse. Post-processing by projecting the final
+results to a given sparseness criterion.
+</p>
+<p>Essentially the model is the sum of
+outer products of vectors:
+</p>
+<p style="text-align: center;"><i>X  =  &sum;_{i=1}^{p} &lambda;_i z_i^T  +  U</i></p>
+
+<p>where the number of summands  <i>p</i>
+is the number of biclusters.
+The matrix factorization is
+</p>
+<p style="text-align: center;"><i>X  =  L  Z  +  U</i></p>
+
+<p>Here <i>&lambda;_i</i> are from <i>R^n</i>, <i>z_i</i> from
+<i>R^l</i>, <i>L</i> from <i>R^{n \times p}</i>,
+<i>Z</i> from <i>R^{p \times l}</i>, and <i>X</i>, <i>U</i>
+from <i>R^{n \times l}</i>.
+</p>
+<p>If the nonzero components of
+the sparse vectors are grouped together then the outer product results in
+a matrix with a nonzero block and zeros elsewhere.
+</p>
+<p>The model selection is performed by a variational approach according
+to Girolami 2001 and Palmer et al. 2006.
+</p>
+<p>We included a prior on the parameters and minimize
+a lower bound on the posterior
+of the parameters given the data.
+The update of the loadings includes an additive term which pushes the
+loadings toward zero (Gaussian prior leads to an multiplicative factor).
+</p>
+<p><b>Post-processing:</b>
+The final results of the loadings and the factors are projected to
+a sparse vector according to Hoyer, 2004: given an
+<i>l_1</i>-norm and an <i>l_2</i>-norm minimize the Euclidean distance
+to the original vector (currently the <i>l_2</i>-norm is fixed to 1).
+The projection is a convex quadratic problem which is solved
+iteratively where at each iteration at least one component is set to
+zero. Instead of the  <i>l_1</i>-norm a sparseness measurement is used
+which relates the <i>l_1</i>-norm to the <i>l_2</i>-norm:
+</p>
+<p>The code is implemented in C and the projection in <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>.
+</p>
+
+
+<h3>Value</h3>
+
+<table summary="R valueblock">
+<tr valign="top"><td><code></code></td>
+<td>
+<p>object of the class <code>Factorization</code>. Containing
+<code>LZ</code> (estimated noise free data <i>L  Z</i>),
+<code>L</code> (loadings <i>L</i>),
+<code>Z</code> (factors  <i>Z</i>),
+<code>U</code> (noise <i>X-LZ</i>),
+<code>center</code> (centering vector),
+<code>scaleData</code> (scaling vector),
+<code>X</code> (centered and scaled data <i>X</i>),
+<code>Psi</code> (noise variance <i>&sigma;</i>),
+<code>lapla</code> (variational parameter),
+<code>avini</code> (the information which the factor
+<i>z_{ij}</i> contains about <i>x_j</i> averaged over <i>j</i>)
+<code>xavini</code> (the information which the factor
+<i>z_{j}</i> contains about <i>x_j</i>)
+<code>ini</code> (for each <i>j</i> the information which the factor
+<i>z_{ij}</i> contains about <i>x_j</i>).
+</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Sepp Hochreiter</p>
+
+
+<h3>References</h3>
+
+<p>S. Hochreiter et al.,
+&lsquo;FABIA: Factor Analysis for Bicluster Acquisition&rsquo;,
+Bioinformatics 26(12):1520-1527, 2010.
+http://bioinformatics.oxfordjournals.org/cgi/content/abstract/btq227
+</p>
+<p>Mark Girolami,
+&lsquo;A Variational Method for Learning Sparse and
+Overcomplete Representations&rsquo;,
+Neural Computation 13(11): 2517-2532, 2001.
+</p>
+<p>J. Palmer, D. Wipf, K. Kreutz-Delgado, B. Rao,
+&lsquo;Variational EM algorithms for
+non-Gaussian latent variable models&rsquo;,
+Advances in Neural Information Processing
+Systems 18, pp. 1059-1066, 2006.
+</p>
+<p>Patrik O. Hoyer,
+&lsquo;Non-negative Matrix Factorization with Sparseness Constraints&rsquo;,
+Journal of Machine Learning Research 5:1457-1469, 2004.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../fabia/help/fabia.html">fabia</a></code>,
+<code><a href="../../fabia/help/fabias.html">fabias</a></code>,
+<code><a href="../../fabia/help/fabiap.html">fabiap</a></code>,
+<code><a href="../../fabia/help/spfabia.html">spfabia</a></code>,
+<code><a href="../../fabia/help/fabi.html">fabi</a></code>,
+<code><a href="../../fabia/help/fabiasp.html">fabiasp</a></code>,
+<code><a href="../../fabia/help/mfsc.html">mfsc</a></code>,
+<code><a href="../../fabia/help/nmfdiv.html">nmfdiv</a></code>,
+<code><a href="../../fabia/help/nmfeu.html">nmfeu</a></code>,
+<code><a href="../../fabia/help/nmfsc.html">nmfsc</a></code>,
+<code><a href="../../fabia/help/extractPlot.html">extractPlot</a></code>,
+<code><a href="../../fabia/help/extractBic.html">extractBic</a></code>,
+<code><a href="../../fabia/help/plotBicluster.html">plotBicluster</a></code>,
+<code><a href="../../fabia/help/Factorization.html">Factorization</a></code>,
+<code><a href="../../fabia/help/projFuncPos.html">projFuncPos</a></code>,
+<code><a href="../../fabia/help/projFunc.html">projFunc</a></code>,
+<code><a href="../../fabia/help/estimateMode.html">estimateMode</a></code>,
+<code><a href="../../fabia/help/makeFabiaData.html">makeFabiaData</a></code>,
+<code><a href="../../fabia/help/makeFabiaDataBlocks.html">makeFabiaDataBlocks</a></code>,
+<code><a href="../../fabia/help/makeFabiaDataPos.html">makeFabiaDataPos</a></code>,
+<code><a href="../../fabia/help/makeFabiaDataBlocksPos.html">makeFabiaDataBlocksPos</a></code>,
+<code><a href="../../fabia/help/matrixImagePlot.html">matrixImagePlot</a></code>,
+<code><a href="../../fabia/help/fabiaDemo.html">fabiaDemo</a></code>,
+<code><a href="../../fabia/help/fabiaVersion.html">fabiaVersion</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+#---------------
+# TEST
+#---------------
+
+dat &lt;- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X &lt;- dat[[1]]
+Y &lt;- dat[[2]]
+
+resEx &lt;- fabiap(X,3,0.1,50)
+
+
+## Not run: 
+
+#-----------------
+# DEMO1: Toy Data
+#-----------------
+
+n = 1000
+l= 100
+p = 10
+
+dat &lt;- makeFabiaDataBlocks(n = n,l= l,p = p,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X &lt;- dat[[1]]
+Y &lt;- dat[[2]]
+ZC &lt;- dat[[3]]
+LC &lt;- dat[[4]]
+
+gclab &lt;- rep.int(0,l)
+gllab &lt;- rep.int(0,n)
+clab &lt;- as.character(1:l)
+llab &lt;- as.character(1:n)
+for (i in 1:p){
+ for (j in ZC[i]){
+     clab[j] &lt;- paste(as.character(i),"_",clab[j],sep="")
+ }
+ for (j in LC[i]){
+     llab[j] &lt;- paste(as.character(i),"_",llab[j],sep="")
+ }
+ gclab[unlist(ZC[i])] &lt;- gclab[unlist(ZC[i])] + p^i
+ gllab[unlist(LC[i])] &lt;- gllab[unlist(LC[i])] + p^i
+}
+
+
+groups &lt;- gclab
+
+#### FABIAP
+
+resToy3 &lt;- fabiap(X,13,0.1,400)
+
+extractPlot(resToy3,ti="FABIAP",Y=Y)
+
+raToy3 &lt;- extractBic(resToy3)
+
+if ((raToy3$bic[[1]][1]&gt;1) &amp;&amp; (raToy3$bic[[1]][2])&gt;1) {
+    plotBicluster(raToy3,1)
+}
+if ((raToy3$bic[[2]][1]&gt;1) &amp;&amp; (raToy3$bic[[2]][2])&gt;1) {
+    plotBicluster(raToy3,2)
+}
+if ((raToy3$bic[[3]][1]&gt;1) &amp;&amp; (raToy3$bic[[3]][2])&gt;1) {
+    plotBicluster(raToy3,3)
+}
+if ((raToy3$bic[[4]][1]&gt;1) &amp;&amp; (raToy3$bic[[4]][2])&gt;1) {
+    plotBicluster(raToy3,4)
+}
+
+colnames(X(resToy3)) &lt;- clab
+
+rownames(X(resToy3)) &lt;- llab
+
+
+plot(resToy3,dim=c(1,2),label.tol=0.1,col.group = groups,lab.size=0.6)
+plot(resToy3,dim=c(1,3),label.tol=0.1,col.group = groups,lab.size=0.6)
+plot(resToy3,dim=c(2,3),label.tol=0.1,col.group = groups,lab.size=0.6)
+
+
+#------------------------------------------
+# DEMO2: Laura van't Veer's gene expression  
+#        data set for breast cancer 
+#------------------------------------------
+
+
+avail &lt;- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+data(Breast_A)
+
+X &lt;- as.matrix(XBreast)
+
+
+resBreast3 &lt;- fabiap(X,5,0.1,400)
+
+extractPlot(resBreast3,ti="FABIAP Breast cancer(Veer)")
+
+raBreast3 &lt;- extractBic(resBreast3)
+
+if ((raBreast3$bic[[1]][1]&gt;1) &amp;&amp; (raBreast3$bic[[1]][2])&gt;1) {
+    plotBicluster(raBreast3,1)
+}
+if ((raBreast3$bic[[2]][1]&gt;1) &amp;&amp; (raBreast3$bic[[2]][2])&gt;1) {
+    plotBicluster(raBreast3,2)
+}
+if ((raBreast3$bic[[3]][1]&gt;1) &amp;&amp; (raBreast3$bic[[3]][2])&gt;1) {
+    plotBicluster(raBreast3,3)
+}
+if ((raBreast3$bic[[4]][1]&gt;1) &amp;&amp; (raBreast3$bic[[4]][2])&gt;1) {
+    plotBicluster(raBreast3,4)
+}
+
+plot(resBreast3,dim=c(1,2),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast3,dim=c(1,3),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast3,dim=c(1,4),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast3,dim=c(1,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast3,dim=c(2,3),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast3,dim=c(2,4),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast3,dim=c(2,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast3,dim=c(3,4),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast3,dim=c(3,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast3,dim=c(4,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+
+}
+
+
+#-----------------------------------
+# DEMO3: Su's multiple tissue types
+#        gene expression data set 
+#-----------------------------------
+
+
+avail &lt;- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+data(Multi_A)
+
+X &lt;- as.matrix(XMulti)
+
+resMulti3 &lt;- fabiap(X,5,0.1,300)
+
+extractPlot(resMulti3,ti="FABIAP Multiple tissues(Su)")
+
+
+raMulti3 &lt;- extractBic(resMulti3)
+
+if ((raMulti3$bic[[1]][1]&gt;1) &amp;&amp; (raMulti3$bic[[1]][2])&gt;1) {
+    plotBicluster(raMulti3,1)
+}
+if ((raMulti3$bic[[2]][1]&gt;1) &amp;&amp; (raMulti3$bic[[2]][2])&gt;1) {
+    plotBicluster(raMulti3,2)
+}
+if ((raMulti3$bic[[3]][1]&gt;1) &amp;&amp; (raMulti3$bic[[3]][2])&gt;1) {
+    plotBicluster(raMulti3,3)
+}
+if ((raMulti3$bic[[4]][1]&gt;1) &amp;&amp; (raMulti3$bic[[4]][2])&gt;1) {
+    plotBicluster(raMulti3,4)
+}
+
+plot(resMulti3,dim=c(1,2),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti3,dim=c(1,3),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti3,dim=c(1,4),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti3,dim=c(1,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti3,dim=c(2,3),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti3,dim=c(2,4),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti3,dim=c(2,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti3,dim=c(3,4),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti3,dim=c(3,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti3,dim=c(4,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+
+}
+
+
+#-----------------------------------------
+# DEMO4: Rosenwald's diffuse large-B-cell
+#        lymphoma gene expression data set 
+#-----------------------------------------
+
+avail &lt;- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+
+data(DLBCL_B)
+
+X &lt;- as.matrix(XDLBCL)
+
+
+resDLBCL3 &lt;- fabiap(X,5,0.1,400)
+
+extractPlot(resDLBCL3,ti="FABIAP Lymphoma(Rosenwald)")
+raDLBCL3 &lt;- extractBic(resDLBCL3)
+
+if ((raDLBCL3$bic[[1]][1]&gt;1) &amp;&amp; (raDLBCL3$bic[[1]][2])&gt;1) {
+    plotBicluster(raDLBCL3,1)
+}
+if ((raDLBCL3$bic[[2]][1]&gt;1) &amp;&amp; (raDLBCL3$bic[[2]][2])&gt;1) {
+    plotBicluster(raDLBCL3,2)
+}
+if ((raDLBCL3$bic[[3]][1]&gt;1) &amp;&amp; (raDLBCL3$bic[[3]][2])&gt;1) {
+    plotBicluster(raDLBCL3,3)
+}
+if ((raDLBCL3$bic[[4]][1]&gt;1) &amp;&amp; (raDLBCL3$bic[[4]][2])&gt;1) {
+    plotBicluster(raDLBCL3,4)
+}
+
+plot(resDLBCL3,dim=c(1,2),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL3,dim=c(1,3),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL3,dim=c(1,4),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL3,dim=c(1,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL3,dim=c(2,3),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL3,dim=c(2,4),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL3,dim=c(2,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL3,dim=c(3,4),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL3,dim=c(3,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL3,dim=c(4,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+
+
+}
+
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fabia</em> version 2.38.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,43 @@
+Factorization-class     Factorization instances
+estimateMode            Estimation of the modes of the rows of a matrix
+extractBic              Extraction of Biclusters
+extractPlot             Plotting of Biclustering Results
+fabi                    Factor Analysis for Bicluster Acquisition:
+                        Laplace Prior (FABI)
+fabia                   Factor Analysis for Bicluster Acquisition:
+                        Laplace Prior (FABIA)
+fabiaDemo               Demos for fabia
+fabiaVersion            Display version info for package and for FABIA
+fabiap                  Factor Analysis for Bicluster Acquisition:
+                        Post-Projection (FABIAP)
+fabias                  Factor Analysis for Bicluster Acquisition:
+                        Sparseness Projection (FABIAS)
+fabiasp                 Factor Analysis for Bicluster Acquisition:
+                        Sparseness Projection (FABIASP)
+makeFabiaData           Generation of Bicluster Data
+makeFabiaDataBlocks     Generation of Bicluster Data with Bicluster
+                        Blocks
+makeFabiaDataBlocksPos
+                        Generation of Bicluster Data with Bicluster
+                        Blocks
+makeFabiaDataPos        Generation of Bicluster Data
+matrixImagePlot         Plotting of a Matrix
+mfsc                    Sparse Matrix Factorization for Bicluster
+                        Analysis (MFSC)
+nmfdiv                  Non-negative Matrix Factorization:
+                        Kullback-Leibler Divergence
+nmfeu                   Non-negative Matrix Factorization: Euclidean
+                        Distance
+nmfsc                   Non-negative Sparse Matrix Factorization
+plotBicluster           Plotting of a bicluster
+projFunc                Projection of a Vector to a Sparse Vector
+projFuncPos             Projection of a Vector to a Non-negative Sparse
+                        Vector
+readSamplesSpfabia      Factor Analysis for Bicluster Acquisition: Read
+                        Sparse Matrix Samples
+readSpfabiaResult       Factor Analysis for Bicluster Acquisition: Read
+                        Results of SpFabia
+samplesPerFeature       Factor Analysis for Bicluster Acquisition:
+                        Supplies samples per feature
+spfabia                 Factor Analysis for Bicluster Acquisition:
+                        SPARSE FABIA

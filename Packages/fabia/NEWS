@@ -1,0 +1,62 @@
+CHANGES IN VERSION 2.6.1
+------------------------
+NEW FEATURES
+
+    o rescaling of lapla
+    o extractPlot does not plot sorted matrices
+
+
+CHANGES IN VERSION 2.3.1
+------------------------
+NEW FEATURES
+
+    o Getters and setters for class Factorization
+
+
+CHANGES IN VERSION 2.0.0
+------------------------
+
+NEW FEATURES
+
+    o spfabia: fabia for a sparse data matrix (in sparse matrix
+      format) and sparse vector/matrix computations in the code 
+      to speed up computations.
+      spfabia applications: 
+            (a) detecting >identity by descent< in next generation 
+                sequencing data with rare variants, 
+            (b) detecting >shared haplotypes< in disease studies based 
+                on next generation sequencing data with rare variants
+
+    o fabia for non-negative factorization (parameter: non_negative)
+
+    o changed to C and removed dependencies to Rcpp
+
+    o improved update for lambda (alpha should be smaller, e.g. 0.03)
+
+    o introduced maximal number of row elements (lL)
+
+    o introduced cycle bL when upper bounds nL or lL are effective
+
+    o reduced computational complexity
+
+
+BUG FIXES
+
+    o update formula for lambda: tighter approximation
+
+    o corrected inverse of the conditional covariance matrix of z 
+
+
+CHANGES IN VERSION 1.4.0
+------------------------
+
+NEW FEATURES
+
+    o introduced maximal number of row elements (nL)
+
+BUG FIXES
+
+    o single or no bicluster
+
+    o zero elements in biclusters
+

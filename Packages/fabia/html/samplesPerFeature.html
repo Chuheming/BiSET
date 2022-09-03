@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Factor Analysis for Bicluster Acquisition: Supplies samples...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for samplesPerFeature {fabia}"><tr><td>samplesPerFeature {fabia}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Factor Analysis for Bicluster Acquisition: Supplies samples per feature</h2>
+
+<h3>Description</h3>
+
+<p><code>samplesPerFeature</code>: C implementation of  <code>samplesPerFeature</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+
+samplesPerFeature(X,samples=0,lowerB=0.0,upperB=1000.0)
+
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>X</code></td>
+<td>
+<p>the file name of the sparse matrix in sparse format.</p>
+</td></tr>
+<tr valign="top"><td><code>samples</code></td>
+<td>
+<p>vector of samples which should be read; default
+= 0 (all samples)</p>
+</td></tr> 
+<tr valign="top"><td><code>lowerB</code></td>
+<td>
+<p>lower bound for filtering the inputs columns, the
+minimal column sum; default = 0.0.</p>
+</td></tr> 
+<tr valign="top"><td><code>upperB</code></td>
+<td>
+<p>upper bound for filtering the inputs columns, the
+maximal column sum; default = 1000.0.</p>
+</td></tr> 
+</table>
+
+
+<h3>Details</h3>
+
+<p>Supplies the samples for which a feature is not zero.
+</p>
+<p>The data matrix is
+directly scanned by the C-code and must be in sparse matrix format.
+</p>
+<p>Sparse matrix format:
+*first line: numer of rows (the samples).
+*second line: number of columns (the features).
+*following lines: for each sample (rows) three lines with
+</p>
+<p>I) number of nonzero row elements
+</p>
+<p>II) indices of the nonzero row elements (ATTENTION: starts with 0!!)
+</p>
+<p>III) values of the nonzero row elements (ATTENTION: floats with
+decimal point like 1.0 !!)
+</p>
+<p>The code is implemented in C.
+</p>
+
+
+<h3>Value</h3>
+
+<table summary="R valueblock">
+<tr valign="top"><td><code></code></td>
+<td>
+<p>list with elements:
+<code>sL</code> (List with one element per feature: each element is a vector
+of samples where the feature is not zero.)
+<code>nsL</code> Vector of feature length containing number of samples
+having a non-zero feature value.
+</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Sepp Hochreiter</p>
+
+
+<h3>References</h3>
+
+<p>S. Hochreiter et al.,
+&lsquo;FABIA: Factor Analysis for Bicluster Acquisition&rsquo;,
+Bioinformatics 26(12):1520-1527, 2010.
+http://bioinformatics.oxfordjournals.org/cgi/content/abstract/btq227
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../fabia/help/fabia.html">fabia</a></code>,
+<code><a href="../../fabia/help/fabias.html">fabias</a></code>,
+<code><a href="../../fabia/help/fabiap.html">fabiap</a></code>,
+<code><a href="../../fabia/help/spfabia.html">spfabia</a></code>,
+<code><a href="../../fabia/help/readSamplesSpfabia.html">readSamplesSpfabia</a></code>,
+<code><a href="../../fabia/help/samplesPerFeature.html">samplesPerFeature</a></code>,
+<code><a href="../../fabia/help/readSpfabiaResult.html">readSpfabiaResult</a></code>,
+<code><a href="../../fabia/help/fabi.html">fabi</a></code>,
+<code><a href="../../fabia/help/fabiasp.html">fabiasp</a></code>,
+<code><a href="../../fabia/help/mfsc.html">mfsc</a></code>,
+<code><a href="../../fabia/help/nmfdiv.html">nmfdiv</a></code>,
+<code><a href="../../fabia/help/nmfeu.html">nmfeu</a></code>,
+<code><a href="../../fabia/help/nmfsc.html">nmfsc</a></code>,
+<code><a href="../../fabia/help/extractPlot.html">extractPlot</a></code>,
+<code><a href="../../fabia/help/extractBic.html">extractBic</a></code>,
+<code><a href="../../fabia/help/plotBicluster.html">plotBicluster</a></code>,
+<code><a href="../../fabia/help/Factorization.html">Factorization</a></code>,
+<code><a href="../../fabia/help/projFuncPos.html">projFuncPos</a></code>,
+<code><a href="../../fabia/help/projFunc.html">projFunc</a></code>,
+<code><a href="../../fabia/help/estimateMode.html">estimateMode</a></code>,
+<code><a href="../../fabia/help/makeFabiaData.html">makeFabiaData</a></code>,
+<code><a href="../../fabia/help/makeFabiaDataBlocks.html">makeFabiaDataBlocks</a></code>,
+<code><a href="../../fabia/help/makeFabiaDataPos.html">makeFabiaDataPos</a></code>,
+<code><a href="../../fabia/help/makeFabiaDataBlocksPos.html">makeFabiaDataBlocksPos</a></code>,
+<code><a href="../../fabia/help/matrixImagePlot.html">matrixImagePlot</a></code>,
+<code><a href="../../fabia/help/fabiaDemo.html">fabiaDemo</a></code>,
+<code><a href="../../fabia/help/fabiaVersion.html">fabiaVersion</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+#---------------
+# TEST
+#---------------
+
+
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fabia</em> version 2.38.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

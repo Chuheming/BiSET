@@ -1,0 +1,5789 @@
+% -*- mode: noweb; noweb-default-code-mode: R-mode; -*-
+%\VignetteIndexEntry{FABIA: Manual for the R package}
+%\VignetteDepends{fabia}
+%\VignettePackage{fabia}
+%\VignetteKeywords{fabia, fabiaData, biclustering, factor analysis, sparse coding, non-negative matrix factorization, latent variables, Laplace distribution, EM algorithm, multivariate analysis}
+%setwd("c:/sepp/work/fabia/fabia_210/fabia/inst/doc")
+%Sweave("fabia.Rnw")
+%tools::texi2dvi("fabia.tex",pdf=TRUE)
+%Stangle("fabia.Rnw")
+%source("fabia.R")
+
+
+
+\documentclass[article]{bioinf}
+
+\usepackage{amsmath,amssymb}
+\usepackage{bm}
+\usepackage{natbib}
+\usepackage{hyperref}
+
+\usepackage{fabia_defs}
+
+
+\hypersetup{colorlinks=false,
+   pdfborder=0 0 0,
+   pdftitle={FABIA: Factor Analysis for Bicluster Acquisition - Manual for the R package},
+   pdfauthor={Sepp Hochreiter}}
+
+
+
+\title{FABIA: Factor Analysis for Bicluster Acquisition\\ \textit{---
+    Manual for the R package ---}}
+
+\author{Sepp Hochreiter}
+\affiliation{Institute of Bioinformatics, Johannes Kepler University
+Linz\\Altenberger Str. 69, 4040 Linz, Austria\\
+\email{hochreit@bioinf.jku.at}}
+
+\usepackage[noae]{Sweave}
+
+
+\SweaveOpts{eps=FALSE}
+
+\begin{document}
+<<echo=FALSE,results=hide>>=
+options(width=75)
+set.seed(0)
+library(fabia)
+fabiaVer<-packageDescription("fabia")$Version
+@
+%$
+
+\newcommand{\fabiaVer}{\Sexpr{fabiaVer}}
+
+\manualtitlepage[Version \fabiaVer, \today]
+
+\newlength{\auxparskip}
+\setlength{\auxparskip}{\parskip}
+\setlength{\parskip}{0pt}
+\tableofcontents
+\clearpage
+\setlength{\parskip}{\auxparskip}
+\section{Introduction}
+
+
+The \Rpackage{fabia} package is part of the
+Bioconductor
+(\href{http://www.bioconductor.org}{http://www.bioconductor.org}) project.
+The package allows to extract biclusters from data sets based on a
+generative model according to the FABIA method \citep{Hochreiter:10}.
+It has been designed especially for microarray data sets, but can be
+used for other kinds of data sets as well.
+
+Please visit for additional information the FABIA homepage\linebreak
+\href{http://www.bioinf.jku.at/software/fabia/fabia.html}{http://www.bioinf.jku.at/software/fabia/fabia.html}.
+
+
+
+
+\section{Getting Started: FABIA}
+\label{sec:started}
+
+First load the \Rpackage{fabia} package:
+\begin{Sinput}
+R> library(fabia)
+\end{Sinput}
+
+
+The \Rpackage{fabia} package imports the package
+\Rpackage{methods} and the function
+\Rfunction{plot} from the package \Rpackage{graphics}.
+
+
+
+\subsection{Quick start : without outputs and plots}
+
+Assume your data is in the file \texttt{datafile.csv} in a matrix like
+format then you can try out the following steps to extract biclusters.
+
+\noindent
+Examples with outputs and plot can be found at
+\href{http://www.bioinf.jku.at/software/fabia/fabia.html}{http://www.bioinf.jku.at/software/fabia/fabia.html}.
+
+
+
+\begin{enumerate}
+\item Create a working directory, e.g. \texttt{c:/fabia/data} in Windows or
+\texttt{/home/myself/fabia/data} in Unix. Move the data file
+ \texttt{datafile.csv} to
+ that directory, e.g. under Unix
+ \begin{quote}
+ \texttt{cp datafile.csv /home/myself/fabia/data/}
+ \end{quote}
+ or drag the file
+ \texttt{datafile.csv} into that directory under Windows.
+\item Start \R and change to the working directory. Under Windows
+ \begin{Sinput}
+R> setwd("c:/fabia/data")
+\end{Sinput}
+and under Unix
+ \begin{Sinput}
+R> setwd("/home/myself/fabia/data")
+\end{Sinput}
+You can also start \R in that directory under Unix.
+\item Load the library:
+\begin{Sinput}
+R> library(fabia)
+\end{Sinput}
+\item Read the data file ``datafile.csv'':
+\begin{Sinput}
+R> X <- read.table("datafile.csv",header = TRUE, sep = ",")
+\end{Sinput}
+\item Select the model based on the data: 5 biclusters; sparseness
+  0.01; 500 cycles
+\begin{Sinput}
+R> res <- fabia(X,5,0.01,500)
+\end{Sinput}
+\item Give summary:
+\begin{Sinput}
+R> summary(res)
+\end{Sinput}
+\item Plot some statistics:
+\begin{Sinput}
+R> show(res)
+\end{Sinput}
+\item Plot the factorization results:
+\begin{Sinput}
+R> extractPlot(res,ti="FABIA")
+\end{Sinput}
+\item Plot the result as a biplot:
+\begin{Sinput}
+R> plot(res)
+\end{Sinput}
+\item Extract biclusters:
+\begin{Sinput}
+R> rb <- extractBic(res)
+\end{Sinput}
+\item Show information content of the biclusters:
+\begin{Sinput}
+R> res@avini
+\end{Sinput}
+\item List bicluster 1:
+\begin{Sinput}
+R> rb$bic[1,]
+\end{Sinput}
+\item List bicluster 2:
+\begin{Sinput}
+R> rb$bic[2,]
+\end{Sinput}
+\item Show bicluster 3:
+\begin{Sinput}
+R> rb$bic[3,]
+\end{Sinput}
+\item List bicluster 4:
+\begin{Sinput}
+R> rb$bic[4,]
+\end{Sinput}
+\item List bicluster 5:
+\begin{Sinput}
+R> rb$bic[5,]
+\end{Sinput}
+\item Plot bicluster 1:
+\begin{Sinput}
+R> plotBicluster(rb,1)
+\end{Sinput}
+\item Plot bicluster 2:
+\begin{Sinput}
+R> plotBicluster(rb,2)
+\end{Sinput}
+\item Plot bicluster 3:
+\begin{Sinput}
+R> plotBicluster(rb,3)
+\end{Sinput}
+\item Plot bicluster 4:
+\begin{Sinput}
+R> plotBicluster(rb,4)
+\end{Sinput}
+\item Plot bicluster 5:
+\begin{Sinput}
+R> plotBicluster(rb,5)
+\end{Sinput}
+\item List opposite bicluster 1:
+\begin{Sinput}
+R> rb$bicopp[1,]
+\end{Sinput}
+\item Plot opposite bicluster 1:
+\begin{Sinput}
+R> plotBicluster(rb,1,opp=TRUE)
+\end{Sinput}
+\end{enumerate}
+
+
+\subsection{Test on Toy Data Set}
+
+In the following, we describe how you can test
+the package \Rpackage{fabia} on a toy data set that is generated on-line.
+
+\begin{enumerate}
+\item generate bicluster data, where biclusters are in block format in
+  order to obtain a better visualization of the results. 1000
+  observations, 100 samples, 10 biclusters:
+
+\begin{Sinput}
+R> n <- 1000
+R> l <- 100
+R> p <- 10
+R> dat <- makeFabiaDataBlocks(n = n,l= l,p = p,f1 = 5,
+    f2 = 5,of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,
+    mean_z = 2.0,sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+\end{Sinput}
+
+\item store the generated data in variables and annotate the data
+  according to which biclusters the samples and genes belong:
+\begin{Sinput}
+R> X <- dat[[1]]
+R> Y <- dat[[2]]
+R> ZC <- dat[[3]]
+R> LC <- dat[[4]]
+R> gclab <- rep.int(0,l)
+R> gllab <- rep.int(0,n)
+R> clab <- as.character(1:l)
+R> llab <- as.character(1:n)
+R> for (i in 1:p){
++  for (j in ZC[i]){
++      clab[j] <- paste(as.character(i),"_",clab[j],sep="")
++  }
++  for (j in LC[i]){
++      llab[j] <- paste(as.character(i),"_",llab[j],sep="")
++  }
++  gclab[unlist(ZC[i])] <- gclab[unlist(ZC[i])] + p^i
++  gllab[unlist(LC[i])] <- gllab[unlist(LC[i])] + p^i
++ }
+groups <- gclab
+\end{Sinput}
+
+\item {\bf \large FABIA:} perform  \Rfunction{fabia} (sparseness by Laplace prior)
+  to extract biclusters; 13 biclusters, sparseness 0.01 (Laplace),
+  400 cycles:
+\begin{Sinput}
+R> resToy1 <- fabia(X,13,0.01,400)
+\end{Sinput}
+\item Plot some results:
+\begin{Sinput}
+R> extractPlot(resToy1,ti="FABIA",Y=Y)
+\end{Sinput}
+\item Extract the biclusters:
+\begin{Sinput}
+R> raToy1 <- extractBic(resToy1)
+\end{Sinput}
+\item Plot bicluster 1:
+\begin{Sinput}
+R> if ((raToy1$bic[[1]][1]>1) && (raToy1$bic[[1]][2])>1) {
++      plotBicluster(raToy1,1)
++  }
+\end{Sinput}
+\item Plot bicluster 2:
+\begin{Sinput}
+R> if ((raToy1$bic[[2]][1]>1) && (raToy1$bic[[2]][2])>1) {
++ plotBicluster(raToy1,2)
++ }
+\end{Sinput}
+\item Plot bicluster 3:
+\begin{Sinput}
+R> if ((raToy1$bic[[3]][1]>1) && (raToy1$bic[[3]][2])>1) {
++ plotBicluster(raToy1,3)
++ }
+\end{Sinput}
+\item Plot bicluster 4:
+\begin{Sinput}
+R> if ((raToy1$bic[[4]][1]>1) && (raToy1$bic[[4]][2])>1) {
++ plotBicluster(raToy1,4)
++ }
+\end{Sinput}
+
+
+\item Prepare biplots:
+\begin{Sinput}
+R> colnames(resToy1@X) <- clab
+R> rownames(resToy1@X) <- llab
+\end{Sinput}
+
+
+\item Biplot of bicluster 1 and 2:
+\begin{Sinput}
+R> plot(resToy1,dim=c(1,2),label.tol=0.1,col.group = groups,lab.size=0.6)
+\end{Sinput}
+\item Biplot of bicluster 1 and 3:
+\begin{Sinput}
+R> plot(resToy1,dim=c(1,3),label.tol=0.1,col.group = groups,lab.size=0.6)
+\end{Sinput}
+\item Biplot of bicluster 2 and 3:
+\begin{Sinput}
+R> plot(resToy1,dim=c(2,3),label.tol=0.1,col.group = groups,lab.size=0.6)
+\end{Sinput}
+
+
+
+\item {\bf \large FABIAS:} perform  \Rfunction{fabias} (sparseness by projection)
+  to extract biclusters; 13 biclusters, sparseness 0.6 (projection),
+  400 cycles:
+\begin{Sinput}
+R> resToy2 <- fabias(X,13,0.6,400)
+\end{Sinput}
+\item  Plot some results:
+\begin{Sinput}
+R> extractPlot(resToy2,ti="FABIAS",Y=Y)
+\end{Sinput}
+\item Extract the biclusters:
+\begin{Sinput}
+R> raToy2 <- extractBic(resToy2)
+\end{Sinput}
+\item Plot bicluster 1:
+\begin{Sinput}
+R> if ((raToy2$bic[[1]][1]>1) && (raToy2$bic[[1]][2])>1) {
++      plotBicluster(raToy2,1)
++  }
+\end{Sinput}
+\item Plot bicluster 2:
+\begin{Sinput}
+R> if ((raToy2$bic[[2]][1]>1) && (raToy2$bic[[2]][2])>1) {
++ plotBicluster(raToy2,2)
++ }
+\end{Sinput}
+\item Plot bicluster 3:
+\begin{Sinput}
+R> if ((raToy2$bic[[3]][1]>1) && (raToy2$bic[[3]][2])>1) {
++ plotBicluster(raToy2,3)
++ }
+\end{Sinput}
+\item Plot bicluster 4:
+\begin{Sinput}
+R> if ((raToy2$bic[[4]][1]>1) && (raToy2$bic[[4]][2])>1) {
++ plotBicluster(raToy2,4)
++ }
+\end{Sinput}
+
+
+\item Prepare biplots:
+\begin{Sinput}
+R> colnames(resToy2@X) <- clab
+R> rownames(resToy2@X) <- llab
+\end{Sinput}
+
+
+\item Biplot of bicluster 1 and 2:
+\begin{Sinput}
+R> plot(resToy2,dim=c(1,2),label.tol=0.1,col.group = groups,lab.size=0.6)
+\end{Sinput}
+\item Biplot of bicluster 1 and 3:
+\begin{Sinput}
+R> plot(resToy2,dim=c(1,3),label.tol=0.1,col.group = groups,lab.size=0.6)
+\end{Sinput}
+\item Biplot of bicluster 2 and 3:
+\begin{Sinput}
+R> plot(resToy2,dim=c(2,3),label.tol=0.1,col.group = groups,lab.size=0.6)
+\end{Sinput}
+
+
+\end{enumerate}
+
+
+
+\subsection{Demos}
+
+The package \Rpackage{fabia} has some demos which can be
+demonstrated by \Rfunction{fabiaDemo}.
+
+\begin{enumerate}
+\item demo1: toy data.
+
+\begin{Sinput}
+R> fabiaDemo()
+\end{Sinput}
+Choose ``1'' and you get above toy data demonstration.
+
+\item demo2: Microarray data set of \citep{Veer:02} on breast cancer.
+\begin{Sinput}
+R> fabiaDemo()
+\end{Sinput}
+Choose ``2'' to extract subclasses in the data set of
+van't Veer as biclusters.
+
+\item demo3: Microarray data set of \citep{Su:02} on different mammalian.
+\begin{Sinput}
+R> fabiaDemo()
+\end{Sinput}
+Choose ``3'' to check whether the different mouse and human
+tissue types can be extracted.
+
+\item demo4: Microarray data set of  \citep{Rosenwald:02}
+diffuse large-B-cell lymphoma.
+ \citep{Hoshida:07}  divided the data set into three classes
+\begin{itemize}
+\item{OxPhos:} oxidative phosphorylation
+  \item{BCR:} B-cell response
+  \item{HR:} host response
+\end{itemize}
+\begin{Sinput}
+R> fabiaDemo()
+\end{Sinput}
+Choose ``4'' to check whether the different classes can be extracted.
+\end{enumerate}
+
+
+
+\newpage
+
+\section{The FABIA Model}\label{sec:model}
+
+For a detailed model description see the FABIA model
+\citep{Hochreiter:10}.
+
+\subsection{Model Assumptions}
+
+We define a {\em bicluster} as a pair of a row (gene) set and a
+column (sample) set for which the rows are similar to each other on
+the columns and vice versa. In a multiplicative model, two vectors
+are similar if one is a multiple of the other, that is
+the angle between them is zero or as realization of random variables their
+correlation coefficient is one.
+\begin{figure}[!t]
+\centerline{\includegraphics[width=0.9\textwidth]{./figures/vectors_1}}
+\caption{The outer product  $\la \ \z^T$ of two sparse vectors
+results in a matrix with a bicluster. Note, that the non-zero
+entries in the vectors are adjacent to each other for visualization
+purposes only.}\label{fig:vectors}
+\end{figure}
+It is clear that such
+a linear dependency on subsets of rows and columns can be
+represented as an outer product $\la \ \z^T$ of two vectors
+$\la$ and $\z$. The vector $\la$ corresponds to a {\em prototype
+column vector} that contains zeros for genes not participating in
+the bicluster, whereas $\z$ is a vector of {\em factors} with which
+the prototype column vector is scaled for each sample; clearly $\z$
+contains zeros for samples not participating in the bicluster.
+Vectors containing many zeros or values close to
+zero are called {\em sparse vectors}.
+Fig.\ \ref{fig:vectors} visualizes this representation by sparse
+vectors schematically.
+
+
+The overall model for $p$ biclusters and additive noise is
+\begin{align}
+\X \ = \ \sum_{i=1}^{p} \la_i \ \z_i^T \ + \ \Up \ = \ \La \ \Z \ +
+\ \Up \ ,\label{eq:expgen}
+\end{align}
+where $\Up \in \Rb^{n \times l}$ is additive noise and $\la_i  \in
+\Rb^n$  and $\z_i  \in \Rb^l$ are the sparse prototype vector and
+the sparse vector of factors of the $i$-th bicluster, respectively.
+The second formulation above holds if $\La \in \Rb^{n \times p}$ is
+the sparse prototype matrix containing the prototype vectors $\la_i$
+as columns and $\Z \in \Rb^{p \times l}$ is the sparse factor matrix
+containing the transposed factors $\z_i^T$ as rows. Note that
+Eq.~\eqref{eq:expgen} formulates biclustering as sparse matrix
+factorization.
+
+According to Eq.~\eqref{eq:expgen}, the $j$-th sample $\x_j$, i.e.,
+the $j$-th column of $\X$, is
+\begin{align}
+\x_j\ = \ \sum_{i=1}^{p} \la_i \ z_{ij} \ + \ \epp_j \ = \ \La \
+\tilde\z_j\ + \ \epp_j \ ,\label{eq:expgen2}
+\end{align}
+where $\epp_j$ is the $j$-th column of the noise matrix $\Up$ and
+$\tilde\z_j=(z_{1j},\dots,z_{pj})^T$ denotes the $j$-th column of
+the matrix $\Z$. Recall that $\z_i^T=(z_{i1},\dots,z_{il})$ is the
+vector of values that constitutes the $i$-th bicluster (one value
+per sample), while $\tilde\z_j$ is the vector of values that
+contribute to the $j$-th sample (one value per bicluster).
+
+The formulation in Eq.~\eqref{eq:expgen2} facilitates a generative
+interpretation by a factor analysis model with $p$ factors
+\begin{align}
+\x \ = \ \sum_{i=1}^{p} \la_i \ \tilde z_i  \ + \
+    \epp \ = \ \La \ \tilde\z \ + \
+    \epp \ ,\label{eq:factormodel}
+\end{align}
+where $\x$ are the observations, $\La$ is the loading matrix,
+$\tilde z_i$ is the value of the \mbox{$i$-th} factor,
+$\tilde\z=(\tilde z_1,\ldots,\tilde z_p)^T$ is the vector of
+factors, and $\epp\in \Rb^{n}$ is the additive noise. Standard factor
+analysis assumes that the noise is independent of $\tilde\z$, that
+$\tilde\z$ is $\Ncal(\0,\I)$-distributed, and that $\epp$ is
+$\Ncal(\0,\pp)$-distributed, where the covariance matrix $\pp \in
+\Rb^{n \times n}$ is a diagonal matrix expressing independent
+Gaussian noise. The parameter $\La$ explains the dependent (common)
+and $\pp$ the independent variance in the observations $\x$.
+Normality of the additive noise in gene expression is justified by
+the findings in \citep{Hochreiter:06}.
+
+The unity matrix as covariance matrix for $\tilde\z$ may be violated
+by overlapping biclusters, however we want to avoid to divide a real
+bicluster into two factors. Thus, we prefer uncorrelated factors
+over more sparseness. The factors can be decorrelated by
+setting
+$\hat{\z} := \A^{-1}\ \tilde\z$ and $\hat{\La} := \La \ \A$ with the
+symmetric invertible matrix $\A^2=\E\big(\tilde\z \ \tilde\z^T\big)$:
+\begin{align*}
+& \La \ \z \ = \  \La \ \A \ \A^{-1} \ \z \ \ = \ \hat{\La}  \
+\hat{\z} \ \ \ \ \text{~and}\\
+& \E\big(\hat{\z} \ \hat{\z}^T\big) \ = \ \A^{-1}\
+\E\big(\tilde\z \ \tilde\z^T\big) \
+\A^{-1} \ = \ \A^{-1}  \A^2 \A^{-1} \ = \I \ .
+\end{align*}
+
+Standard factor analysis does not consider sparse factors and sparse
+loadings which are essential in our formulation to represent biclusters.
+Sparseness is obtained by a
+component-wise independent {\em Laplace}
+distribution \citep{Hyvarinen:99a}, which is now used as
+a prior on the factors $\tilde\z$ instead of the Gaussian:
+\begin{align*}
+p(\tilde\z) \ = \ \left( {\textstyle\frac{1}{\sqrt{2}}} \right)^p
+\prod_{i=1}^{p}
+    e^{-\ \sqrt{2} \ |\tilde z_i|}
+\end{align*}
+Sparse loadings $\la_i$ and, therefore sparse $\La$,
+are achieved by two
+alternative strategies. In the first model, called \textsf{FABIA},
+we assume a component-wise independent {\em Laplace}
+prior for the loadings (like for the factors):
+\begin{align}
+p(\la_i) \ = \ \left( {\textstyle\frac{1}{\sqrt{2}}} \right)^n
+\prod_{k=1}^{n} e^{-\ \sqrt{2} \
+|\lambda_{ki}|}\label{eq:laplaceprior}
+\end{align}
+The \textsf{FABIA} model contains the product of Laplacian variables
+which is distributed proportionally to the $0$-th order modified
+Bessel function of the second kind \citep{Bithas:07}. For large
+values, this Bessel function is a negative exponential function of
+the square root of the random variable. Therefore, the tails of the
+distribution are heavier than those of the Laplace distribution. The
+Gaussian noise, however, reduces the heaviness of the tails such
+that the heaviness is between Gaussian and Bessel function tails ---
+about as heavy as the tails of the Laplacian distribution. These
+{\em heavy tails} are exactly the desired model characteristics.
+
+The second model, called \textsf{FABIAS}, applies a
+prior with parameter spL on the loadings that has only support at sparse regions.
+Following \citep{Hoyer:04}, we define sparseness as
+\begin{align*}
+\mathrm{sp}(\la_i) \ = \ \frac{\sqrt{n} \ - \
+    \sum_{k=1}^{n} \left|\lambda_{ki} \right|\ / \  \sum_{k=1}^{n}
+    \lambda_{ki}^2}{\sqrt{n} \ - \ 1}
+\end{align*}
+leading to the prior
+\begin{align}
+p(\la_i) \ = \
+\begin{cases}
+c &  \text{for~~~~} \mathrm{sp}(\la_i) \ \leq \ \mathrm{spL} \\
+0 &  \text{for~~~~} \mathrm{sp}(\la_i) \ > \ \mathrm{spL}
+\end{cases}
+\ .  \label{eq:sparseness}
+\end{align}
+
+
+\subsection{Sparse Coding and Laplace Prior}
+
+Laplace prior enforces sparse codes on the factors.
+\emph{Sparse coding}
+is the representation of items by the
+\emph{strong activation}
+of a relatively
+\emph{small set}
+of hidden factors while the factors are
+\emph{almost constant}
+if not activated.
+
+Laplace prior is suited for modeling
+strong activation for few samples while being otherwise
+almost constant.
+Fig.\ \ref{fig:lap1} left shows the Laplacian mode compared to a Gaussian
+mode. The Laplacian mode is higher and narrower.
+Fig.\ \ref{fig:lap1} right shows the tails of Gaussian and
+Laplace distribution, where the latter has higher values. This means
+for the Laplace distribution large values are more likely than for a
+Gaussian.
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.45\textwidth]{./figures/fabia-lap1}
+\includegraphics[width=0.45\textwidth]{./figures/fabia-lap2}
+\end{center}
+\caption{Left: The mode of a Laplace (red, solid) vs. a Gaussian
+  (dashed, blue) distribution. Right:
+    The tails of a Laplace (red, solid) vs. a Gaussian (dashed, blue) distribution}
+\label{fig:lap1}
+\end{figure}
+
+
+% \begin{figure}
+% \begin{center}
+% <<label=lap1,echo=F,fig=TRUE>>=
+% t<-0.2
+% s<-1
+% curve(1/(sqrt(2)*t)*exp(-sqrt(2)/t*abs(x)),from=-6,to=6,ylab="",col="red",lty=1,lwd=3)
+% curve(1/(sqrt(2*pi)*s)*exp(-0.5*1/s^2*x^2),add=TRUE,col="blue",lty=2,lwd=3)
+% @
+% \end{center}
+% \caption{Mode: Laplace (red, solid) vs. Gaussian (dashed, blue)}
+% \label{fig:lap1}
+% \end{figure}
+
+% Fig.\ \ref{fig:lap2} shows the tails
+% where it can be seen that Laplace has higher likelihood
+% for large values than Gaussian.
+% \begin{figure}
+% \begin{center}
+% <<label=lap2,echo=F,fig=TRUE>>=
+% t<-0.2
+% s<-1
+% curve(1/(sqrt(2)*t)*exp(-sqrt(2)/t*abs(x)),from=14.2,to=16,ylab="",col="red",lty=1,lwd=3)
+% curve(1/(sqrt(2*pi)*s)*exp(-0.5*1/s^2*x^2),add=TRUE,col="blue",lty=2,lwd=3)
+% @
+% \end{center}
+% \caption{Tails: Laplace (red, solid) vs. Gaussian (dashed, blue)}
+% \label{fig:lap2}
+% \end{figure}
+
+
+
+\subsection{Model Selection}
+\label{sec:selection}
+
+
+The free parameters $\La$ and $\pp$ can be estimated by
+Expectation-Maximization (EM; \citealp{Dempster:77}). With a prior
+probability on the loadings, the a posteriori of the parameters is
+maximized like in \citep{Hochreiter:06,Talloen:07}.
+
+\subsubsection{Variational Approach for Sparse Factors}
+
+Model selection is not straightforward because the likelihood
+\begin{align*}
+p( \x \mid \La, \pp ) \ = \ \int p( \x \mid \tilde\z, \La, \pp) \ p(
+\tilde\z) \ d\tilde\z
+\end{align*}
+cannot be computed analytically for a Laplacian prior $p(\tilde\z)$.
+We employ a variational approach according to \citet{Girolami:01}
+and \citet{Palmer:06} for model selection. They introduce a model
+family that is parametrized by $\xii$, where the maximum over models
+in this family is the true likelihood:
+\begin{align*}
+\underset{\xii}{\arg\max} \ p(\x|\xii) \ = \ \log p(\x) \ .
+\end{align*}
+Using an EM algorithm, not only the likelihood with respect to the
+parameters $\La$ and $\pp$ is maximized, but also with respect to
+$\xii$.
+
+In the following, $\La$ and $\pp$ denote the actual parameter
+estimates. According to \citet{Girolami:01} and \citet{Palmer:06},
+we obtain
+\begin{align*}
+\E \big(\tilde\z_j   \mid \x_j \big) \ = \ & \big( \La^T \
+  \pp^{-1} \ \La \
+  + \  \Xii_j^{-1} \big)^{-1} \ \La^T \  \pp^{-1} \ \x_j \ \ \mbox{~~and} \\
+\E \big(\tilde\z_j \ \tilde\z_j^T  \mid  \x_j \big) \ = \ & \big(
+\La^T \
+  \pp^{-1} \ \La \
+  + \  \Xii_j^{-1} \big)^{-1} \ + \\
+& \E \big(\tilde\z_j   \mid  \x_j \big)  \ \E (\tilde\z_j  \mid
+\x_j)^T \ ,
+\end{align*}
+where $\Xii_j$ stands for $\mathrm{diag} \left(\xii_j \right)$. The update for
+$\xii_j$ is
+\begin{align*}
+\xii_{j} \ = \  \mathrm{diag}\left( \sqrt{\E (\tilde\z_j \
+\tilde\z_j^T \mid \x_j)} \right) \ .
+\end{align*}
+
+\subsubsection{New Update Rules for Sparse Loadings}
+
+The update rules for \textsf{FABIA} (Laplace prior on
+loadings) are
+\begin{align}
+\La^{\nn} \ = \  \frac{\frac{1}{l} \ \sum_{j=1}^{l} \x_j \ \E
+(\tilde\z_j \mid  \x_j)^T  \ - \ \frac{\alpha}{l} \  \pp \ \sign
+(\La
+  )}{\frac{1}{l} \sum_{j=1}^{l} \E (\tilde\z_j \ \tilde\z_j^T \mid \x_j
+  )} \label{eq:update}\\
+\mathrm{diag} \left(\pp^{\nn}  \right) \ = \ \pp^{\mathrm{EM}} \ +
+\ \mathrm{diag} \Big(\frac{\alpha}{l} \  \pp \ \sign (\La
+  ) ( \La^{\nn} )^T \Big) \nonumber
+\end{align}
+where
+\begin{align*}
+\pp^{\mathrm{EM}} \  = \ \mathrm{diag} \bigg( \frac{1}{l}
+\sum_{j=1}^l \x_j  \x_j^T \ - \ \La^{\nn}  \frac{1}{l} \sum_{j=1}^l
+ \E \left(  \tilde\z_j   \mid  \x_j \right) \ \x_{j}^{T} \bigg)  .
+\end{align*}
+
+The update rules for
+\textsf{FABIAS} must take into account that
+each $\la_i$ from $\La$ has a prior with restricted
+support. Therefore the sparseness constraints $\mathrm{sp}(\la_i) \leq \mathrm{spL}$
+from Eq.\ \eqref{eq:sparseness} hold.
+These constraints are ensured by a
+projection of $\la_i$ after each $\La$ update according to \citet{Hoyer:04}.
+The projection is a convex quadratic problem which
+minimizes the Euclidean distance to the
+original vector subject to the
+constraints. The projection problem can be solved fast by an iterative
+procedure where the $l_2$-norm of the vectors is fixed to 1.
+We update $\mathrm{diag} (\pp^{\nn}) = \pp^{\mathrm{EM}}$ and
+project each updated prototype vector to a sparse vector with
+sparseness spL giving the
+overall projection:
+\begin{align*}
+\La^{\mathrm{new}} \ = \   \mathrm{proj} \left(\frac{\frac{1}{l} \
+\sum_{j=1}^{l}  \x_j \ \E \left(\tilde\z_j  \mid \x_j
+  \right)^T }{\frac{1}{l} \sum_{j=1}^{l} \E (\tilde\z_j \ \tilde\z_j^T \mid \x_j
+  )}, \mathrm{spL} \right)
+\end{align*}
+
+\subsubsection{Extremely Sparse Priors}
+
+Some gene expression data sets are sparser than Laplacian. For
+example, during estimating DNA copy numbers with Affymetrix SNP 6
+arrays, we observed a kurtosis larger than 30 (FABIA results shown
+at
+\href{http://www.bioinf.jku.at/software/fabia/fabia.html}{http://www.bioinf.jku.at/software/fabia/fabia.html}).
+We want to adapt our model class to deal with such sparse data sets.
+Toward this end, we define extremely sparse priors both on the
+factors and the loadings utilizing the following (pseudo)
+distributions:
+\begin{quote}
+\vspace{-0.2cm}
+\begin{tabular}{ll}
+Generalized Gaussians: & $p(z) \ \propto \ \exp \left( - \
+  |z|^{\beta} \right)$ \\
+Jeffrey's prior: &  $p(z) \ \propto \ \exp \left( - \ \ln|z|
+\right)  \  =  \ 1/|z|$ \\
+Improper prior: &  $p(z) \ \propto \ \exp \left( |z|^{-\beta}
+\right)$
+\end{tabular}
+\end{quote}
+\vspace{-0.2cm}
+For the first distribution, we assume $0<\beta\leq 1$ and for the
+third $0<\beta$. Note, the third distribution may only exist on the
+interval $[\epsilon,a]$ with $0<\epsilon<a$. We assume that
+$\epsilon$ is sufficiently small.
+
+For the {\em loadings}, we need the derivatives of the negative
+log-distributions for optimizing the log-posterior. These
+derivatives are proportional to $|z|^{-\mathrm{spl}}$, where
+$\mathrm{spl}=0$ corresponds to the Laplace prior and
+$\mathrm{spl}>0$ to sparser priors. The update rule is as in
+Eq.~\eqref{eq:update}, where $\sign(\La)$ is replaced by
+$|\La|^{-\mathrm{spl}} \ \sign (\La)$ with element-wise operations
+(absolute value, sign, exponentiation, multiplication).
+
+For the {\em factors}, we represent the priors through a convex
+variational form according to \citet{Palmer:06}. That is possible
+because $g(z)=-\ln p(\sqrt{z})$ is increasing and concave for $z>0$
+(first order derivatives are larger and second order smaller than
+zero). According to \citet{Palmer:06}, the update for $\xii_j$ is
+\begin{align*}
+\xii_{j} \ \propto \ \mathrm{diag} \Big( \E \big(\tilde\z_j \
+\tilde\z_j^T \mid  \x_j \big)^{\mathrm{spz}} \Big)
+\end{align*}
+for all $\mathrm{spz}\geq 1/2$, where $\mathrm{spz}=1/2$ ($\beta=1$)
+represents the Laplace prior and $\mathrm{spz}>1/2$ leads to sparser
+priors.
+
+\subsection{Data Preprocessing and Initialization}
+
+The data should be centered to zero mean, zero median, or zero mode
+(see supplementary). If the correlation of weak signals is of
+interest too, we recommend to normalize the data.
+
+The iterative model selection procedure requires initialization of
+the parameters $\La$, $\pp$, and  $\xii_{j}$. We initialize the
+variational parameter vectors $\xii_{j}$ by ones, $\La$ randomly,
+and $\pp = \mathrm{diag}(\max(\delta,\mathrm{covar}(\x) - \La
+\La^T))$.
+
+Alternatively $\La$ can be initialized by the result of a
+singular value decomposition (SVD).
+
+
+The user may supply the result of independent component analysis (ICA)
+as a sparse initialization for $\La$. ICA can also determine first
+$\Z$ from which $\La$ can be obtained as the least square solution to
+$\X \ = \ \La \ \Z$.
+
+
+\subsection{Information Content of Biclusters}
+\label{sec:info}
+
+A highly desired property for biclustering algorithms is the ability
+to rank the extracted biclusters analogously to principal components
+which are ranked according to the data variance they explain. We
+rank biclusters according to the information they contain about the
+data. The information content of $\tilde\z_j$ for the $j$-th
+observation $\x_j$ is the mutual information between $\tilde\z_j$
+and $\x_j$:
+\begin{align*}
+\mathrm{I} (\x_j;\tilde\z_j) \ = \  \mathrm{H} (\tilde\z_j) \ - \
+\mathrm{H} (\tilde\z_j \mid \x_j) \ = \frac{1}{2} \ \ln\big| \I_p \
++ \ \Xii_j \  \La^T \  \pp^{-1} \ \La \big|
+\end{align*}
+The independence of $\x_j$ and $\tilde\z_j$ across $j$ gives
+\begin{align*}
+\mathrm{I} (\X;\Z) \ = \ \frac{1}{2} \ \sum_{j=1}^{l}  \ln\big| \I_p
+\ + \   \Xii_j \ \La^T \
+  \pp^{-1} \ \La\big|\ .
+\end{align*}
+For the FARMS summarization algorithm ($p=1$ and  $\Xii_j=1$), this
+information is the negative logarithm of the I/NI call
+\citep{Talloen:07}.
+
+To assess the information content of one factor, we consider the
+case that factor $\tilde z_i$ is removed from the final model. This
+corresponds to setting $\xi_{ij}=0$ (by $\xi_{ij}$, we denote the
+$i$-th entry in $\xii_j$) and therefore the explained covariance
+$\xi_{ji} \ \la_i \ \la_i^T$ is removed:
+\begin{align*}
+\x_j \mid (\tilde\z_j \setminus z_{ij}) \ \sim \ \Ncal\big( \La \
+\tilde\z_j|_{z_{ij}=0} \ , \ \pp \ + \
+  \xi_{ij} \ \la_i \ \la_i^T \big)
+\end{align*}
+The information of $z_{ij}$ given the other factors is
+\begin{align*}
+\mathrm{I}(\x_j;z_{ij} \mid (\tilde\z_j \setminus z_{ij}) ) \ &= \
+\mathrm{H}(z_{ij} \mid (\tilde\z_j \setminus z_{ij})) -
+\mathrm{H}(z_{ij} \mid (\tilde\z_j \setminus z_{ij}),\x_j ) \\
+& = \ \frac{1}{2} \ \ln\big(1 \ + \ \xi_{ij} \ \la_i^T \pp^{-1}
+  \la_i \big)  \ .
+\end{align*}
+Again independence across $j$ gives
+\begin{align*}
+\mathrm{I} (\X;\z_i^T \mid (\Z \setminus \z_{i}^T) ) \ = \
+\frac{1}{2} \ \sum_{j=1}^{l}  \ \ln\left(  1 \ + \   \xi_{ij} \
+\la_i^T \pp^{-1} \la_i \right) \ .
+\end{align*}
+This information content gives that part of information in $\x$ that
+$\z_i^T$ conveys across all examples. Note that also the number of
+nonzero $\la_i$'s (size of the bicluster) enters the information
+content.
+
+\subsection{Extracting Members of Biclusters}
+\label{sec:extract}
+
+After model selection in Section \ref{sec:selection} and ranking of
+bicluster in Section \ref{sec:info}, the $i$-th bicluster has soft
+gene memberships given by the absolute values of $\la_i$
+and soft sample memberships given by the absolute values of $\z_i^T$.
+
+However, applications may need hard memberships. We
+determine the members of bicluster $i$ by selecting absolute values
+$\lambda_{ki}$ and $z_{ij}$ above thresholds $\mathrm{thresL}$ and
+$\mathrm{thresZ}$, respectively.
+
+First, the second moment of each factor is normalized to 1 resulting
+in a factor matrix $\hat{\Z}$ (in accordance with
+$\E(\tilde\z\tilde\z^T)=\I$). Consequently, $\La$ is rescaled to
+$\hat{\La}$ such that $\La \Z = \hat{\La} \hat{\Z}$. Now the
+threshold $\mathrm{thresZ}$ can be chosen to determine which
+percentage of samples will on average belong to a bicluster. For a
+Laplace prior, this percentage can be computed by $\frac{1}{2}
+\exp(-\sqrt{2}/\mathrm{thresZ})$.
+
+In the default setting, for each factor $\hat\z_i$, only one
+bicluster is extracted. In gene expression, an expression pattern is
+either absent or present but not negatively present. Therefore, the
+$i$-th bicluster is either determined by the positive or negative
+values of $\hat z_{ij}$. Which one of these two possibilities is
+chosen is decided by whether the sum over $\big| \hat z_{ij} \big| >
+\mathrm{thresZ}$ is larger for the positive or negative $\hat
+z_{ij}$.
+
+The threshold $\mathrm{thresL}$ for the loadings is more difficult
+to determine, because normalization would lead to a rescaling of the
+already normalized factors. Since biclusters may overlap, the
+contribution of $\lambda_{ki} z_{ij}$ that are relevant must be
+estimated. Therefore, we first estimate the standard deviation of
+$\La\Z$ by
+\begin{align*}
+\mathrm{sdLZ} \ = \ \sqrt{\frac{1}{p \ l \ n}
+\sum_{(i,j,k)=(1,1,1)}^{(p,l,n)}  \big(\hat{\lambda}_{ki} \
+\hat{z}_{ij}\big)^2} \ .
+\end{align*}
+We set this standard deviation to the product of
+both thresholds which is solved for $\mathrm{thresL}$:
+$\mathrm{thresL}=\mathrm{sdLZ}\ /\
+\mathrm{thresZ}$.
+However, an optimal $\mathrm{thresL}$ depends on
+the sparseness parameters and on the characteristics of the
+biclustering problem.
+
+
+
+\subsection{C implementation of FABIA}
+
+The functions \Rfunction{fabia}, \Rfunction{fabias}, and \Rfunction{spfabia}
+are
+implemented in C. It turned out that these implementations are not
+only faster, but also more precise. Especially we use an efficient Cholesky
+decomposition to compute the inverse of positive definite matrices.
+Some \R functions for computing the inverse like  \Rfunction{solve}
+were inferior to that implementation.
+
+
+\appendix
+
+\section{Class Factorization}
+
+\texttt{Factorization} is the class structure for results of matrix
+  factorization. Especially it is designed for factor analysis used for
+  biclustering.
+
+  The \texttt{summary} method shows information about biclusters.
+  The \texttt{show} method plots information about biclusters.
+  The \texttt{showSelected} method plots selected information about biclusters.
+  The \texttt{plot} method produces biplots of biclusters.
+
+
+  Objects can be created by \texttt{fabia}, \texttt{fabias}, \texttt{fabiap},
+  \texttt{fabiasp}, \texttt{mfsc},  \texttt{nmfsc},
+  \texttt{nmfdiv}, and \texttt{nmfeu}.
+
+
+
+  Objects of class \texttt{Factorization} have the following slots:
+  \begin{enumerate}
+    \item{\texttt{parameters}:} Saves parameters of the factorization
+    method in a list:\\
+    \noindent
+    ``method'',\\
+    \noindent
+    ``number of cycles'',\\
+    \noindent
+    ``sparseness weight'',\\
+    \noindent
+    ``sparseness prior for loadings'',\\
+    \noindent
+    ``sparseness prior for factors'',\\
+    \noindent
+    ``number biclusters'',\\
+    \noindent
+    ``projection sparseness loadings'',\\
+    \noindent
+    ``projection sparseness factors'',\\
+    \noindent
+    ``initialization range'',\\
+    \noindent
+    ``are loadings rescaled after each iterations'',\\
+    \noindent
+    ``normalization = scaling of rows'',\\
+    \noindent
+    ``centering method of rows'',\\
+    \noindent
+    ``parameter for method''.
+
+           \item{\texttt{n}:} number of rows, left dimension.
+           \item{\texttt{p1}:} right dimension of left matrix.
+           \item{\texttt{p2}:} left dimension of right matrix.
+           \item{\texttt{l}:} number of columns, right dimension.
+           \item{\texttt{center}:} vector of the centers.
+           \item{\texttt{scaleData}:} vector of the scaling factors.
+	   \item{\texttt{X}:} centered and scaled data matrix $n \times l$.
+           \item{\texttt{L}:} left matrix $n \times p1$.
+           \item{\texttt{Z}:} right matrix $p2 \times l$.
+           \item{\texttt{M}:} middle matrix $p1 \times p2$.
+           \item{\texttt{LZ}:} matrix $\La \bf{M} \Z$ .
+           \item{\texttt{U}:} noise matrix.
+           \item{\texttt{avini}:}  information of each bicluster, vector
+           of length p2.
+           \item{\texttt{xavini}:}  information extracted
+             from each sample, vector of length $l$.
+           \item{\texttt{ini}:} information of each bicluster in each
+           sample, matrix $p2 \times l$.
+           \item{\texttt{Psi}:} noise variance per row, vector of length $n$.
+           \item{\texttt{lapla}:} prior information for each sample,
+           vector of length $l$.
+   \end{enumerate}
+
+
+  This class contains the result of different matrix factorization
+  methods. The methods may be generative or not.
+
+  Methods my be ``singular value decomposition'' ($\bf{M}$
+  contains singular values
+  as well as avini, $\La$ and $\Z$ are orthonormal matrices),
+  ``independent component analysis'' ($\Z$ contains the projection/sources,
+  $\La$ is the
+  mixing matrix, $\bf{M}$ is unity), ``factor analysis''
+  ($\Z$ contains factors, $\La$ the loadings,
+  $\bf{M}$ is unity, $\bf{U}$ the noise, $\pp$ the noise covariance, lapla is a
+  variational parameter for non-Gaussian factors, avini and ini are the
+  information the factors convey about the observations).
+
+
+
+
+\section{Biclustering and Matrix Factorization Methods}
+
+
+\subsection{fabi}
+
+Factor Analysis for Bicluster Acquisition: Laplace Prior (FABI) \citep{Hochreiter:10}.
+
+\R implementation of  \texttt{fabia}, therefore it is \emph{slow}.
+
+\begin{enumerate}
+
+\item Usage:
+\texttt{fabi(X,p=5,alpha=0.1,cyc=500,spl=0,spz=0.5,center=2,norm=1)}
+
+\item Arguments:
+ \begin{itemize}
+  \item{X:} the data matrix.
+  \item{p:} number of hidden factors = number of biclusters; default = 5.
+  \item{alpha:} sparseness loadings (0 - 1.0); default = 0.1.
+  \item{cyc:} number of iterations; default = 500.
+  \item{spl:} sparseness prior loadings (0 - 2.0): default = 0 (Laplace).
+  \item{spz:} sparseness factors (0.5 - 2.0); default = 0.5 (Laplace).
+  \item{center:} data centering: 1 (mean), 2
+    (median), > 2 (mode), 0 (no); default = 2.
+  \item{norm:} data normalization:  1 (0.75-0.25 quantile), >1 (var=1), 0 (no); default = 1.
+\end{itemize}
+
+\item Return Values:
+\begin{itemize}
+ \item object of the class \texttt{Factorization}. Containing
+  \texttt{LZ} (estimated noise free data $\La  \Z$),
+  \texttt{L} (loadings  $\La$),
+  \texttt{Z} (factors $\Z$),
+  \texttt{U} (noise  $\X- \La \Z$),
+  \texttt{center} (centering vector),
+  \texttt{scaleData} (scaling vector),
+  \texttt{X} (centered and scaled data $\X$),
+  \texttt{Psi} (noise variance $\pp$),
+  \texttt{lapla} (variational parameter),
+  \texttt{avini} (the information which the factor
+    $z_{ij}$ contains about $\x_j$ averaged over $j$)
+  \texttt{xavini} (the information which the factor
+    $\tilde\z_j$ contains about $\x_j$ averaged over $j$)
+  \texttt{ini} (for each $j$ the information which the factor
+    $z_{ij}$ contains about $\x_j$).
+
+\end{itemize}
+
+\end{enumerate}
+
+  Biclusters are found by sparse factor analysis where \emph{both} the factors
+  and the loadings are sparse.
+
+  Essentially the model is the sum of
+  outer products of vectors:
+  \begin{align*}
+    \X \ = \ \sum_{i=1}^{p} \la_i \ \z_i^T \ + \ \Up \ ,
+  \end{align*}
+  where the number of summands  $p$
+  is the number of biclusters.
+  The matrix factorization is
+  \begin{align*}
+    \X \ = \ \La \ \Z \ + \ \Up \ .
+  \end{align*}
+
+   Here $\X \in \Rb^{n \times l}$ and $\Up \in \Rb^{n \times l}$,
+  $\la_i  \in \Rb^n$, $\z_i  \in \Rb^l$, $\La \in \Rb^{n \times p}$,
+  $\Z \in \Rb^{p \times l}$.
+
+  If the nonzero components of
+  the sparse vectors are grouped together then the outer product results in
+  a matrix with a nonzero block and zeros elsewhere.
+
+
+  For a single data vector  $\x$ that is
+  \begin{align*}\x \ = \ \sum_{i=1}^{p} \la_i z_i  \ + \
+    \epp \ = \ \La \tilde\z \ + \
+    \epp\end{align*}
+
+  The model assumptions are:
+
+  \emph{Factor Prior is Independent Laplace:}
+  \begin{align*}p(\tilde\z) \ = \ \left( \frac{1}{\sqrt{2}} \right)^p \prod_{i=1}^{p}
+    e^{-\ \sqrt{2} \ |z_i|}\end{align*}
+
+  \emph{Loading Prior is Independent Laplace:}
+   \begin{align*}p(\la_i) \ = \ \left( \frac{1}{\sqrt{2}} \right)^n \prod_{k=1}^{n}
+    e^{-\ \sqrt{2} \ |\lambda_{ki}|}\end{align*}
+
+
+  \emph{Noise: Gaussian independent}
+  \begin{align*}p(\epp) \ = \ \left( \frac{1}{\sqrt{2 \ \pi}} \right)^n
+    \prod_{k=1}^{n}  \frac{1}{\sigma_k}
+     e^{\sum_{k=1}^{n}  \frac{\epsilon_k^2}{\sigma_k^2}} \end{align*}
+
+  \emph{Data Mean:}
+
+    \begin{align*}\E(\x) \ = \ \E(\La \ \tilde\z \ +
+      \ \epp ) \ = \ \La \ \E( \tilde\z) \ +
+      \ \E(\epp) \ = \ \0 \end{align*}
+
+
+      \emph{Data Covariance:}
+
+ \begin{align} \nonumber
+    \E(\x \ \x^T) \ &= \
+      \La \E( \tilde\z  \tilde\z^T) \La^T \ + \
+       \La \E( \tilde\z)\E(\epp^T) \ + \
+       \E( \tilde\z)\E(\epp) \La^T \ + \
+       \E(\epp \ \epp^T) \\\nonumber &= \
+       \La \La^T \ + \ \mathrm{diag}(\sigma_k^2)
+\end{align}
+
+
+
+      Normalizing the data to variance one for each component gives
+       \begin{align*}\sigma_k^2 \ + \ \left(\la^{k}\right)^T \la^{k} \ =
+     \ 1\end{align*}
+      Here $\la^{k}$ is the $k$-th row of $\La$ (which is a row vector of length $p$).
+      We recommend to \emph{normalize the components to variance one} in order
+      to make the signal and noise comparable across components.
+
+
+      \emph{Estimated Parameters:}
+       $\La$ and $\pp$ ($\sigma_k$)
+
+       \emph{Estimated Latent Variables:}
+        $\Z$
+
+    \emph{Estimated Noise Free Data:}
+        $\La \ \Z$
+
+    \emph{Estimated Biclusters:}
+        $\la_i \ \z_i^T $
+     Larges values give the bicluster (ideal the nonzero values).
+
+
+
+       The model selection is performed by a variational approach according
+  to \citep{Girolami:01} and \citep{Palmer:06}.
+
+  We included a prior on the parameters and minimize
+  a lower bound on the posterior
+  of the parameters given the data.
+  The update of the loadings includes an additive term which pushes the
+  loadings toward zero (Gaussian prior leads to an multiplicative factor).
+
+  The code is implemented in \R, therefore it is \emph{slow}.
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# TEST
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+
+
+resEx <-  fabi(X,3,0.01,20)
+
+
+
+#---------------
+# DEMO1
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 1000,l= 100,p = 10,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+
+
+resToy <- fabi(X,13,0.01,200)
+
+extractPlot(resToy,ti="FABI",Y=Y)
+
+#---------------
+# DEMO2
+#---------------
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+data(Breast_A)
+
+X <- as.matrix(XBreast)
+
+
+resBreast <- fabi(X,5,0.1,200)
+
+extractPlot(resBreast,ti="FABI Breast cancer(Veer)")
+
+#sorting of predefined labels
+CBreast%*%rBreast$pmZ
+}
+
+
+#---------------
+# DEMO3
+#---------------
+
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+data(Multi_A)
+
+X <- as.matrix(XMulti)
+
+resMulti <- fabi(X,5,0.01,200)
+
+extractPlot(resMulti,ti="FABI Multiple tissues(Su)")
+
+#sorting of predefined labels
+CMulti%*%rMulti$pmZ
+}
+
+
+#---------------
+# DEMO4
+#---------------
+
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+data(DLBCL_B)
+
+X <- as.matrix(XDLBCL)
+
+
+resDLBCL <- fabi(X,5,0.1,200)
+
+extractPlot(resDLBCL,ti="FABI Lymphoma(Rosenwald)")
+
+#sorting of predefined labels
+CDLBCL%*%rDLBCL$pmZ
+}
+
+\end{Sinput}
+
+
+
+
+\subsection{fabia}
+
+Factor Analysis for Bicluster Acquisition: Laplace Prior (FABIA) \citep{Hochreiter:10}.
+
+C implementation of  \texttt{fabia}.
+
+\begin{enumerate}
+\item Usage: \verb+fabia(X,p=5,alpha=0.1,cyc=500,spl=0,spz=0.5,random=1.0,+\\
+\hspace*{6em}\verb+   center=2,norm=1,scale=0.0,lap=1.0,nL=0,lL=0,bL=0)+
+
+\item Arguments:
+ \begin{itemize}
+  \item{X:} the data matrix.
+  \item{p:} number of hidden factors = number of biclusters; default = 5.
+  \item{alpha:} sparseness loadings (0 - 1.0); default = 0.1.
+  \item{cyc:} number of iterations; default = 500.
+  \item{spl:} sparseness prior loadings (0 - 2.0); default = 0 (Laplace).
+  \item{spz:} sparseness factors (0.5 - 2.0); default = 0.5 (Laplace).
+  \item{random} <=0: by SVD, >0: random initialization of loadings in
+    [-random,random]; default = 1.0.
+  \item{center:} data centering: 1 (mean), 2
+    (median), > 2 (mode), 0 (no); default = 2.
+  \item{norm:} data normalization:  1 (0.75-0.25 quantile), >1 (var=1), 0 (no); default = 1.
+  \item{scale:} loading vectors are scaled in each iteration to the given
+    variance. 0.0 indicates non scaling; default = 0.0.
+  \item{lap:} minimal value of the variational parameter, default = 1.
+  \item{nL:} maximal number of biclusters at which a row element can participate; default
+    = 0 (no limit).
+  \item{lL:} maximal number of row elements per bicluster; default
+    = 0 (no limit).
+  \item{bL:} cycle at which the nL or lL maximum starts; default
+    = 0 (start at the beginning).
+ \end{itemize}
+
+\item Return values:
+\begin{itemize}
+ \item object of the class \texttt{Factorization}. Containing
+  \texttt{LZ} (estimated noise free data $\La  \Z$),
+  \texttt{L} (loadings  $\La$),
+  \texttt{Z} (factors $\Z$),
+  \texttt{U} (noise  $\X- \La \Z$),
+  \texttt{center} (centering vector),
+  \texttt{scaleData} (scaling vector),
+  \texttt{X} (centered and scaled data $\X$),
+  \texttt{Psi} (noise variance $\pp$),
+  \texttt{lapla} (variational parameter),
+  \texttt{avini} (the information which the factor
+    $z_{ij}$ contains about $\x_j$ averaged over $j$)
+  \texttt{xavini} (the information which the factor
+    $\tilde\z_j$ contains about $\x_j$ averaged over $j$)
+  \texttt{ini} (for each $j$ the information which the factor
+    $z_{ij}$ contains about $\x_j$).
+\end{itemize}
+
+\end{enumerate}
+
+  Biclusters are found by sparse factor analysis where \emph{both} the factors
+  and the loadings are sparse.
+
+  Essentially the model is the sum of
+  outer products of vectors:
+  \begin{align*}
+    \X \ = \ \sum_{i=1}^{p} \la_i \ \z_i^T \ + \ \Up \ ,
+  \end{align*}
+  where the number of summands  $p$
+  is the number of biclusters.
+  The matrix factorization is
+  \begin{align*}
+    \X \ = \ \La \ \Z \ + \ \Up \ .
+  \end{align*}
+
+  Here $\X \in \Rb^{n \times l}$ and $\Up \in \Rb^{n \times l}$,
+  $\la_i  \in \Rb^n$, $\z_i  \in \Rb^l$, $\La \in \Rb^{n \times p}$,
+  $\Z \in \Rb^{p \times l}$.
+
+  If the nonzero components of
+  the sparse vectors are grouped together then the outer product results in
+  a matrix with a nonzero block and zeros elsewhere.
+
+
+  For a single data vector  $\x$ that is
+  \begin{align*}\x \ = \ \sum_{i=1}^{p} \la_i z_i  \ + \
+    \epp \ = \ \La \tilde\z \ + \
+    \epp\end{align*}
+
+  The model assumptions are:
+
+  \emph{Factor Prior is Independent Laplace:}
+  \begin{align*}p(\tilde\z) \ = \ \left( \frac{1}{\sqrt{2}} \right)^p \prod_{i=1}^{p}
+    e^{-\ \sqrt{2} \ |z_i|}\end{align*}
+
+  \emph{Loading Prior is Independent Laplace:}
+   \begin{align*}p(\la_i) \ = \ \left( \frac{1}{\sqrt{2}} \right)^n \prod_{k=1}^{n}
+    e^{-\ \sqrt{2} \ |\lambda_{ki}|}\end{align*}
+
+
+  \emph{Noise: Gaussian independent}
+  \begin{align*}p(\epp) \ = \ \left( \frac{1}{\sqrt{2 \ \pi}} \right)^n
+    \prod_{k=1}^{n}  \frac{1}{\sigma_k}
+     e^{\sum_{k=1}^{n}  \frac{\epsilon_k^2}{\sigma_k^2}} \end{align*}
+
+  \emph{Data Mean:}
+
+    \begin{align*}\E(\x) \ = \ \E(\La \ \tilde\z \ +
+      \ \epp ) \ = \ \La \ \E( \tilde\z) \ +
+      \ \E(\epp) \ = \ \0\end{align*}
+
+
+      \emph{Data Covariance:}
+
+  \begin{align} \nonumber
+    \E(\x \ \x^T) \ &= \
+      \La \E( \tilde\z  \tilde\z^T) \La^T \ + \
+       \La \E( \tilde\z)\E(\epp^T) \ + \
+       \E( \tilde\z)\E(\epp) \La^T \ + \
+       \E(\epp \ \epp^T) \\\nonumber &= \
+      \La \La^T \ + \ \mathrm{diag}(\sigma_k^2)
+\end{align}
+
+      Normalizing the data to variance one for each component gives
+       \begin{align*}\sigma_k^2 \ + \ \left(\la^{k}\right)^T \la^{k} \ =
+     \ 1\end{align*}
+      Here $\la^{k}$ is the $k$-th row of $\La$ (which is a row vector of length $p$).
+      We recommend to \emph{normalize the components to variance one} in order
+      to make the signal and noise comparable across components.
+
+
+      \emph{Estimated Parameters:}
+       $\La$ and $\pp$ ($\sigma_k$)
+
+       \emph{Estimated Latent Variables:}
+        $\Z$
+
+    \emph{Estimated Noise Free Data:}
+        $\La \ \Z$
+
+    \emph{Estimated Biclusters:}
+        $\la_i \ \z_i^T $
+     Larges values give the bicluster (ideal the nonzero values).
+
+
+       The model selection is performed by a variational approach according
+  to \citep{Girolami:01} and \citep{Palmer:06}.
+
+  We included a prior on the parameters and minimize
+  a lower bound on the posterior
+  of the parameters given the data.
+  The update of the loadings includes an additive term which pushes the
+  loadings toward zero (Gaussian prior leads to an multiplicative factor).
+
+  The code is implemented in C.
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# TEST
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+
+
+resEx <- fabia(X,3,0.01,50)
+
+
+#-----------------
+# DEMO1: Toy Data
+#-----------------
+
+n = 1000
+l= 100
+p = 10
+
+dat <- makeFabiaDataBlocks(n = n,l= l,p = p,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+ZC <- dat[[3]]
+LC <- dat[[4]]
+
+gclab <- rep.int(0,l)
+gllab <- rep.int(0,n)
+clab <- as.character(1:l)
+llab <- as.character(1:n)
+for (i in 1:p){
+ for (j in ZC[i]){
+     clab[j] <- paste(as.character(i),"_",clab[j],sep="")
+ }
+ for (j in LC[i]){
+     llab[j] <- paste(as.character(i),"_",llab[j],sep="")
+ }
+ gclab[unlist(ZC[i])] <- gclab[unlist(ZC[i])] + p^i
+ gllab[unlist(LC[i])] <- gllab[unlist(LC[i])] + p^i
+}
+
+
+groups <- gclab
+
+
+
+#### FABIA
+
+resToy1 <- fabia(X,13,0.01,400)
+
+extractPlot(resToy1,ti="FABIA",Y=Y)
+
+raToy1 <- extractBic(resToy1)
+
+if ((raToy1$bic[[1]][1]>1) && (raToy1$bic[[1]][2])>1) {
+    plotBicluster(raToy1,1)
+}
+if ((raToy1$bic[[2]][1]>1) && (raToy1$bic[[2]][2])>1) {
+plotBicluster(raToy1,2)
+}
+if ((raToy1$bic[[3]][1]>1) && (raToy1$bic[[3]][2])>1) {
+plotBicluster(raToy1,3)
+}
+if ((raToy1$bic[[4]][1]>1) && (raToy1$bic[[4]][2])>1) {
+plotBicluster(raToy1,4)
+}
+
+
+
+colnames(resToy1@X) <- clab
+
+rownames(resToy1@X) <- llab
+
+
+plot(resToy1,dim=c(1,2),label.tol=0.1,col.group = groups,lab.size=0.6)
+plot(resToy1,dim=c(1,3),label.tol=0.1,col.group = groups,lab.size=0.6)
+plot(resToy1,dim=c(2,3),label.tol=0.1,col.group = groups,lab.size=0.6)
+
+
+
+#------------------------------------------
+# DEMO2: Laura van't Veer's gene expression
+#        data set for breast cancer
+#------------------------------------------
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+data(Breast_A)
+
+X <- as.matrix(XBreast)
+
+
+resBreast1 <- fabia(X,5,0.1,400)
+
+extractPlot(resBreast1,ti="FABIA Breast cancer(Veer)")
+
+
+raBreast1 <- extractBic(resBreast1)
+
+if ((raBreast1$bic[[1]][1]>1) && (raBreast1$bic[[1]][2])>1) {
+    plotBicluster(raBreast1,1)
+}
+if ((raBreast1$bic[[2]][1]>1) && (raBreast1$bic[[2]][2])>1) {
+    plotBicluster(raBreast1,2)
+}
+if ((raBreast1$bic[[3]][1]>1) && (raBreast1$bic[[3]][2])>1) {
+    plotBicluster(raBreast1,3)
+}
+if ((raBreast1$bic[[4]][1]>1) && (raBreast1$bic[[4]][2])>1) {
+    plotBicluster(raBreast1,4)
+}
+
+
+plot(resBreast1,dim=c(1,2),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast1,dim=c(1,3),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast1,dim=c(1,4),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast1,dim=c(1,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast1,dim=c(2,3),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast1,dim=c(2,4),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast1,dim=c(2,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast1,dim=c(3,4),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast1,dim=c(3,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast1,dim=c(4,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+
+}
+
+
+#-----------------------------------
+# DEMO3: Su's multiple tissue types
+#        gene expression data set
+#-----------------------------------
+
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+
+data(Multi_A)
+
+X <- as.matrix(XMulti)
+
+resMulti1 <- fabia(X,5,0.06,300,norm=2)
+
+extractPlot(resMulti1,ti="FABIA Multiple tissues(Su)")
+
+raMulti1 <- extractBic(resMulti1)
+
+if ((raMulti1$bic[[1]][1]>1) && (raMulti1$bic[[1]][2])>1) {
+    plotBicluster(raMulti1,1)
+}
+if ((raMulti1$bic[[2]][1]>1) && (raMulti1$bic[[2]][2])>1) {
+    plotBicluster(raMulti1,2)
+}
+if ((raMulti1$bic[[3]][1]>1) && (raMulti1$bic[[3]][2])>1) {
+    plotBicluster(raMulti1,3)
+}
+if ((raMulti1$bic[[4]][1]>1) && (raMulti1$bic[[4]][2])>1) {
+    plotBicluster(raMulti1,4)
+}
+
+plot(resMulti1,dim=c(1,2),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti1,dim=c(1,3),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti1,dim=c(1,4),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti1,dim=c(1,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti1,dim=c(2,3),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti1,dim=c(2,4),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti1,dim=c(2,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti1,dim=c(3,4),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti1,dim=c(3,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti1,dim=c(4,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+
+}
+
+
+#-----------------------------------------
+# DEMO4: Rosenwald's diffuse large-B-cell
+#        lymphoma gene expression data set
+#-----------------------------------------
+
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+
+data(DLBCL_B)
+
+X <- as.matrix(XDLBCL)
+
+resDLBCL1 <- fabia(X,5,0.1,400,norm=2)
+
+extractPlot(resDLBCL1,ti="FABIA Lymphoma(Rosenwald)")
+
+raDLBCL1 <- extractBic(resDLBCL1)
+
+if ((raDLBCL1$bic[[1]][1]>1) && (raDLBCL1$bic[[1]][2])>1) {
+    plotBicluster(raDLBCL1,1)
+}
+if ((raDLBCL1$bic[[2]][1]>1) && (raDLBCL1$bic[[2]][2])>1) {
+    plotBicluster(raDLBCL1,2)
+}
+if ((raDLBCL1$bic[[3]][1]>1) && (raDLBCL1$bic[[3]][2])>1) {
+    plotBicluster(raDLBCL1,3)
+}
+if ((raDLBCL1$bic[[4]][1]>1) && (raDLBCL1$bic[[4]][2])>1) {
+    plotBicluster(raDLBCL1,4)
+}
+
+plot(resDLBCL1,dim=c(1,2),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL1,dim=c(1,3),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL1,dim=c(1,4),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL1,dim=c(1,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL1,dim=c(2,3),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL1,dim=c(2,4),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL1,dim=c(2,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL1,dim=c(3,4),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL1,dim=c(3,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL1,dim=c(4,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+
+}
+
+
+
+
+\end{Sinput}
+
+\subsection{fabiap}
+
+Factor Analysis for Bicluster Acquisition: Post-Projection (FABIAP) \citep{Hochreiter:10}.
+
+\begin{enumerate}
+
+\item Usage: \verb+fabiap(X,p=5,alpha=0.1,cyc=500,spl=0,spz=0.5,sL=0.6,sZ=0.6,+\\
+\hspace*{6em}\verb+ random=1.0,center=2,norm=1,scale=0.0,lap=1.0,nL=0,lL=0,bL=0)+
+
+\item Arguments:
+ \begin{itemize}
+  \item{X:} the data matrix.
+  \item{p:} number of hidden factors = number of biclusters; default = 5.
+  \item{alpha:} sparseness loadings (0 - 1.0); default = 0.1.
+  \item{cyc:} number of iterations; default = 500.
+  \item{spl:} sparseness prior loadings (0 - 2.0); default = 0 (Laplace).
+  \item{spz:} sparseness factors (0.5 - 2.0); default = 0.5 (Laplace).
+  \item{sL:} final sparseness loadings; default = 0.6.
+  \item{sZ:} final sparseness factors; default = 0.6.
+  \item{random} <=0: by SVD, >0: random initialization of loadings in
+    [-random,random]; default = 1.0.
+  \item{center:} data centering: 1 (mean), 2
+    (median), > 2 (mode), 0 (no); default = 2.
+  \item{norm:} data normalization:  1 (0.75-0.25 quantile), >1 (var=1), 0 (no); default = 1.
+  \item{scale:} loading vectors are scaled in each iteration to the given
+    variance. 0.0 indicates non scaling; default = 0.0.
+  \item{lap:} minimal value of the variational parameter, default = 1.
+  \item{nL:} maximal number of biclusters at which a row element can participate; default
+    = 0 (no limit).
+  \item{lL:} maximal number of row elements per bicluster; default
+    = 0 (no limit).
+  \item{bL:} cycle at which the nL or lL maximum starts; default
+    = 0 (start at the beginning).
+\end{itemize}
+
+\item  Return Values:
+\begin{itemize}
+ \item object of the class \texttt{Factorization}. Containing
+  \texttt{LZ} (estimated noise free data $\La  \Z$),
+  \texttt{L} (loadings  $\La$),
+  \texttt{Z} (factors $\Z$),
+  \texttt{U} (noise  $\X- \La \Z$),
+  \texttt{center} (centering vector),
+  \texttt{scaleData} (scaling vector),
+  \texttt{X} (centered and scaled data $\X$),
+  \texttt{Psi} (noise variance $\pp$),
+  \texttt{lapla} (variational parameter),
+  \texttt{avini} (the information which the factor
+    $z_{ij}$ contains about $\x_j$ averaged over $j$)
+  \texttt{xavini} (the information which the factor
+    $\tilde\z_j$ contains about $\x_j$ averaged over $j$)
+  \texttt{ini} (for each $j$ the information which the factor
+    $z_{ij}$ contains about $\x_j$).
+\end{itemize}
+
+
+
+\end{enumerate}
+
+  Biclusters are found by sparse factor analysis where \emph{both} the factors
+  and the loadings are sparse. Post-processing by projecting the final
+  results to a given sparseness criterion.
+
+  Essentially the model is the sum of
+  outer products of vectors:
+  \begin{align*}
+    \X \ = \ \sum_{i=1}^{p} \la_i \ \z_i^T \ + \ \Up \ ,
+  \end{align*}
+  where the number of summands  $p$
+  is the number of biclusters.
+  The matrix factorization is
+  \begin{align*}
+    \X \ = \ \La \ \Z \ + \ \Up \ .
+  \end{align*}
+
+  Here $\X \in \Rb^{n \times l}$ and $\Up \in \Rb^{n \times l}$,
+  $\la_i  \in \Rb^n$, $\z_i  \in \Rb^l$, $\La \in \Rb^{n \times p}$,
+  $\Z \in \Rb^{p \times l}$.
+
+
+  If the nonzero components of
+  the sparse vectors are grouped together then the outer product results in
+  a matrix with a nonzero block and zeros elsewhere.
+
+
+  For a single data vector  $\x$ that is
+  \begin{align*}\x \ = \ \sum_{i=1}^{p} \la_i z_i  \ + \
+    \epp \ = \ \La \tilde\z \ + \
+    \epp\end{align*}
+
+  The model assumptions are:
+
+  \emph{Factor Prior is Independent Laplace:}
+  \begin{align*}p(\tilde\z) \ = \ \left( \frac{1}{\sqrt{2}} \right)^p \prod_{i=1}^{p}
+    e^{-\ \sqrt{2} \ |z_i|}\end{align*}
+
+  \emph{Loading Prior is Independent Laplace:}
+   \begin{align*}p(\la_i) \ = \ \left( \frac{1}{\sqrt{2}} \right)^n \prod_{k=1}^{n}
+    e^{-\ \sqrt{2} \ |\lambda_{ki}|}\end{align*}
+
+
+  \emph{Noise: Gaussian independent}
+  \begin{align*}p(\epp) \ = \ \left( \frac{1}{\sqrt{2 \ \pi}} \right)^n
+    \prod_{k=1}^{n}  \frac{1}{\sigma_k}
+     e^{\sum_{k=1}^{n}  \frac{\epsilon_k^2}{\sigma_k^2}} \end{align*}
+
+  \emph{Data Mean:}
+
+    \begin{align*}\E(\x) \ = \ \E(\La \ \tilde\z \ +
+      \ \epp ) \ = \ \La \ \E( \tilde\z) \ +
+      \ \E(\epp) \ = \ \0 \end{align*}
+
+
+      \emph{Data Covariance:}
+
+   \begin{align} \nonumber
+    \E(\x \ \x^T) \ &= \
+      \La \E( \tilde\z  \tilde\z^T) \La^T \ + \
+       \La \E( \tilde\z)\E(\epp^T) \ + \
+       \E( \tilde\z)\E(\epp) \La^T \ + \
+       \E(\epp \ \epp^T) \\\nonumber &= \
+    \La \La^T \ + \ \mathrm{diag}(\sigma_k^2)
+\end{align}
+
+      Normalizing the data to variance one for each component gives
+       \begin{align*}\sigma_k^2 \ + \ \left(\la^{k}\right)^T \la^{k} \ =
+     \ 1\end{align*}
+      Here $\la^{k}$ is the $k$-th row of $\La$ (which is a row vector of length $p$).
+      We recommend to \emph{normalize the components to variance one} in order
+      to make the signal and noise comparable across components.
+
+
+      \emph{Estimated Parameters:}
+       $\La$ and $\pp$ ($\sigma_k$)
+
+       \emph{Estimated Latent Variables:}
+        $\Z$
+
+    \emph{Estimated Noise Free Data:}
+        $\La \ \Z$
+
+    \emph{Estimated Biclusters:}
+        $\la_i \ \z_i^T $
+     Larges values give the bicluster (ideal the nonzero values).
+
+
+
+       The model selection is performed by a variational approach according
+  to \citep{Girolami:01} and \citep{Palmer:06}.
+
+  We included a prior on the parameters and minimize
+  a lower bound on the posterior
+  of the parameters given the data.
+  The update of the loadings includes an additive term which pushes the
+  loadings toward zero (Gaussian prior leads to an multiplicative factor).
+
+  \emph{Post-processing:}
+  The final results of the loadings and the factors are projected to
+  a sparse vector according to Hoyer, 2004: given an
+  $l_1$-norm and an $l_2$-norm minimize the Euclidean distance
+  to the original vector (currently the $l_2$-norm is fixed to 1).
+  The projection is a convex quadratic problem which is solved
+  iteratively where at each iteration at least one component is set to
+  zero. Instead of the  $l_1$-norm a sparseness measurement is used
+  which relates the $l_1$-norm to the $l_2$-norm:
+
+
+  The code is implemented in C and t he projection in \R.
+
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+
+#---------------
+# TEST
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+
+resEx <- fabiap(X,3,0.01,50)
+
+
+
+#-----------------
+# DEMO1: Toy Data
+#-----------------
+
+n = 1000
+l= 100
+p = 10
+
+dat <- makeFabiaDataBlocks(n = n,l= l,p = p,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+ZC <- dat[[3]]
+LC <- dat[[4]]
+
+gclab <- rep.int(0,l)
+gllab <- rep.int(0,n)
+clab <- as.character(1:l)
+llab <- as.character(1:n)
+for (i in 1:p){
+ for (j in ZC[i]){
+     clab[j] <- paste(as.character(i),"_",clab[j],sep="")
+ }
+ for (j in LC[i]){
+     llab[j] <- paste(as.character(i),"_",llab[j],sep="")
+ }
+ gclab[unlist(ZC[i])] <- gclab[unlist(ZC[i])] + p^i
+ gllab[unlist(LC[i])] <- gllab[unlist(LC[i])] + p^i
+}
+
+
+groups <- gclab
+
+#### FABIAP
+
+resToy3 <- fabiap(X,13,0.01,400)
+
+extractPlot(resToy3,ti="FABIAP",Y=Y)
+
+raToy3 <- extractBic(resToy3)
+
+if ((raToy3$bic[[1]][1]>1) && (raToy3$bic[[1]][2])>1) {
+    plotBicluster(raToy3,1)
+}
+if ((raToy3$bic[[2]][1]>1) && (raToy3$bic[[2]][2])>1) {
+    plotBicluster(raToy3,2)
+}
+if ((raToy3$bic[[3]][1]>1) && (raToy3$bic[[3]][2])>1) {
+    plotBicluster(raToy3,3)
+}
+if ((raToy3$bic[[4]][1]>1) && (raToy3$bic[[4]][2])>1) {
+    plotBicluster(raToy3,4)
+}
+
+colnames(resToy3@X) <- clab
+
+rownames(resToy3@X) <- llab
+
+
+plot(resToy3,dim=c(1,2),label.tol=0.1,col.group = groups,lab.size=0.6)
+plot(resToy3,dim=c(1,3),label.tol=0.1,col.group = groups,lab.size=0.6)
+plot(resToy3,dim=c(2,3),label.tol=0.1,col.group = groups,lab.size=0.6)
+
+
+#------------------------------------------
+# DEMO2: Laura van't Veer's gene expression
+#        data set for breast cancer
+#------------------------------------------
+
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+data(Breast_A)
+
+X <- as.matrix(XBreast)
+
+
+resBreast3 <- fabiap(X,5,0.1,400)
+
+extractPlot(resBreast3,ti="FABIAP Breast cancer(Veer)")
+
+raBreast3 <- extractBic(resBreast3)
+
+if ((raBreast3$bic[[1]][1]>1) && (raBreast3$bic[[1]][2])>1) {
+    plotBicluster(raBreast3,1)
+}
+if ((raBreast3$bic[[2]][1]>1) && (raBreast3$bic[[2]][2])>1) {
+    plotBicluster(raBreast3,2)
+}
+if ((raBreast3$bic[[3]][1]>1) && (raBreast3$bic[[3]][2])>1) {
+    plotBicluster(raBreast3,3)
+}
+if ((raBreast3$bic[[4]][1]>1) && (raBreast3$bic[[4]][2])>1) {
+    plotBicluster(raBreast3,4)
+}
+
+plot(resBreast3,dim=c(1,2),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast3,dim=c(1,3),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast3,dim=c(1,4),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast3,dim=c(1,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast3,dim=c(2,3),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast3,dim=c(2,4),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast3,dim=c(2,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast3,dim=c(3,4),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast3,dim=c(3,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast3,dim=c(4,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+
+}
+
+
+#-----------------------------------
+# DEMO3: Su's multiple tissue types
+#        gene expression data set
+#-----------------------------------
+
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+data(Multi_A)
+
+X <- as.matrix(XMulti)
+
+resMulti3 <- fabiap(X,5,0.01,300)
+
+extractPlot(resMulti3,ti="FABIAP Multiple tissues(Su)")
+
+
+raMulti3 <- extractBic(resMulti3)
+
+if ((raMulti3$bic[[1]][1]>1) && (raMulti3$bic[[1]][2])>1) {
+    plotBicluster(raMulti3,1)
+}
+if ((raMulti3$bic[[2]][1]>1) && (raMulti3$bic[[2]][2])>1) {
+    plotBicluster(raMulti3,2)
+}
+if ((raMulti3$bic[[3]][1]>1) && (raMulti3$bic[[3]][2])>1) {
+    plotBicluster(raMulti3,3)
+}
+if ((raMulti3$bic[[4]][1]>1) && (raMulti3$bic[[4]][2])>1) {
+    plotBicluster(raMulti3,4)
+}
+
+plot(resMulti3,dim=c(1,2),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti3,dim=c(1,3),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti3,dim=c(1,4),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti3,dim=c(1,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti3,dim=c(2,3),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti3,dim=c(2,4),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti3,dim=c(2,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti3,dim=c(3,4),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti3,dim=c(3,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti3,dim=c(4,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+
+}
+
+
+#-----------------------------------------
+# DEMO4: Rosenwald's diffuse large-B-cell
+#        lymphoma gene expression data set
+#-----------------------------------------
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+
+data(DLBCL_B)
+
+X <- as.matrix(XDLBCL)
+
+
+resDLBCL3 <- fabiap(X,5,0.1,400)
+
+extractPlot(resDLBCL3,ti="FABIAP Lymphoma(Rosenwald)")
+raDLBCL3 <- extractBic(resDLBCL3)
+
+if ((raDLBCL3$bic[[1]][1]>1) && (raDLBCL3$bic[[1]][2])>1) {
+    plotBicluster(raDLBCL3,1)
+}
+if ((raDLBCL3$bic[[2]][1]>1) && (raDLBCL3$bic[[2]][2])>1) {
+    plotBicluster(raDLBCL3,2)
+}
+if ((raDLBCL3$bic[[3]][1]>1) && (raDLBCL3$bic[[3]][2])>1) {
+    plotBicluster(raDLBCL3,3)
+}
+if ((raDLBCL3$bic[[4]][1]>1) && (raDLBCL3$bic[[4]][2])>1) {
+    plotBicluster(raDLBCL3,4)
+}
+
+plot(resDLBCL3,dim=c(1,2),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL3,dim=c(1,3),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL3,dim=c(1,4),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL3,dim=c(1,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL3,dim=c(2,3),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL3,dim=c(2,4),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL3,dim=c(2,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL3,dim=c(3,4),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL3,dim=c(3,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL3,dim=c(4,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+
+
+}
+
+
+\end{Sinput}
+
+
+
+\subsection{fabias}
+
+Factor Analysis for Bicluster Acquisition: Sparseness Projection (FABIAS) \citep{Hochreiter:10}.
+
+C implementation of  \texttt{fabias}.
+
+\begin{enumerate}
+
+\item Usage: \verb+fabias(X,p=5,alpha=0.6,cyc=500,spz=0.5,random=1.0,+\\
+\hspace*{6em}\verb+   center=2,norm=1,lap=1.0,nL=0,lL=0,bL=0)+
+
+
+\item Arguments:
+ \begin{itemize}
+  \item{X:} the data matrix.
+  \item{p:} number of hidden factors = number of biclusters; default = 5.
+  \item{alpha:} sparseness loadings (0 - 1.0); default = 0.1.
+  \item{cyc:} number of iterations; default = 500.
+  \item{spz:} sparseness factors (0.5 - 2.0); default = 0.5 (Laplace).
+  \item{random} <=0: by SVD, >0: random initialization of loadings in
+    [-random,random]; default = 1.0.
+  \item{center:} data centering: 1 (mean), 2
+    (median), > 2 (mode), 0 (no); default = 2.
+  \item{norm:} data normalization: 1 (0.75-0.25 quantile), >1 (var=1), 0 (no); default = 1.
+  \item{lap:} minimal value of the variational parameter, default = 1.
+  \item{nL:} maximal number of biclusters at which a row element can participate; default
+    = 0 (no limit).
+  \item{lL:} maximal number of row elements per bicluster; default
+    = 0 (no limit).
+  \item{bL:} cycle at which the nL or lL maximum starts; default
+    = 0 (start at the beginning).
+ \end{itemize}
+
+\item Return Values:
+\begin{itemize}
+ \item object of the class \texttt{Factorization}. Containing
+  \texttt{LZ} (estimated noise free data $\La  \Z$),
+  \texttt{L} (loadings  $\La$),
+  \texttt{Z} (factors $\Z$),
+  \texttt{U} (noise  $\X- \La \Z$),
+  \texttt{center} (centering vector),
+  \texttt{scaleData} (scaling vector),
+  \texttt{X} (centered and scaled data $\X$),
+  \texttt{Psi} (noise variance $\pp$),
+  \texttt{lapla} (variational parameter),
+  \texttt{avini} (the information which the factor
+    $z_{ij}$ contains about $\x_j$ averaged over $j$)
+  \texttt{xavini} (the information which the factor
+    $\tilde\z_j$ contains about $\x_j$ averaged over $j$)
+  \texttt{ini} (for each $j$ the information which the factor
+    $z_{ij}$ contains about $\x_j$).
+\end{itemize}
+
+
+\end{enumerate}
+
+
+
+  Biclusters are found by sparse factor analysis where \emph{both} the factors
+  and the loadings are sparse.
+
+  Essentially the model is the sum of
+  outer products of vectors:
+  \begin{align*}
+    \X \ = \ \sum_{i=1}^{p} \la_i \ \z_i^T \ + \ \Up \ ,
+  \end{align*}
+  where the number of summands  $p$
+  is the number of biclusters.
+  The matrix factorization is
+  \begin{align*}
+    \X \ = \ \La \ \Z \ + \ \Up \ .
+  \end{align*}
+
+  Here $\X \in \Rb^{n \times l}$ and $\Up \in \Rb^{n \times l}$,
+  $\la_i  \in \Rb^n$, $\z_i  \in \Rb^l$, $\La \in \Rb^{n \times p}$,
+  $\Z \in \Rb^{p \times l}$.
+
+
+
+  If the nonzero components of
+  the sparse vectors are grouped together then the outer product results in
+  a matrix with a nonzero block and zeros elsewhere.
+
+
+  For a single data vector  $\x$ that is
+  \begin{align*}\x \ = \ \sum_{i=1}^{p} \la_i z_i  \ + \
+    \epp \ = \ \La \tilde\z \ + \
+    \epp\end{align*}
+
+  The model assumptions are:
+
+  \emph{Factor Prior is Independent Laplace:}
+  \begin{align*}p(\tilde\z) \ = \ \left( \frac{1}{\sqrt{2}} \right)^p \prod_{i=1}^{p}
+    e^{-\ \sqrt{2} \ |z_i|}\end{align*}
+
+  \emph{Loading Prior has Finite Support:}
+  \begin{align*}p(\la_i) \ = \  c \ \ \ \
+    \mathrm{for} \ \ \ \|\la_i\|_1 \ \leq \ k\end{align*}
+  \begin{align*}p(\la_i) \ = \  0 \ \ \ \
+    \mathrm{for} \ \ \ \|\la_i\|_1 \ > \ k\end{align*}
+
+
+  \emph{Noise: Gaussian independent}
+  \begin{align*}p(\epp) \ = \ \left( \frac{1}{\sqrt{2 \ \pi}} \right)^n
+    \prod_{k=1}^{n}  \frac{1}{\sigma_k}
+     e^{\sum_{k=1}^{n}  \frac{\epsilon_k^2}{\sigma_k^2}} \end{align*}
+
+  \emph{Data Mean:}
+
+    \begin{align*}\E(\x) \ = \ \E(\La \ \tilde\z \ +
+      \ \epp ) \ = \ \La \ \E( \tilde\z) \ +
+      \ \E(\epp) \ = \ \0 \end{align*}
+
+
+      \emph{Data Covariance:}
+
+    \begin{align} \nonumber
+    \E(\x \ \x^T) \ &= \
+      \La \E( \tilde\z  \tilde\z^T) \La^T \ + \
+       \La \E( \tilde\z)\E(\epp^T) \ + \
+       \E( \tilde\z)\E(\epp) \La^T \ + \
+       \E(\epp \ \epp^T) \\\nonumber &= \
+     \La \La^T \ + \ \mathrm{diag}(\sigma_k^2)
+\end{align}
+
+
+      Normalizing the data to variance one for each component gives
+       \begin{align*}\sigma_k^2 \ + \ \left(\la^{k}\right)^T \la^{k} \ =
+     \ 1\end{align*}
+      Here $\la^{k}$ is the $k$-th row of $\La$ (which is a row vector of length $p$).
+      We recommend to \emph{normalize the components to variance one} in order
+      to make the signal and noise comparable across components.
+
+
+      \emph{Estimated Parameters:}
+       $\La$ and
+       $\sigma_k$
+
+       \emph{Estimated Latent Variables:}
+        $\Z$
+
+    \emph{Estimated Noise Free Data:}
+        $\La \ \Z$
+
+    \emph{Estimated Biclusters:}
+        $\la_i \ \z_i^T $
+     Larges values give the bicluster (ideal the nonzero values).
+
+
+
+  The model selection is performed by a variational approach according
+  to \citep{Girolami:01} and \citep{Palmer:06}.
+
+  The prior has finite support, therefore after each
+  update of the loadings they are projected to the finite support.
+  The projection is done according to \citep{Hoyer:04}: given an
+  $l_1$-norm and an $l_2$-norm minimize the Euclidean distance
+  to the original vector (currently the $l_2$-norm is fixed to 1).
+  The projection is a convex quadratic problem which is solved
+  iteratively where at each iteration at least one component is set to
+  zero. Instead of the  $l_1$-norm a sparseness measurement is used
+  which relates the $l_1$-norm to the $l_2$-norm:
+
+\begin{align*}\mathrm{sparseness}(\la_i) \ = \ \frac{\sqrt{n} \ - \
+    \sum_{k=1}^{n} \left|\lambda_{ki} \right|\ / \  \sum_{k=1}^{n}
+    \lambda_{ki}^2}{\sqrt{n} \ - \ 1}\end{align*}
+
+
+
+  The code is implemented in C.
+
+
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# TEST
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+
+
+
+
+resEx <- fabias(X,3,0.6,50)
+
+
+#-----------------
+# DEMO1: Toy Data
+#-----------------
+
+n = 1000
+l= 100
+p = 10
+
+dat <- makeFabiaDataBlocks(n = n,l= l,p = p,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+ZC <- dat[[3]]
+LC <- dat[[4]]
+
+gclab <- rep.int(0,l)
+gllab <- rep.int(0,n)
+clab <- as.character(1:l)
+llab <- as.character(1:n)
+for (i in 1:p){
+ for (j in ZC[i]){
+     clab[j] <- paste(as.character(i),"_",clab[j],sep="")
+ }
+ for (j in LC[i]){
+     llab[j] <- paste(as.character(i),"_",llab[j],sep="")
+ }
+ gclab[unlist(ZC[i])] <- gclab[unlist(ZC[i])] + p^i
+ gllab[unlist(LC[i])] <- gllab[unlist(LC[i])] + p^i
+}
+
+
+groups <- gclab
+
+#### FABIAS
+
+resToy2 <- fabias(X,13,0.6,400)
+
+extractPlot(resToy2,ti="FABIAS",Y=Y)
+
+
+raToy2 <- extractBic(resToy2)
+
+if ((raToy2$bic[[1]][1]>1) && (raToy2$bic[[1]][2])>1) {
+    plotBicluster(raToy2,1)
+}
+if ((raToy2$bic[[2]][1]>1) && (raToy2$bic[[2]][2])>1) {
+    plotBicluster(raToy2,2)
+}
+if ((raToy2$bic[[3]][1]>1) && (raToy2$bic[[3]][2])>1) {
+    plotBicluster(raToy2,3)
+}
+if ((raToy2$bic[[4]][1]>1) && (raToy2$bic[[4]][2])>1) {
+    plotBicluster(raToy2,4)
+}
+
+colnames(resToy2@X) <- clab
+
+rownames(resToy2@X) <- llab
+
+
+plot(resToy2,dim=c(1,2),label.tol=0.1,col.group = groups,lab.size=0.6)
+plot(resToy2,dim=c(1,3),label.tol=0.1,col.group = groups,lab.size=0.6)
+plot(resToy2,dim=c(2,3),label.tol=0.1,col.group = groups,lab.size=0.6)
+
+
+#------------------------------------------
+# DEMO2: Laura van't Veer's gene expression
+#        data set for breast cancer
+#------------------------------------------
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+
+data(Breast_A)
+
+X <- as.matrix(XBreast)
+
+resBreast2 <- fabias(X,5,0.6,300)
+
+extractPlot(resBreast2,ti="FABIAS Breast cancer(Veer)")
+
+
+raBreast2 <- extractBic(resBreast2)
+
+if ((raBreast2$bic[[1]][1]>1) && (raBreast2$bic[[1]][2])>1) {
+    plotBicluster(raBreast2,1)
+}
+if ((raBreast2$bic[[2]][1]>1) && (raBreast2$bic[[2]][2])>1) {
+    plotBicluster(raBreast2,2)
+}
+if ((raBreast2$bic[[3]][1]>1) && (raBreast2$bic[[3]][2])>1) {
+    plotBicluster(raBreast2,3)
+}
+if ((raBreast2$bic[[4]][1]>1) && (raBreast2$bic[[4]][2])>1) {
+    plotBicluster(raBreast2,4)
+}
+
+plot(resBreast2,dim=c(1,2),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast2,dim=c(1,3),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast2,dim=c(1,4),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast2,dim=c(1,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast2,dim=c(2,3),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast2,dim=c(2,4),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast2,dim=c(2,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast2,dim=c(3,4),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast2,dim=c(3,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast2,dim=c(4,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+
+}
+
+#-----------------------------------
+# DEMO3: Su's multiple tissue types
+#        gene expression data set
+#-----------------------------------
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+data(Multi_A)
+
+X <- as.matrix(XMulti)
+
+resMulti2 <- fabias(X,5,0.6,300)
+
+extractPlot(resMulti2,ti="FABIAS Multiple tissues(Su)")
+
+raMulti2 <- extractBic(resMulti2)
+
+if ((raMulti2$bic[[1]][1]>1) && (raMulti2$bic[[1]][2])>1) {
+    plotBicluster(raMulti2,1)
+}
+if ((raMulti2$bic[[2]][1]>1) && (raMulti2$bic[[2]][2])>1) {
+    plotBicluster(raMulti2,2)
+}
+if ((raMulti2$bic[[3]][1]>1) && (raMulti2$bic[[3]][2])>1) {
+    plotBicluster(raMulti2,3)
+}
+if ((raMulti2$bic[[4]][1]>1) && (raMulti2$bic[[4]][2])>1) {
+    plotBicluster(raMulti2,4)
+}
+
+plot(resMulti2,dim=c(1,2),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti2,dim=c(1,3),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti2,dim=c(1,4),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti2,dim=c(1,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti2,dim=c(2,3),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti2,dim=c(2,4),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti2,dim=c(2,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti2,dim=c(3,4),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti2,dim=c(3,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti2,dim=c(4,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+
+}
+
+
+#-----------------------------------------
+# DEMO4: Rosenwald's diffuse large-B-cell
+#        lymphoma gene expression data set
+#-----------------------------------------
+
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+data(DLBCL_B)
+
+X <- as.matrix(XDLBCL)
+
+resDLBCL2 <- fabias(X,5,0.6,300)
+
+extractPlot(resDLBCL2,ti="FABIAS Lymphoma(Rosenwald)")
+
+raDLBCL2 <- extractBic(resDLBCL2)
+
+if ((raDLBCL2$bic[[1]][1]>1) && (raDLBCL2$bic[[1]][2])>1) {
+    plotBicluster(raDLBCL2,1)
+}
+if ((raDLBCL2$bic[[2]][1]>1) && (raDLBCL2$bic[[2]][2])>1) {
+    plotBicluster(raDLBCL2,2)
+}
+if ((raDLBCL2$bic[[3]][1]>1) && (raDLBCL2$bic[[3]][2])>1) {
+    plotBicluster(raDLBCL2,3)
+}
+if ((raDLBCL2$bic[[4]][1]>1) && (raDLBCL2$bic[[4]][2])>1) {
+    plotBicluster(raDLBCL2,4)
+}
+
+plot(resDLBCL2,dim=c(1,2),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL2,dim=c(1,3),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL2,dim=c(1,4),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL2,dim=c(1,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL2,dim=c(2,3),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL2,dim=c(2,4),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL2,dim=c(2,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL2,dim=c(3,4),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL2,dim=c(3,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL2,dim=c(4,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+
+}
+
+
+\end{Sinput}
+
+
+
+
+
+\subsection{fabiasp}
+
+Factor Analysis for Bicluster Acquisition: Sparseness Projection (FABIASP) \citep{Hochreiter:10}.
+
+\R implementation of  \texttt{fabias}, therefore it is \emph{slow}.
+
+\begin{enumerate}
+
+\item  Usage:
+\texttt{fabiasp(X,p=5,alpha=0.6,cyc=500,spz=0.5,center=2,norm=1)}
+
+\item Arguments:
+  \begin{itemize}
+  \item{X:} the data matrix.
+  \item{p:} number of hidden factors = number of biclusters; default = 5.
+  \item{alpha:} sparseness loadings (0 - 1.0); default = 0.1.
+  \item{cyc:} number of iterations; default = 500.
+  \item{spz:} sparseness factors (0.5 - 2.0); default = 0.5 (Laplace).
+  \item{center:} data centering: 1 (mean), 2
+    (median), > 2 (mode), 0 (no); default = 2.
+  \item{norm:} data normalization: 1 (0.75-0.25 quantile), >1 (var=1),
+    0 (no); default = 1.
+ \end{itemize}
+
+\item Return Values:
+\begin{itemize}
+ \item object of the class \texttt{Factorization}. Containing
+  \texttt{LZ} (estimated noise free data $\La  \Z$),
+  \texttt{L} (loadings  $\La$),
+  \texttt{Z} (factors $\Z$),
+  \texttt{U} (noise  $\X- \La \Z$),
+  \texttt{center} (centering vector),
+  \texttt{scaleData} (scaling vector),
+  \texttt{X} (centered and scaled data $\X$),
+  \texttt{Psi} (noise variance $\pp$),
+  \texttt{lapla} (variational parameter),
+  \texttt{avini} (the information which the factor
+    $z_{ij}$ contains about $\x_j$ averaged over $j$)
+  \texttt{xavini} (the information which the factor
+    $\tilde\z_j$ contains about $\x_j$ averaged over $j$)
+  \texttt{ini} (for each $j$ the information which the factor
+    $z_{ij}$ contains about $\x_j$).
+\end{itemize}
+
+\end{enumerate}
+
+
+  Biclusters are found by sparse factor analysis where \emph{both} the factors
+  and the loadings are sparse.
+
+
+  Essentially the model is the sum of
+  outer products of vectors:
+  \begin{align*}
+    \X \ = \ \sum_{i=1}^{p} \la_i \ \z_i^T \ + \ \Up \ ,
+  \end{align*}
+  where the number of summands  $p$
+  is the number of biclusters.
+  The matrix factorization is
+  \begin{align*}
+    \X \ = \ \La \ \Z \ + \ \Up \ .
+  \end{align*}
+
+  Here $\X \in \Rb^{n \times l}$ and $\Up \in \Rb^{n \times l}$,
+  $\la_i  \in \Rb^n$, $\z_i  \in \Rb^l$, $\La \in \Rb^{n \times p}$,
+  $\Z \in \Rb^{p \times l}$.
+
+
+  If the nonzero components of
+  the sparse vectors are grouped together then the outer product results in
+  a matrix with a nonzero block and zeros elsewhere.
+
+
+  For a single data vector  $\x$ that is
+  \begin{align*}\x \ = \ \sum_{i=1}^{p} \la_i z_i  \ + \
+    \epp \ = \ \La \tilde\z \ + \
+    \epp\end{align*}
+
+  The model assumptions are:
+
+  \emph{Factor Prior is Independent Laplace:}
+  \begin{align*}p(\z) \ = \ \left( \frac{1}{\sqrt{2}} \right)^p \prod_{i=1}^{p}
+    e^{-\ \sqrt{2} \ |z_i|}\end{align*}
+
+  \emph{Loading Prior has Finite Support:}
+  \begin{align*}p(\la_i) \ = \  c \ \ \ \
+    \mathrm{for} \ \ \ \|\la_i\|_1 \ \leq \ k\end{align*}
+  \begin{align*}p(\la_i) \ = \  0 \ \ \ \
+    \mathrm{for} \ \ \ \|\la_i\|_1 \ > \ k\end{align*}
+
+
+  \emph{Noise: Gaussian independent}
+  \begin{align*}p(\epp) \ = \ \left( \frac{1}{\sqrt{2 \ \pi}} \right)^n
+    \prod_{k=1}^{n}  \frac{1}{\sigma_k}
+     e^{\sum_{k=1}^{n}  \frac{\epsilon_k^2}{\sigma_k^2}} \end{align*}
+
+  \emph{Data Mean:}
+
+    \begin{align*}\E(\x) \ = \ \E(\La \ \tilde\z \ +
+      \ \epp ) \ = \ \La \ \E( \tilde\z) \ +
+      \ \E(\epp) \ = \ \0 \end{align*}
+
+
+      \emph{Data Covariance:}
+
+      \begin{align} \nonumber
+    \E(\x \ \x^T) \ &= \
+      \La \E(  \tilde\z   \tilde\z^T) \La^T \ + \
+       \La \E(  \tilde\z)\E(\epp^T) \ + \
+       \E(  \tilde\z)\E(\epp) \La^T \ + \
+       \E(\epp \ \epp^T) \\\nonumber &= \
+   \La \La^T \ + \ \mathrm{diag}(\sigma_k^2)
+\end{align}
+
+      Normalizing the data to variance one for each component gives
+       \begin{align*}\sigma_k^2 \ + \ \left(\la^{k}\right)^T \la^{k} \ =
+     \ 1\end{align*}
+      Here $\la^{k}$ is the $k$-th row of $\La$ (which is a row vector of length $p$).
+      We recommend to \emph{normalize the components to variance one} in order
+      to make the signal and noise comparable across components.
+
+
+      \emph{Estimated Parameters:}
+       $\La$ and $\pp$ ($\sigma_k$)
+
+       \emph{Estimated Latent Variables:}
+        $\Z$
+
+    \emph{Estimated Noise Free Data:}
+        $\La \ \Z$
+
+    \emph{Estimated Biclusters:}
+        $\la_i \ \z_i^T $
+     Larges values give the bicluster (ideal the nonzero values).
+
+
+
+
+  The model selection is performed by a variational approach according
+  to \citep{Girolami:01} and \citep{Palmer:06}.
+
+  The prior has finite support, therefore after each
+  update of the loadings they are projected to the finite support.
+  The projection is done according to \citep{Hoyer:04}: given an
+  $l_1$-norm and an $l_2$-norm minimize the Euclidean distance
+  to the original vector (currently the $l_2$-norm is fixed to 1).
+  The projection is a convex quadratic problem which is solved
+  iteratively where at each iteration at least one component is set to
+  zero. Instead of the  $l_1$-norm a sparseness measurement is used
+  which relates the $l_1$-norm to the $l_2$-norm:
+
+\begin{align*}\mathrm{sparseness}(\la_i) \ = \ \frac{\sqrt{n} \ - \
+    \sum_{k=1}^{n} \left|\lambda_{ki} \right|\ / \  \sum_{k=1}^{n}
+    \lambda_{ki}^2}{\sqrt{n} \ - \ 1}\end{align*}
+
+
+   The code is implemented in \R, therefore it is \emph{slow}.
+
+
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# TEST
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+
+
+
+
+resEx <- fabiasp(X,3,0.6,50)
+
+
+\dontrun{
+#---------------
+# DEMO1
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 1000,l= 100,p = 10,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+
+
+resToy <- fabiasp(X,13,0.6,200)
+
+extractPlot(resToy,ti="FABIASP",Y=Y)
+
+#---------------
+# DEMO2
+#---------------
+
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+data(Breast_A)
+
+X <- as.matrix(XBreast)
+
+resBreast <- fabiasp(X,5,0.6,200)
+
+extractPlot(resBreast,ti="FABIASP Breast cancer(Veer)")
+
+#sorting of predefined labels
+CBreast%*%rBreast$pmZ
+}
+
+
+#---------------
+# DEMO3
+#---------------
+
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+data(Multi_A)
+
+X <- as.matrix(XMulti)
+
+resMulti <- fabiasp(X,5,0.6,200)
+
+extractPlot(resMulti,"ti=FABIASP Multiple tissues(Su)")
+
+#sorting of predefined labels
+CMulti%*%rMulti$pmZ
+
+}
+
+
+#---------------
+# DEMO4
+#---------------
+
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+data(DLBCL_B)
+
+X <- as.matrix(XDLBCL)
+
+
+resDLBCL <- fabiasp(X,5,0.6,200)
+
+extractPlot(resDLBCL,ti="FABIASP Lymphoma(Rosenwald)")
+
+#sorting of predefined labels
+CDLBCL%*%rDLBCL$pmZ
+
+}
+
+\end{Sinput}
+
+
+
+\subsection{spfabia}
+
+Factor Analysis for Bicluster Acquisition: SPARSE FABIA \citep{Hochreiter:10}.
+
+C implementation of \texttt{spfabia}.
+
+\begin{enumerate}
+\item Usage: \verb+ spfabia(X,p=5,alpha=0.1,cyc=500,spl=0,spz=0.5,non_negative=0,random=1.0,+\\
+\hspace*{6em}\verb+ write_file=1,norm=1,scale=0.0,lap=1.0,nL=0,lL=0,bL=0,samples=0,initL=0,+\\
+\hspace*{6em}\verb+ iter=1,quant=0.001,dorescale=FALSE,doini=FALSE,eps=1e-3,eps1=1e-10)+
+
+\item Arguments:
+ \begin{itemize}
+  \item{X:} the file name of the sparse matrix in sparse format.
+  \item{p:} number of hidden factors = number of biclusters; default = 5.
+  \item{alpha:} sparseness loadings (0 - 1.0); default = 0.1.
+  \item{cyc:} number of iterations; default = 500.
+  \item{spl:} sparseness prior loadings (0 - 2.0); default = 0 (Laplace).
+  \item{spz:} sparseness factors (0.5 - 2.0); default = 0.5 (Laplace).
+  \item{non\_negative:} Non-negative factors and loadings if non\_negative
+    > 0; default = 0.
+  \item{random:} >0: random initialization of loadings in
+    [0,random], <0: random initialization of loadings in
+    [-random,random]; default = 1.0.
+  \item{write\_file:} >0: results are written to files (L in sparse format),
+  default = 1.
+  \item{norm:} data normalization:  1 (0.75-0.25 quantile), >1 (var=1), 0 (no); default = 1.
+  \item{scale:} loading vectors are scaled in each iteration to the given
+    variance. 0.0 indicates non scaling; default = 0.0.
+  \item{lap:} minimal value of the variational parameter, default = 1.
+  \item{nL:} maximal number of biclusters at which a row element can participate; default
+    = 0 (no limit).
+  \item{lL:} maximal number of row elements per bicluster; default
+    = 0 (no limit).
+  \item{bL:} cycle at which the nL or lL maximum starts; default
+    = 0 (start at the beginning).
+  \item{samples:} vector of samples which should be included into the analysis; default
+    = 0 (all samples).
+  \item{initL:} vector of indices of the selected samples which are used to initialize L; default
+    = 0 (random initialization).
+  \item{iter:} number of iterations; default
+    = 1.
+  \item{quant:} qunatile of largest L values to remove in each iteration; default
+    = 0.001.
+  \item{lowerB:} lower bound for filtering the inputs columns, the
+    minimal column sum; default = 0.0.
+  \item{upperB:} upper bound for filtering the inputs columns, the
+    maximal column sum; default = 1000.0.
+  \item{dorescale:} rescale factors Z to variance 1 and consequently
+    also L; logical; default: FALSE.
+  \item{doini:} compute the information content of the biclusters and
+    sort the biclusters according to their information content; logical,
+    default: FALSE.
+  \item{eps:} lower bound for variational parameter lapla; default: 1e-3.
+  \item{eps1:} lower bound for divisions to avoid division by zero;
+    default: 1e-10.
+ \end{itemize}
+
+\item Return values:
+\begin{itemize}
+ \item object of the class \texttt{Factorization}. Containing
+  \texttt{L} (loadings  $\La$),
+  \texttt{Z} (factors $\Z$),
+  \texttt{Psi} (noise variance $\pp$),
+  \texttt{lapla} (variational parameter),
+  \texttt{avini} (the information which the factor
+    $z_{ij}$ contains about $\x_j$ averaged over $j$)
+  \texttt{xavini} (the information which the factor
+    $\tilde\z_j$ contains about $\x_j$ averaged over $j$)
+  \texttt{ini} (for each $j$ the information which the factor
+    $z_{ij}$ contains about $\x_j$).
+\end{itemize}
+
+\end{enumerate}
+
+
+  Version of fabia for a sparse data matrix. The data matrix is
+  directly scanned by the C-code and must be in sparse matrix format.
+
+  Sparse matrix format:
+
+  \begin{itemize}
+
+  \item first line: numer of rows (the samples).
+
+  \item second line: number of columns (the features).
+
+  \item following lines: for each sample (row) three lines with
+
+    \begin{enumerate}
+
+    \item number of nonzero row elements
+
+    \item indices of the nonzero row elements (ATTENTION: starts with 0!!)
+
+    \item values of the nonzero row elements (ATTENTION: floats with
+  decimal point like 1.0 !!)
+
+    \end{enumerate}
+
+  \end{itemize}
+
+\vspace{0.5cm}
+
+  Biclusters are found by sparse factor analysis where \emph{both} the factors
+  and the loadings are sparse.
+
+  Essentially the model is the sum of
+  outer products of vectors:
+  \begin{align*}
+    \X \ = \ \sum_{i=1}^{p} \la_i \ \z_i^T \ + \ \Up \ ,
+  \end{align*}
+  where the number of summands  $p$
+  is the number of biclusters.
+  The matrix factorization is
+  \begin{align*}
+    \X \ = \ \La \ \Z \ + \ \Up \ .
+  \end{align*}
+
+  Here $\X \in \Rb^{n \times l}$ and $\Up \in \Rb^{n \times l}$,
+  $\la_i  \in \Rb^n$, $\z_i  \in \Rb^l$, $\La \in \Rb^{n \times p}$,
+  $\Z \in \Rb^{p \times l}$.
+
+  If the nonzero components of
+  the sparse vectors are grouped together then the outer product results in
+  a matrix with a nonzero block and zeros elsewhere.
+
+
+  For a single data vector  $\x$ that is
+  \begin{align*}\x \ = \ \sum_{i=1}^{p} \la_i z_i  \ + \
+    \epp \ = \ \La \tilde\z \ + \
+    \epp\end{align*}
+
+  The model assumptions are:
+
+  \emph{Factor Prior is Independent Laplace:}
+  \begin{align*}p(\tilde\z) \ = \ \left( \frac{1}{\sqrt{2}} \right)^p \prod_{i=1}^{p}
+    e^{-\ \sqrt{2} \ |z_i|}\end{align*}
+
+  \emph{Loading Prior is Independent Laplace:}
+   \begin{align*}p(\la_i) \ = \ \left( \frac{1}{\sqrt{2}} \right)^n \prod_{k=1}^{n}
+    e^{-\ \sqrt{2} \ |\lambda_{ki}|}\end{align*}
+
+
+  \emph{Noise: Gaussian independent}
+  \begin{align*}p(\epp) \ = \ \left( \frac{1}{\sqrt{2 \ \pi}} \right)^n
+    \prod_{k=1}^{n}  \frac{1}{\sigma_k}
+     e^{\sum_{k=1}^{n}  \frac{\epsilon_k^2}{\sigma_k^2}} \end{align*}
+
+  \emph{Data Mean:}
+
+    \begin{align*}\E(\x) \ = \ \E(\La \ \tilde\z \ +
+      \ \epp ) \ = \ \La \ \E( \tilde\z) \ +
+      \ \E(\epp) \ = \ \0\end{align*}
+
+
+      \emph{Data Covariance:}
+
+  \begin{align} \nonumber
+    \E(\x \ \x^T) \ &= \
+      \La \E( \tilde\z  \tilde\z^T) \La^T \ + \
+       \La \E( \tilde\z)\E(\epp^T) \ + \
+       \E( \tilde\z)\E(\epp) \La^T \ + \
+       \E(\epp \ \epp^T) \\\nonumber &= \
+      \La \La^T \ + \ \mathrm{diag}(\sigma_k^2)
+\end{align}
+
+      Normalizing the data to variance one for each component gives
+       \begin{align*}\sigma_k^2 \ + \ \left(\la^{k}\right)^T \la^{k} \ =
+     \ 1\end{align*}
+      Here $\la^{k}$ is the $k$-th row of $\La$ (which is a row vector of length $p$).
+      We recommend to \emph{normalize the components to variance one} in order
+      to make the signal and noise comparable across components.
+
+
+      \emph{Estimated Parameters:}
+       $\La$ and $\pp$ ($\sigma_k$)
+
+       \emph{Estimated Latent Variables:}
+        $\Z$
+
+    \emph{Estimated Noise Free Data:}
+        $\La \ \Z$
+
+    \emph{Estimated Biclusters:}
+        $\la_i \ \z_i^T $
+     Larges values give the bicluster (ideal the nonzero values).
+
+
+       The model selection is performed by a variational approach according
+  to \citep{Girolami:01} and \citep{Palmer:06}.
+
+  We included a prior on the parameters and minimize
+  a lower bound on the posterior
+  of the parameters given the data.
+  The update of the loadings includes an additive term which pushes the
+  loadings toward zero (Gaussian prior leads to an multiplicative factor).
+
+  The code is implemented in C.
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# TEST
+#---------------
+
+samples <- 20
+features <- 200
+sparseness <- 0.9
+write(samples, file = "sparseFarmsTest.txt",ncolumns = features,append = FALSE, sep = " ")
+write(features, file = "sparseFarmsTest.txt",ncolumns = features,append = TRUE, sep = " ")
+for (i in 1:samples)
+{
+  ind <- which(runif(features)>sparseness)-1
+  num <- length(ind)
+  val <- abs(rnorm(num))
+  write(num, file = "sparseFarmsTest.txt",ncolumns = features,append = TRUE, sep = " ")
+  write(ind, file = "sparseFarmsTest.txt",ncolumns = features,append = TRUE, sep = " ")
+  write(val, file = "sparseFarmsTest.txt",ncolumns = features,append = TRUE, sep = " ")
+}
+
+res <- spfabia("sparseFarmsTest",p=3,alpha=0.03,cyc=50,non_negative=1,write_file=0,norm=0)
+
+unlink("sparseFarmsTest.txt")
+
+plot(res,dim=c(1,2))
+plot(res,dim=c(1,3))
+plot(res,dim=c(2,3))
+
+
+
+\end{Sinput}
+
+\subsection{readSamplesSpfabia}
+
+Factor Analysis for Bicluster Acquisition: Read Samples of SpFabia \citep{Hochreiter:10}.
+
+C implementation of \texttt{readSamplesSpfabia}.
+
+\begin{enumerate}
+\item Usage: \texttt{readSamplesSpfabia(X,samples=0,lowerB=0.0,upperB=1000.0)}
+
+
+\item Arguments:
+ \begin{itemize}
+  \item{X:} the file name of the sparse matrix in sparse format.
+  \item{samples:} vector of samples which should be read; default
+    = 0 (all samples)
+  \item{lowerB:} lower bound for filtering the inputs columns, the
+    minimal column sum; default = 0.0.
+  \item{upperB:} upper bound for filtering the inputs columns, the
+    maximal column sum; default = 1000.0.
+ \end{itemize}
+
+ \item Return values:
+\begin{itemize}
+  \item   \texttt{X} (data of the given samples)
+ \end{itemize}
+
+ \end{enumerate}
+
+  Read the samples to analyze results of spfabia.
+
+  The code is implemented in C.
+
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# TEST
+#---------------
+
+# no test
+
+
+\end{Sinput}
+
+
+
+\subsection{readSpfabiaResult}
+
+Factor Analysis for Bicluster Acquisition: Read Results of SpFabia \citep{Hochreiter:10}.
+
+C implementation of \texttt{readSpfabiaResult}.
+
+\begin{enumerate}
+\item Usage: \texttt{readSpfabiaResult(X)}
+
+
+
+\item Arguments:
+ \begin{itemize}
+  \item{X:} the file prefix name of the result files of \texttt{spfabia}.
+ \end{itemize}
+
+\item Return values:
+\begin{itemize}
+ \item object of the class \texttt{Factorization}. Containing
+  \texttt{L} (loadings  $\La$),
+  \texttt{Z} (factors $\Z$),
+  \texttt{Psi} (noise variance $\pp$),
+  \texttt{lapla} (variational parameter),
+  \texttt{avini} (the information which the factor
+    $z_{ij}$ contains about $\x_j$ averaged over $j$)
+  \texttt{xavini} (the information which the factor
+    $\tilde\z_j$ contains about $\x_j$ averaged over $j$)
+  \texttt{ini} (for each $j$ the information which the factor
+    $z_{ij}$ contains about $\x_j$).
+\end{itemize}
+
+\end{enumerate}
+
+  Read the results of spfabia.
+
+  The code is implemented in C.
+
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# TEST
+#---------------
+
+# no test
+
+
+\end{Sinput}
+
+
+
+
+\subsection{mfsc}
+
+Sparse Matrix Factorization for bicluster analysis (MFSC) \citep{Hochreiter:10}.
+
+\begin{enumerate}
+\item Usage:
+\texttt{mfsc(X,p=5,cyc=100,sL=0.6,sZ=0.6,center=2,norm=1)}
+
+\item Arguments:
+ \begin{itemize}
+  \item{X:} the data matrix.
+  \item{p:} number of hidden factors = number of biclusters; default = 5.
+  \item{cyc:} maximal number of iterations; default = 100.
+  \item{sL:} final sparseness loadings; default = 0.6.
+  \item{sZ:} final sparseness factors; default = 0.6.
+  \item{center:} data centering: 1 (mean), 2
+    (median), > 2 (mode), 0 (no); default = 2.
+  \item{norm:} data normalization: 1 (0.75-0.25 quantile), >1 (var=1),
+    0 (no); default = 1.
+ \end{itemize}
+
+\item Return Values:
+\begin{itemize}
+ \item object of the class \texttt{Factorization}. Containing
+  \texttt{LZ} (estimated noise free data $\La  \Z$),
+  \texttt{L} (loadings  $\La$),
+  \texttt{Z} (factors $\Z$),
+  \texttt{U} (noise  $\X - \La \Z$),
+  \texttt{center} (centering vector),
+  \texttt{scaleData} (scaling vector),
+  \texttt{X} (centered and scaled data $\X$).
+\end{itemize}
+
+
+\end{enumerate}
+
+Biclusters are found by sparse matrix factorization
+  where \emph{both} factors are sparse.
+
+  Essentially the model is the sum of
+  outer products of vectors:
+  \begin{align*}
+    \X \ = \ \sum_{i=1}^{p} \la_i \ \z_i^T  \ ,
+  \end{align*}
+  where the number of summands  $p$
+  is the number of biclusters.
+  The matrix factorization is
+  \begin{align*}
+    \X \ = \ \La \ \Z  \ .
+  \end{align*}
+
+ Here $\X \in \Rb^{n \times l}$,
+  $\la_i  \in \Rb^n$, $\z_i  \in \Rb^l$, $\La \in \Rb^{n \times p}$,
+  $\Z \in \Rb^{p \times l}$.
+
+\emph{No noise assumption:}
+  In contrast to factor analysis there is no noise assumption.
+
+  If the nonzero components of
+  the sparse vectors are grouped together then the outer product results in
+  a matrix with a nonzero block and zeros elsewhere.
+
+
+  For a single data vector  $\x$ that is
+  \begin{align*}
+    \x \ = \ \sum_{i=1}^{p} \la_i z_i  \ = \ \La  \tilde\z
+  \end{align*}
+
+
+      \emph{Estimated Parameters:}
+       $\La$ and $\Z$
+
+    \emph{Estimated Biclusters:}
+        $\la_i \ \z_i^T $
+     Larges values give the bicluster (ideal the nonzero values).
+
+
+
+     The model selection is performed by a constraint optimization
+     according
+  to  \citep{Hoyer:04}. The Euclidean distance (the Frobenius norm) is
+  minimized subject to sparseness constraints:
+  \begin{align*}\min_{ \La, \Z}
+    \left\|\X \ - \ \La \ \Z\right\|_{F}^{2} \end{align*}
+  \begin{align*}\mathrm{subject} \ \mathrm{to} \ \ \left\|\La\right\|_{F}^{2} \ =
+  \ 1\end{align*}
+  \begin{align*}\mathrm{subject} \ \mathrm{to} \ \ \left\|\La\right\|_{1} \ =
+  \ k_L\end{align*}
+  \begin{align*}\mathrm{subject} \ \mathrm{to} \ \ \left\|\Z\right\|_{F}^{2} \ =
+  \ 1\end{align*}
+  \begin{align*}\mathrm{subject} \ \mathrm{to} \ \ \left\|\Z\right\|_{1} \ =
+  \ k_Z\end{align*}
+
+
+  Model selection is done by gradient descent on the Euclidean
+  objective and thereafter projection of single vectors of
+  $\La$ and single vectors of $\Z$
+  to fulfill the sparseness constraints.
+
+  The projection minimize the Euclidean distance
+  to the original vector  given an
+  $l_1$-norm and an $l_2$-norm.
+
+  The projection is a convex quadratic problem which is solved
+  iteratively where at each iteration at least one component is set to
+  zero. Instead of the  $l_1$-norm a sparseness measurement is used
+  which relates the $l_1$-norm to the $l_2$-norm:
+
+  \begin{align*}\mathrm{sparseness}(\la_i) \ = \ \frac{\sqrt{n} \ - \
+    \sum_{k=1}^{n} \left|\lambda_{ki} \right|\ / \  \sum_{k=1}^{n}
+    \lambda_{ki}^2}{\sqrt{n} \ - \ 1}\end{align*}
+
+  The code is implemented in \R.
+
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+
+#---------------
+# TEST
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+
+
+resEx <- mfsc(X,3,30,0.6,0.6)
+
+\dontrun{
+
+#-----------------
+# DEMO1: Toy Data
+#-----------------
+
+n = 1000
+l= 100
+p = 10
+
+dat <- makeFabiaDataBlocks(n = n,l= l,p = p,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+ZC <- dat[[3]]
+LC <- dat[[4]]
+
+gclab <- rep.int(0,l)
+gllab <- rep.int(0,n)
+clab <- as.character(1:l)
+llab <- as.character(1:n)
+for (i in 1:p){
+ for (j in ZC[i]){
+     clab[j] <- paste(as.character(i),"_",clab[j],sep="")
+ }
+ for (j in LC[i]){
+     llab[j] <- paste(as.character(i),"_",llab[j],sep="")
+ }
+ gclab[unlist(ZC[i])] <- gclab[unlist(ZC[i])] + p^i
+ gllab[unlist(LC[i])] <- gllab[unlist(LC[i])] + p^i
+}
+
+
+groups <- gclab
+
+#### MFSC
+
+resToy4 <- mfsc(X,13,100,0.6,0.6)
+
+extractPlot(resToy4,ti="MFSC",Y=Y)
+
+raToy4 <- extractBic(resToy4,thresZ=0.01,thresL=0.05)
+
+if ((raToy4$bic[[1]][1]>1) && (raToy4$bic[[1]][2])>1) {
+    plotBicluster(raToy4,1)
+}
+if ((raToy4$bic[[2]][1]>1) && (raToy4$bic[[2]][2])>1) {
+    plotBicluster(raToy4,2)
+}
+if ((raToy4$bic[[3]][1]>1) && (raToy4$bic[[3]][2])>1) {
+    plotBicluster(raToy4,3)
+}
+if ((raToy4$bic[[4]][1]>1) && (raToy4$bic[[4]][2])>1) {
+    plotBicluster(raToy4,4)
+}
+
+colnames(resToy4@X) <- clab
+
+rownames(resToy4@X) <- llab
+
+
+plot(resToy4,dim=c(1,2),label.tol=0.1,col.group = groups,lab.size=0.6)
+plot(resToy4,dim=c(1,3),label.tol=0.1,col.group = groups,lab.size=0.6)
+plot(resToy4,dim=c(2,3),label.tol=0.1,col.group = groups,lab.size=0.6)
+
+
+#------------------------------------------
+# DEMO2: Laura van't Veer's gene expression
+#        data set for breast cancer
+#------------------------------------------
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+
+data(Breast_A)
+
+X <- as.matrix(XBreast)
+
+resBreast4 <- mfsc(X,5,100,0.6,0.6)
+
+extractPlot(resBreast4,ti="MFSC Breast cancer(Veer)")
+
+
+raBreast4 <- extractBic(resBreast4,thresZ=0.01,thresL=0.05)
+
+if ((raBreast4$bic[[1]][1]>1) && (raBreast4$bic[[1]][2])>1) {
+    plotBicluster(raBreast4,1)
+}
+if ((raBreast4$bic[[2]][1]>1) && (raBreast4$bic[[2]][2])>1) {
+    plotBicluster(raBreast4,2)
+}
+if ((raBreast4$bic[[3]][1]>1) && (raBreast4$bic[[3]][2])>1) {
+    plotBicluster(raBreast4,3)
+}
+if ((raBreast4$bic[[4]][1]>1) && (raBreast4$bic[[4]][2])>1) {
+    plotBicluster(raBreast4,4)
+}
+
+plot(resBreast4,dim=c(1,2),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast4,dim=c(1,3),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast4,dim=c(1,4),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast4,dim=c(1,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast4,dim=c(2,3),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast4,dim=c(2,4),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast4,dim=c(2,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast4,dim=c(3,4),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast4,dim=c(3,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+plot(resBreast4,dim=c(4,5),label.tol=0.03,col.group=CBreast,lab.size=0.6)
+
+}
+
+
+#-----------------------------------
+# DEMO3: Su's multiple tissue types
+#        gene expression data set
+#-----------------------------------
+
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+data(Multi_A)
+
+X <- as.matrix(XMulti)
+
+resMulti4 <- mfsc(X,5,100,0.6,0.6)
+
+extractPlot(resMulti4,ti="MFSC Multiple tissues(Su)")
+
+
+raMulti4 <- extractBic(resMulti4,thresZ=0.01,thresL=0.05)
+
+if ((raMulti4$bic[[1]][1]>1) && (raMulti4$bic[[1]][2])>1) {
+    plotBicluster(raMulti4,1)
+}
+if ((raMulti4$bic[[2]][1]>1) && (raMulti4$bic[[2]][2])>1) {
+    plotBicluster(raMulti4,2)
+}
+if ((raMulti4$bic[[3]][1]>1) && (raMulti4$bic[[3]][2])>1) {
+    plotBicluster(raMulti4,3)
+}
+if ((raMulti4$bic[[4]][1]>1) && (raMulti4$bic[[4]][2])>1) {
+    plotBicluster(raMulti4,4)
+}
+
+plot(resMulti4,dim=c(1,2),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti4,dim=c(1,3),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti4,dim=c(1,4),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti4,dim=c(1,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti4,dim=c(2,3),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti4,dim=c(2,4),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti4,dim=c(2,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti4,dim=c(3,4),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti4,dim=c(3,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+plot(resMulti4,dim=c(4,5),label.tol=0.01,col.group=CMulti,lab.size=0.6)
+
+}
+
+
+
+#-----------------------------------------
+# DEMO4: Rosenwald's diffuse large-B-cell
+#        lymphoma gene expression data set
+#-----------------------------------------
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+
+data(DLBCL_B)
+
+X <- as.matrix(XDLBCL)
+
+
+resDLBCL4 <- mfsc(X,5,100,0.6,0.6)
+
+extractPlot(resDLBCL4,ti="MFSC Lymphoma(Rosenwald)")
+
+raDLBCL4 <- extractBic(resDLBCL4,thresZ=0.01,thresL=0.05)
+
+if ((raDLBCL4$bic[[1]][1]>1) && (raDLBCL4$bic[[1]][2])>1) {
+    plotBicluster(raDLBCL4,1)
+}
+if ((raDLBCL4$bic[[2]][1]>1) && (raDLBCL4$bic[[2]][2])>1) {
+    plotBicluster(raDLBCL4,2)
+}
+if ((raDLBCL4$bic[[3]][1]>1) && (raDLBCL4$bic[[3]][2])>1) {
+    plotBicluster(raDLBCL4,3)
+}
+if ((raDLBCL4$bic[[4]][1]>1) && (raDLBCL4$bic[[4]][2])>1) {
+    plotBicluster(raDLBCL4,4)
+}
+
+plot(resDLBCL4,dim=c(1,2),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL4,dim=c(1,3),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL4,dim=c(1,4),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL4,dim=c(1,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL4,dim=c(2,3),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL4,dim=c(2,4),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL4,dim=c(2,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL4,dim=c(3,4),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL4,dim=c(3,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+plot(resDLBCL4,dim=c(4,5),label.tol=0.03,col.group=CDLBCL,lab.size=0.6)
+
+}
+
+
+\end{Sinput}
+
+
+
+\subsection{nmfdiv}
+
+Non-negative Matrix Factorization with Kullaback-Leibler divergence
+as objective.
+
+\begin{enumerate}
+
+\item Usage:
+\texttt{nmfdiv(X,p=5,cyc=100)}
+
+
+\item Arguments:
+ \begin{itemize}
+  \item{X:} the data matrix.
+  \item{p:} number of hidden factors = number of biclusters; default = 5.
+  \item{cyc:} maximal number of iterations; default = 100.
+ \end{itemize}
+
+
+\item Return Values:
+\begin{itemize}
+ \item object of the class \texttt{Factorization}. Containing
+  \texttt{LZ} (estimated noise free data $\La  \Z$),
+  \texttt{L} (loadings  $\La$),
+  \texttt{Z} (factors $\Z$),
+  \texttt{U} (noise  $\X- \La \Z$),
+  \texttt{X} (scaled data $\X$).
+\end{itemize}
+
+\end{enumerate}
+
+  \begin{align*}\X \ = \ \La \ \Z \end{align*}
+
+  \begin{align*}\X \ = \ \sum_{i=1}^{p} \la_i \
+                  \z_i^T\end{align*}
+
+
+
+
+      \emph{Estimated Parameters:}
+       $\La$ and $\Z$
+
+
+
+     The model selection is performed
+     according  to  \citep{Lee:99,Lee:01}.
+
+\emph{objective:}
+\begin{align*}\mathrm{D} ( \A \parallel \B ) \ = \
+  \sum_{ij} \left( A_{ij} \ \log \frac{ A_{ij}}{B_{ij}} \ + \  A_{ij} \
+  - \  B_{ij}  \right)\end{align*}
+
+
+\emph{update:}
+\begin{align*}L_{ik} \ = \ L_{ik} \frac{\sum_{j=1}^{n} Z_{ji} \  V_{jk} \ / \
+    \left(\La \ \Z\right)_{jk}}{\sum_{j=1}^{n} Z_{ji}}\end{align*}
+
+\begin{align*}Z_{ji} \ = \ Z_{ji} \frac{\sum_{k=1}^{l} L_{ik} \  V_{jk} \ / \
+    \left(\La \ \Z\right)_{jk}}{\sum_{k=1}^{l} L_{ik}}\end{align*}
+
+or in matrix notation with ``$*$'' and  ``$/$'' as
+    element-wise operators:
+    \begin{align*}\La \ = \  \La*((\X \ / \ (\La \ \Z))\ t(\Z)) \
+    / \ \mathrm{rowSums}(\Z)\end{align*}
+    \begin{align*}\Z \ = \  \Z*(t(\La) \ (\X \ / \ (\La \
+    \Z))) \ / \ \mathrm{colSums}(\La)\end{align*}
+
+
+
+  The code is implemented in \R.
+
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# TEST
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+X <- abs(X)
+
+
+resEx <- nmfdiv(X,3)
+
+
+
+#---------------
+# DEMO
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 1000,l= 100,p = 10,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+X <- abs(X)
+
+
+resToy <- nmfdiv(X,13)
+
+extractPlot(resToy,ti="NMFDIV",Y=Y)
+
+
+\end{Sinput}
+
+
+
+
+
+\subsection{nmfeu}
+
+Non-negative Matrix Factorization with Euclidean distance as
+objective.
+
+\begin{enumerate}
+\item Usage:
+\texttt{nmfeu(X,p=5,cyc=100)}
+
+\item Arguments:
+ \begin{itemize}
+  \item{X:} the data matrix.
+  \item{p:} number of hidden factors = number of biclusters; default = 5.
+  \item{cyc:} maximal number of iterations; default = 100.
+ \end{itemize}
+
+\item Return Values:
+\begin{itemize}
+ \item object of the class \texttt{Factorization}. Containing
+  \texttt{LZ} (estimated noise free data $\La  \Z$),
+  \texttt{L} (loadings  $\La$),
+  \texttt{Z} (factors $\Z$),
+  \texttt{U} (noise  $\X - \La \Z$),
+  \texttt{X} (scaled data $\X$).
+\end{itemize}
+
+\end{enumerate}
+
+  \begin{align*}\X \ = \ \La \ \Z \end{align*}
+
+  \begin{align*}\X \ = \ \sum_{i=1}^{p} \la_i \
+                   \z_i^T\end{align*}
+
+
+
+
+      \emph{Estimated Parameters:}
+       $\La$ and $\Z$
+
+
+
+
+
+     The model selection is performed
+     according  to  \citep{Lee:01,Paatero:97}.
+
+\emph{objective:}
+\begin{align*}\| \A \ - \ \B \|_{F}^2 \ = \
+  \sum_{ij} \left( A_{ij} \ - \  B_{ij} \right)^2\end{align*}
+
+
+\emph{update:}
+\begin{align*}L_{ik} \ = \ L_{ik} \frac{\left( \La^T  \ \X \right)_{ik}}{
+  \left(  \La^T  \ \La \ \Z\right)_{ik}} \end{align*}
+
+\begin{align*}Z_{ji} \ = \ Z_{ji} \frac{\left( \X  \ \Z^T \right)_{ji}}{
+  \left(  \La \ \Z \ \Z^T \right)_{ji}} \end{align*}
+
+or in matrix notation with ``$*$'' and  ``$/$'' as
+    element-wise operators:
+
+    \begin{align*}\Z \ = \ \Z*(t(\La) \ \X)\ / \ (t(\La) \
+    \La \ \Z)\end{align*}
+    \begin{align*}\La \ = \ \La*(\X \ t(\Z)) \ / \ (\La \
+    \Z \ t(\Z))\end{align*}
+
+
+  The code is implemented in \R.
+
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# TEST
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+X <- abs(X)
+
+
+resEx <- nmfeu(X,3)
+
+
+#---------------
+# DEMO
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 1000,l= 100,p = 10,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+X <- abs(X)
+
+
+resToy <- nmfeu(X,13)
+
+extractPlot(resToy,ti="NMFEU",Y=Y)
+
+
+
+\end{Sinput}
+
+
+
+\subsection{nmfsc}
+
+Non-negative Sparse Matrix Factorization with sparseness constraints.
+
+
+\begin{enumerate}
+\item Usage:
+\texttt{nmfsc(X,p=5,cyc=100,sL=0.6,sZ=0.6)}
+
+
+\item Arguments:
+ \begin{itemize}
+  \item{X:} the data matrix.
+  \item{p:} number of hidden factors = number of biclusters; default = 5.
+  \item{cyc:} maximal number of iterations; default = 100.
+  \item{sL:} sparseness loadings; default = 0.6.
+  \item{sZ:} sparseness factors; default = 0.6.
+ \end{itemize}
+
+\item Return Values:
+\begin{itemize}
+ \item object of the class \texttt{Factorization}. Containing
+  \texttt{LZ} (estimated noise free data $\La  \Z$),
+  \texttt{L} (loadings  $\La$),
+  \texttt{Z} (factors $\Z$),
+  \texttt{U} (noise  $\X - \La \Z$),
+  \texttt{X} (data $\X$).
+\end{itemize}
+
+\end{enumerate}
+
+   Essentially the model is the sum of
+  outer products of vectors:
+  \begin{align*}
+    \X \ = \ \sum_{i=1}^{p} \la_i \ \z_i^T \ ,
+  \end{align*}
+  where the number of summands  $p$
+  is the number of biclusters.
+  The matrix factorization is
+  \begin{align*}
+    \X \ = \ \La \ \Z \ .
+  \end{align*}
+
+  Here $\X \in \Rb^{n \times l}$,
+  $\la_i  \in \Rb^n$, $\z_i  \in \Rb^l$, $\La \in \Rb^{n \times p}$,
+  $\Z \in \Rb^{p \times l}$.
+
+ If the nonzero components of
+  the sparse vectors are grouped together then the outer product results in
+  a matrix with a nonzero block and zeros elsewhere.
+
+
+  For a single data vector  $\x$ that is
+  \begin{align*}\x \ = \ \sum_{i=1}^{p} \la_i z_i  \ = \ \La \z \end{align*}
+
+
+      \emph{Estimated Parameters:}
+       $\La$ and $\Z$
+
+    \emph{Estimated Biclusters:}
+        $\la_i \ \z_i^T $
+     Larges values give the bicluster (ideal the nonzero values).
+
+
+
+
+     The model selection is performed by a constraint optimization
+     according
+  to  \citep{Hoyer:04}. The Euclidean distance (the Frobenius norm) is
+  minimized  subject to sparseness and non-negativity constraints:
+  \begin{align*}\min_{ \La, \Z}
+    \left\|\x \ - \ \La \ \Z\right\|_{F}^{2} \end{align*}
+  \begin{align*}\mathrm{subject} \ \mathrm{to} \ \ \left\|\La\right\|_{F}^{2} \ =
+  \ 1\end{align*}
+  \begin{align*}\mathrm{subject} \ \mathrm{to} \ \ \left\|\La\right\|_{1} \ =
+  \ k_L\end{align*}
+  \begin{align*}\mathrm{subject} \ \mathrm{to} \ \ \La \ \geq \ \0  \end{align*}
+  \begin{align*}\mathrm{subject} \ \mathrm{to} \ \ \left\|\Z\right\|_{F}^{2} \ =
+  \ 1\end{align*}
+  \begin{align*}\mathrm{subject} \ \mathrm{to} \ \ \left\|\Z\right\|_{1} \ =
+  \ k_Z\end{align*}
+  \begin{align*}\mathrm{subject} \ \mathrm{to} \ \ \Z \ \geq \ \0  \end{align*}
+
+
+  Model selection is done by gradient descent on the Euclidean
+  objective and thereafter projection of single vectors of
+  $\La$ and single vectors of $\Z$
+  to fulfill the sparseness and non-negativity constraints.
+
+  The projection minimize the Euclidean distance
+  to the original vector  given an
+  $l_1$-norm and an $l_2$-norm and enforcing non-negativity.
+
+  The projection is a convex quadratic problem which is solved
+  iteratively where at each iteration at least one component is set to
+  zero. Instead of the  $l_1$-norm a sparseness measurement is used
+  which relates the $l_1$-norm to the $l_2$-norm:
+
+  \begin{align*}\mathrm{sparseness}(\la_i) \ = \ \frac{\sqrt{n} \ - \
+    \sum_{k=1}^{n} \left|\lambda_{ki} \right|\ / \  \sum_{k=1}^{n}
+    \lambda_{ki}^2}{\sqrt{n} \ - \ 1} \end{align*}
+
+  The code is implemented in \R.
+
+
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# TEST
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+X <- abs(X)
+
+resEx <- nmfsc(X,3,30,0.6,0.6)
+
+
+#---------------
+# DEMO
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 1000,l= 100,p = 10,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+X <- abs(X)
+
+
+resToy <- nmfsc(X,13,100,0.6,0.6)
+
+extractPlot(resToy,ti="NMFSC",Y=Y)
+
+\end{Sinput}
+
+
+
+\section{Analyzing the Results of Biclustering / Matrix Factorization}
+
+
+\subsection{plot}
+
+
+Plot of a Matrix Factorization.
+
+Produces a (biplot) of a Matrix Factorization result.
+
+
+\begin{enumerate}
+
+\item Usage:
+\texttt{plot(x,y, ...)
+  }
+
+\item Arguments:
+ \begin{itemize}
+  \item{x:} object of the class \texttt{Factorization}.
+  \item{y:} missing, not used.
+    \item{...:} with following parameters
+    \begin{itemize}
+
+  \item{Rm:} row weighting vector.
+  \item{Cm:} column weighting vector.
+  \item{dim:} optional principal factors that are plotted along the
+    horizontal and vertical axis. Defaults to \texttt{c(1,2)}.
+   \item{zoom:} optional zoom factor for row and column items. Defaults to
+    \texttt{c(1,1)}.
+  \item{col.group:} optional vector (character or numeric) indicating the
+    different groupings of the columns. Defaults to 1.
+  \item{colors:} vector specifying the colors for the annotation of the plot;
+    the first two elements concern the rows; the third till the last element
+    concern the columns; the first element will be used to color the unlabeled
+    rows; the second element for the labeled rows and the remaining elements to
+    give different colors to different groups of columns.
+  \item{col.areas:} logical value indicating whether columns should be
+    plotted as squares with areas proportional to their marginal mean
+    and colors representing the different groups (\texttt{TRUE}), or with
+    symbols representing the groupings and identical size
+    (\texttt{FALSE}). Defaults to \texttt{TRUE}.
+  \item{col.symbols:} vector of symbols when \texttt{col.areas=FALSE}
+    corresponds to the \texttt{pch} argument of the function \texttt{plot}.
+  \item{sampleNames:} Either a logical vector of length one or a character vector
+    of length equal to the number of samples in the dataset. If a logical is provided,
+    sample names will be displayed on the plot (\texttt{TRUE}; default) or not (\texttt{FALSE});
+    if a character vector is provided, the names provided will be used to label the samples
+    instead of the default column names.
+  \item{rot:} rotation of plot. Defaults to \texttt{c(-1,-1)}.
+  \item{labels:} character vector to be used for labeling points on the graph;
+    if \texttt{NULL}, the row names of \texttt{x} are used instead.
+  \item{label.tol:} numerical value specifying either the percentile
+    (\texttt{label.tol<=1})of rows or the number of rows
+    (\texttt{label.tol>1}) most distant from the plot-center \texttt{(0,0)} that
+    are labeled and are plotted as circles with area proportional to the
+    marginal means of the original data.
+  \item{lab.size:} size of identifying labels for row- and column-items
+    as \texttt{cex} parameter of the \texttt{text} function.
+  \item{col.size:} size in mm of the column symbols.
+  \item{row.size:} size in mm of the row symbols.
+  \item{do.smoothScatter:} use smoothScatter or not instead of plotting
+                          individual points.
+  \item{do.plot:} produce a plot or not.
+  \item{...:} further arguments to \texttt{eqscaleplotLoc} which draws
+    the canvasfor the plot; useful for adding a \texttt{main} or a custom \texttt{sub}.
+  \end{itemize}
+   and with the default values
+   \begin{itemize}
+     \item Rm=rep(1,nrow(X)),
+    \item Cm=rep(1,ncol(X)),
+    \item dim = c(1, 2),
+   \item  zoom = rep(1, 2),
+    \item col.group = rep(1, ncol(X)),
+    \item colors = c("orange1", "red", rainbow(length(unique(col.group)),
+                start=2/6, end=4/6)),
+    \item col.areas = TRUE,
+    \item col.symbols = c(1, rep(2, length(unique(col.group)))),
+    \item sampleNames = TRUE,
+    \item rot = rep(-1, length(dim)),
+    \item labels = NULL,
+    \item label.tol = 1,
+    \item lab.size = 0.725,
+    \item col.size = 10,
+    \item row.size = 10,
+    \item do.smoothScatter = FALSE,
+    \item do.plot = TRUE,
+   \end{itemize}
+
+ \end{itemize}
+
+\item Return Values:
+ \begin{itemize}
+  \item{Rows:} a list with the X and Y coordinates of the rows and
+    an indication \texttt{Select} of whether the row was selected
+    according to \texttt{label.tol}.
+  \item{Columns:} a list with the X and Y coordinates of the columns.
+
+ \end{itemize}
+
+\end{enumerate}
+
+The function \texttt{plot.fabia} is based on
+the function \texttt{plot.mpm} in the \R package \texttt{mpm}
+(Version: 1.0-16, Date: 2009-08-26, Title: Multivariate Projection
+Methods, Maintainer: Tobias Verbeke <tobias.verbeke@openanalytics.be>,
+Author: Luc Wouters <wouters\_luc@telenet.be>).
+
+
+  Biclusters are found by sparse factor analysis where \emph{both} the factors
+  and the loadings are sparse.
+
+  Essentially the model is the sum of
+  outer products of vectors:
+  \begin{align*}
+    \X \ = \ \sum_{i=1}^{p} \la_i \ \z_i^T \ + \ \Up \ ,
+  \end{align*}
+  where the number of summands  $p$
+  is the number of biclusters.
+  The matrix factorization is
+  \begin{align*}
+    \X \ = \ \La \ \Z \ + \ \Up \ .
+  \end{align*}
+
+  Here $\X \in \Rb^{n \times l}$ and $\Up \in \Rb^{n \times l}$,
+  $\la_i  \in \Rb^n$, $\z_i  \in \Rb^l$, $\La \in \Rb^{n \times p}$,
+  $\Z \in \Rb^{p \times l}$.
+
+
+
+
+   For noise free projection like independent component analysis
+   we set the noise term to zero: $\Up=\0$.
+
+
+   The argument \texttt{label.tol} can be used to select the
+   most informative rows, i.e.\ rows that are most distant from the
+   center of the plot
+   (smaller 1: percentage of rows, larger 1: number of rows).
+
+   Only these row-items are then labeled and represented as circles with
+   their areas proportional to the row weighting.
+
+   If the column-items are grouped these groups can be visualized by
+   colors given  by \texttt{col.group}.
+
+  Implementation in \R.
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+
+
+n=200
+l=100
+p=4
+
+dat <- makeFabiaDataBlocks(n = n,l= l,p = p,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+ZC <- dat[[3]]
+LC <- dat[[4]]
+
+
+resEx <- fabia(X,p,0.01,400)
+
+
+gclab <- rep.int(0,l)
+gllab <- rep.int(0,n)
+clab <- as.character(1:l)
+llab <- as.character(1:n)
+for (i in 1:p){
+ for (j in ZC[i]){
+     clab[j] <- paste(as.character(i),"_",clab[j],sep="")
+ }
+ for (j in LC[i]){
+     llab[j] <- paste(as.character(i),"_",llab[j],sep="")
+ }
+ gclab[unlist(ZC[i])] <- gclab[unlist(ZC[i])] + p^i
+ gllab[unlist(LC[i])] <- gllab[unlist(LC[i])] + p^i
+}
+
+
+labels <- paste(as.character(clab) ,"_",as.character(1:l),sep="")
+
+groups <- gclab
+
+colnames(resEx@X) <- clab
+
+rlabels <- paste(as.character(llab) ,"_",as.character(1:l),sep="")
+
+rownames(resEx@X) <- llab
+
+
+plot(resEx,dim=c(1,2),label.tol=0.1,col.group = groups,lab.size=0.6)
+
+plot(resEx,dim=c(1,3),label.tol=0.1,col.group = groups,lab.size=0.6)
+plot(resEx,dim=c(2,3),label.tol=0.1,col.group = groups,lab.size=0.6)
+
+
+\end{Sinput}
+
+
+
+
+\subsection{show}
+
+Plots Statistics of a Matrix Factorization.
+
+  This function plots statistics on a matrix factorization
+  which is stored as an instance of
+  \texttt{Factorization-class}.
+
+\begin{enumerate}
+
+\item Usage:
+\texttt{show(object)}
+
+\item Arguments:
+ \begin{itemize}
+\item{object:} An instance of \texttt{Factorization-class}.
+ \end{itemize}
+
+\item Return Values:
+ \begin{itemize}
+ \item no value.
+ \end{itemize}
+
+\end{enumerate}
+
+  Following is plotted:
+
+    1) the information content of biclusters.
+
+    2) the information content of samples.
+
+    3) the loadings per bicluster.
+
+    4) the factors per bicluster.
+
+
+
+  Implementation in \R.
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+
+
+#---------------
+# TEST
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+
+
+resEx <- fabia(X,3,0.01,100)
+
+show(resEx)
+
+
+
+\end{Sinput}
+
+
+
+\subsection{showSelected}
+
+Plots selected Statistics of a Matrix Factorization.
+
+  This function plots selected statistics on a matrix factorization
+  which is stored as an instance of
+  \texttt{Factorization-class}.
+
+\begin{enumerate}
+
+\item Usage:
+\texttt{showSelected(object, which=c(1,2,3,4))}
+
+\item Arguments:
+ \begin{itemize}
+\item{object:} An instance of \texttt{Factorization-class}.
+   \item{which:} A list of which plots should be generated: 1=the
+     information content of biclusters, 2=the information content of
+     samples, 3=the loadings per bicluster, 4=the factors per bicluster,
+     default c(1,2,3,4).
+ \end{itemize}
+
+\item Return Values:
+ \begin{itemize}
+ \item no value.
+ \end{itemize}
+
+\end{enumerate}
+
+   Following is plotted depending on the plot selection variable "which":
+
+    1) the information content of biclusters.
+
+    2) the information content of samples.
+
+    3) the loadings per bicluster.
+
+    4) the factors per bicluster.
+
+
+
+  Implementation in \R.
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+
+
+#---------------
+# TEST
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+
+
+resEx <- fabia(X,3,0.01,100)
+
+showSelected(resEx,which=1)
+showSelected(resEx,which=2)
+
+
+\end{Sinput}
+
+
+
+\subsection{summary}
+
+Summary of Matrix Factorization.
+
+  This function gives information on a matrix factorization
+  which is stored as an instance of \texttt{Factorization-class}.
+
+
+\begin{enumerate}
+
+\item Usage:
+\texttt{summary(object, ...)}
+
+\item Arguments:
+ \begin{itemize}
+ \item{object:} An instance of \texttt{Factorization-class}.
+ \item{...:} further arguments.
+ \end{itemize}
+
+\item Return Values:
+ \begin{itemize}
+\item no value.
+ \end{itemize}
+
+\end{enumerate}
+
+
+  First, it gives the number or rows and columns of the original matrix.
+
+  Then the number of clusters for rows and columns is given.
+
+  Then for the row cluster the information content is given.
+
+  Then for each column its information is given.
+
+  Then for each column cluster a summary is given.
+
+  Then for each row cluster a summary is given.
+
+
+  Implementation in \R.
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+
+#---------------
+# TEST
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+
+
+resEx <- fabia(X,3,0.01,100)
+
+summary(resEx)
+
+\end{Sinput}
+
+
+\subsection{extractBic}
+
+Extraction of Biclusters.
+
+\begin{enumerate}
+
+\item Usage:
+\texttt{extractBic(fact,thresZ=0.5,thresL=NULL)}
+
+
+\item Arguments:
+\begin{itemize}
+  \item{fact:} object of class \texttt{Factorization}.
+  \item{thresZ:} threshold for sample belonging to bicluster; default 0.5.
+  \item{thresL:} threshold for loading belonging to bicluster (if not
+    given it is estimated).
+
+\end{itemize}
+
+\item Return Values:
+ \begin{itemize}
+  \item{bic:} extracted biclusters.
+  \item{numn:} indexes for the extracted biclusters.
+  \item{bicopp:} extracted opposite biclusters.
+  \item{numnopp:} indexes for the extracted opposite biclusters.
+  \item{X:} scaled and centered data matrix.
+  \item{np:} number of biclusters.
+\end{itemize}
+\end{enumerate}
+
+  Essentially the model is the sum of
+  outer products of vectors:
+  \begin{align*}
+    \X \ = \ \sum_{i=1}^{p} \la_i \ \z_i^T \ + \ \Up \ ,
+  \end{align*}
+  where the number of summands  $p$
+  is the number of biclusters.
+  The matrix factorization is
+  \begin{align*}
+    \X \ = \ \La \ \Z \ + \ \Up \ .
+  \end{align*}
+
+  Here $\X \in \Rb^{n \times l}$ and $\Up \in \Rb^{n \times l}$,
+  $\la_i  \in \Rb^n$, $\z_i  \in \Rb^l$, $\La \in \Rb^{n \times p}$,
+  $\Z \in \Rb^{p \times l}$.
+
+   $\Up$ is the Gaussian noise with a diagonal covariance matrix
+   which entries are given by \texttt{Psi}.
+
+   The $\Z$ is locally approximated by a Gaussian with inverse
+   variance given by  \texttt{lapla}.
+
+
+
+
+
+
+   The $\la_i $ and $\z_i $ are used to
+   extract the bicluster $i$, where a threshold determines which
+   observations and which samples belong the the bicluster.
+
+
+   In \texttt{bic} the biclusters are extracted according to the
+   largest absolute values of the component $i$, i.e.
+   the largest values of $\la_i $ and the
+   largest values of $\z_i $. The factors  $\z_i $
+   are normalized to variance 1.
+
+
+   The components of \texttt{bic} are
+   \texttt{binp}, \texttt{bixv},
+   \texttt{bixn}, \texttt{biypv}, and \texttt{biypn}.
+
+
+   \texttt{binp} give the size of the bicluster: number observations and
+   number samples.
+   \texttt{bixv} gives the values of the extracted
+   observations that have absolute
+   values above a threshold. They are sorted.
+   \texttt{bixn} gives  the extracted observation names (e.g. gene names).
+   \texttt{biypv} gives the values of the extracted samples that have
+   absolute values above a threshold.  They are sorted.
+   \texttt{biypn} gives  the names of the extracted samples (e.g. sample names).
+
+   In \texttt{bicopp} the opposite cluster to the biclusters are
+   give. Opposite means that the negative pattern is present.
+
+   The components of opposite clusters \texttt{bicopp} are
+   \texttt{binn}, \texttt{bixv},
+   \texttt{bixn}, \texttt{biypnv}, and \texttt{biynn}.
+
+    \texttt{binp} give the size of the opposite bicluster: number observations and
+   number samples.
+   \texttt{bixv} gives the values of the extracted
+   observations that have absolute
+   values above a threshold. They are sorted.
+   \texttt{bixn} gives  the extracted observation names (e.g. gene names).
+   \texttt{biynv} gives the values of the opposite extracted samples that have
+   absolute values above a threshold.  They are sorted.
+   \texttt{biynn} gives  the names of the opposite
+   extracted samples (e.g.\ sample names).
+
+   That means the samples are divided into two groups where one group
+   shows large positive values and the other group has negative values
+   with large absolute values. That means a observation pattern can be
+   switched on or switched off relative to the average value.
+
+   \texttt{numn} gives the indexes of \texttt{bic} with components:
+   \texttt{numng} = \texttt{bix} and \texttt{numnp}  =  \texttt{biypn}.
+
+   \texttt{numn} gives the indexes of \texttt{bicopp} with components:
+   \texttt{numng} = \texttt{bix} and \texttt{numnn}  =  \texttt{biynn}.
+
+
+  Implementation in \R.
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# TEST
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+
+
+resEx <- fabia(X,3,0.01,20)
+
+rEx <- extractBic(resEx)
+
+rEx$bic[1,]
+rEx$bic[2,]
+rEx$bic[3,]
+
+
+#---------------
+# DEMO1
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 1000,l= 100,p = 10,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+
+
+resToy <- fabia(X,13,0.01,200)
+
+rToy <- extractBic(resToy)
+
+resToy@avini
+
+rToy$bic[1,]
+rToy$bic[2,]
+rToy$bic[3,]
+
+#---------------
+# DEMO2
+#---------------
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+
+data(Breast_A)
+
+X <- as.matrix(XBreast)
+
+resBreast <- fabia(X,5,0.1,200)
+
+rBreast <- extractBic(resBreast)
+
+resBreast@avini
+
+rBreast$bic[1,]
+rBreast$bic[2,]
+rBreast$bic[3,]
+}
+
+
+\end{Sinput}
+
+
+\subsection{extractPlot}
+
+Plotting of Biclustering Results.
+
+\begin{enumerate}
+
+\item Usage:
+\texttt{extractPlot(fact,thresZ=0.5,ti="",thresL=NULL,Y=NULL,which=c(1,2,3,4,5,6,7,8))}
+
+
+\item Arguments:
+\begin{itemize}
+  \item{fact:} object of class \texttt{Factorization}.
+  \item{thresZ:} threshold for sample belonging to bicluster; default 0.5.
+  \item{thresL:} threshold for loading belonging to bicluster (estimated
+    if not given).
+  \item{ti:} plot title; default "".
+  \item{Y:} noise free data matrix.
+  \item{which:} which plot is shown: 1=noise free data (if available),
+    2=data, 3=reconstructed data, 4=error, 5=absolute factors,
+    6=absolute loadings, 7=reconstructed matrix sorted,8=original matrix
+    sorted; default c(1,2,3,4,5,6,7,8).
+\end{itemize}
+
+
+\item The method produces following plots depending what plots are chosen
+   by the "which" variable:
+\begin{itemize}
+   \item{$\Y$}: noise free data (if available),
+   \item{$\X$}: data,
+   \item{$\La \Z$}: reconstructed data,
+   \item{$\La \Z - \X$}: error,
+   \item{$\mathrm{abs}(\Z)$}: absolute factors,
+   \item{$\mathrm{abs}(\L)$}: absolute loadings,
+   \item{$\bm{\mathrm{pmL}} \L \Z \bm{\mathrm{pmZ}}$}: reconstructed matrix sorted,
+   \item{$\bm{\mathrm{pmL}} \X \bm{\mathrm{pmZ}}$}: original matrix sorted.
+\end{itemize}
+\end{enumerate}
+
+  Essentially the model is the sum of
+  outer products of vectors:
+  \begin{align*}
+    \X \ = \ \sum_{i=1}^{p} \la_i \ \z_i^T \ + \ \Up \ ,
+  \end{align*}
+  where the number of summands  $p$
+  is the number of biclusters.
+  The matrix factorization is
+  \begin{align*}
+    \X \ = \ \La \ \Z \ + \ \Up \ .
+  \end{align*}
+
+  Here $\X \in \Rb^{n \times l}$ and $\Up \in \Rb^{n \times l}$,
+  $\la_i  \in \Rb^n$, $\z_i  \in \Rb^l$, $\La \in \Rb^{n \times p}$,
+  $\Z \in \Rb^{p \times l}$.
+
+
+   The $\la_i $ and $\z_i^T$ are used to
+   extract the bicluster $i$, where a threshold determines which
+   observations and which samples belong the the bicluster.
+
+
+   The method produces the plots given above at ``Plots''.
+
+
+
+    For sorting first \texttt{kmeans} is performed
+   on the $p$ dimensional space and then the vectors
+   which belong to the same cluster are put together.
+
+   This sorting is in general not able to
+   visualize all biclusters as blocks if they overlap.
+
+
+   The kmeans clusters are given by \texttt{biclust} with
+   components \texttt{biclustx} (the clustered observations)
+   and \texttt{biclusty} (the clustered samples).
+
+  Implementation in \R.
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# TEST
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+
+
+
+resEx <- fabia(X,3,0.01,20)
+
+extractPlot(resEx,ti="FABIA",Y=Y)
+
+
+
+#---------------
+# DEMO1
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 1000,l= 100,p = 10,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+
+
+resToy <- fabia(X,13,0.01,200)
+
+extractPlot(resToy,ti="FABIA",Y=Y)
+
+#---------------
+# DEMO2
+#---------------
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+
+data(Breast_A)
+
+X <- as.matrix(XBreast)
+
+
+resBreast <- fabia(X,5,0.1,200)
+
+extractPlot(resBreast,ti="FABIA Breast cancer(Veer)")
+
+#sorting of predefined labels
+CBreast%*%rBreast$pmZ
+}
+
+\end{Sinput}
+
+
+\subsection{plotBicluster}
+
+  Plots a bicluster.
+
+\begin{enumerate}
+\item Usage:
+ \texttt{plotBicluster(r,p,opp=FALSE,zlim=NULL,title=NULL,which=c(1, 2))}
+
+
+
+
+\item Arguments:
+  \begin{itemize}
+  \item{r:} the result of extractBic.
+  \item{p:} the bicluster to plot.
+  \item{opp:} plot opposite bicluster, default = FALSE.
+  \item{zlim:} vector containing a low and high value to use for the color scale.
+  \item{title:} title of the plot.
+  \item{which:} which plots are shown: 1=data matrix with bicluster on upper left, 2=plot of the bicluster; default c(1, 2).
+
+\end{itemize}
+
+\end{enumerate}
+
+    One bicluster is visualized by two plots. The variable
+  "which" indicates which plots should be shown.
+
+  Plot1 (which=1):
+  The data matrix is sorted such that the bicluster appear at the
+  upper left corner.
+
+  The bicluster is marked by a rectangle.
+
+  Plot2 (which=2):
+  Only the bicluster is presented.
+
+   Implementation in \R.
+\begin{Sinput}
+
+#---------------
+# TEST
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 100,l= 50,p = 3,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+
+
+resEx <- fabia(X,3,0.01,20)
+
+rEx <- extractBic(resEx)
+
+plotBicluster(rEx,p=1)
+
+
+\dontrun{
+#---------------
+# DEMO1
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 1000,l= 100,p = 10,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+
+
+resToy <- fabia(X,13,0.01,200)
+
+
+
+rToy <- extractBic(resToy)
+
+plotBicluster(rToy,p=1)
+
+#---------------
+# DEMO2
+#---------------
+
+avail <- require(fabiaData)
+
+if (!avail) {
+    message("")
+    message("")
+    message("#####################################################")
+    message("Package 'fabiaData' is not available: please install.")
+    message("#####################################################")
+} else {
+
+data(Breast_A)
+
+X <- as.matrix(XBreast)
+
+resBreast <- fabia(X,5,0.1,200)
+
+rBreast <- extractBic(resBreast)
+
+plotBicluster(rBreast,p=1)
+
+}
+
+\end{Sinput}
+
+
+
+\section{Data Generation Methods}
+
+
+\subsection{makeFabiaData}
+
+Generation of bicluster data.
+
+\begin{enumerate}
+
+\item  Usage: \verb+makeFabiaData(n,l,p,f1,f2,of1,of2,sd_noise,sd_z_noise,mean_z,+\\
+\hspace*{6em}\verb+          sd_z,sd_l_noise,mean_l,sd_l)+
+
+\item Arguments:
+ \begin{itemize}
+  \item{n.} number of observations.
+  \item{l:} number of samples.
+  \item{p:} number of biclusters.
+  \item{f1:} $l/f1$ max. additional samples are active in a bicluster.
+  \item{f2:} $n/f2$ max. additional observations that form a pattern in a bicluster.
+  \item{of1:} minimal active samples in a bicluster.
+  \item{of2:} menial observations that form a pattern in a bicluster.
+  \item{sd\_noise:} Gaussian zero mean noise std on data matrix.
+  \item{sd\_z\_noise:} Gaussian zero mean noise std for deactivated hidden factors.
+  \item{mean\_z:} Gaussian mean for activated factors.
+  \item{sd\_z:} Gaussian std for activated factors.
+  \item{sd\_l\_noise:} Gaussian zero mean noise std if no observation patterns are present.
+  \item{mean\_l:} Gaussian mean for observation patterns.
+  \item{sd\_l:} Gaussian std for observation patterns.
+ \end{itemize}
+
+\item Return values:
+ \begin{itemize}
+  \item{X:} the noisy data $\X$ from $\mathbb{R}^{n \times l}$.
+  \item{Y:} the noise free data $\Y$ from $\mathbb{R}^{n \times l}$.
+  \item{ZC:} list where $i$th element gives samples belonging to $i$th
+    bicluster.
+  \item{LC:} list where $i$th element gives observations belonging to $i$th
+    bicluster.
+ \end{itemize}
+
+\end{enumerate}
+
+  Essentially the model is the sum of
+  outer products of vectors:
+  \begin{align*}
+    \X \ = \ \sum_{i=1}^{p} \la_i \ \z_i^T \ + \ \Up \ ,
+  \end{align*}
+  where the number of summands  $p$
+  is the number of biclusters.
+  The matrix factorization is
+  \begin{align*}
+    \X \ = \ \La \ \Z \ + \ \Up \ .
+  \end{align*}
+
+  Here $\X \in \Rb^{n \times l}$ and $\Up \in \Rb^{n \times l}$,
+  $\la_i  \in \Rb^n$, $\z_i  \in \Rb^l$, $\La \in \Rb^{n \times p}$,
+  $\Z \in \Rb^{p \times l}$.
+
+
+
+
+   Sequentially $\la_i$ are generated using
+   \texttt{n}, \texttt{f2}, \texttt{of2}, \texttt{sd\_l\_noise}, \texttt{mean\_l},
+   \texttt{sd\_l}.
+   \texttt{of2} gives the minimal observations participating in a
+   bicluster to which between 0 and $n/f2$ observations are added,
+   where the number is uniformly chosen. \texttt{sd\_l\_noise} gives the
+   noise of observations not participating in the
+   bicluster. \texttt{mean\_l} and \texttt{sd\_l} determines the Gaussian from
+   which the values are drawn for the observations that participate in
+   the bicluster. The sign of the mean is randomly chosen for each
+   component.
+
+   Sequentially $\z_i$ are generated using
+   \texttt{l}, \texttt{f1}, \texttt{of1}, \texttt{sd\_z\_noise}, \texttt{mean\_z},
+   \texttt{sd\_z}.
+   \texttt{of1} gives the minimal samples participating in a
+   bicluster to which between 0 and $l/f1$ samples are added,
+   where the number is uniformly chosen. \texttt{sd\_z\_noise} gives the
+   noise of samples not participating in the
+   bicluster. \texttt{mean\_z} and \texttt{sd\_z} determines the Gaussian from
+   which the values are drawn for the samples that participate in
+   the bicluster.
+
+   $\Up$ is the overall Gaussian zero mean
+   noise generated by \texttt{sd\_noise}.
+
+
+
+  Implementation in \R.
+
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# DEMO
+#---------------
+
+dat <- makeFabiaData(n = 1000,l= 100,p = 10,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+
+matrixImagePlot(Y)
+dev.new()
+matrixImagePlot(X)
+
+\end{Sinput}
+
+
+\subsection{makeFabiaDataPos}
+
+Generation of bicluster data.
+
+\begin{enumerate}
+
+\item  Usage: \verb+makeFabiaDataPos(n,l,p,f1,f2,of1,of2,sd_noise,sd_z_noise,+\\
+\hspace*{6em}\verb+              mean_z,sd_z,sd_l_noise,mean_l,sd_l)+
+
+\item Arguments:
+ \begin{itemize}
+  \item{n.} number of observations.
+  \item{l:} number of samples.
+  \item{p:} number of biclusters.
+  \item{f1:} $l/f1$ max. additional samples are active in a bicluster.
+  \item{f2:} $n/f2$ max. additional observations that form a pattern in a bicluster.
+  \item{of1:} minimal active samples in a bicluster.
+  \item{of2:} menial observations that form a pattern in a bicluster.
+  \item{sd\_noise:} Gaussian zero mean noise std on data matrix.
+  \item{sd\_z\_noise:} Gaussian zero mean noise std for deactivated hidden factors.
+  \item{mean\_z:} Gaussian mean for activated factors.
+  \item{sd\_z:} Gaussian std for activated factors.
+  \item{sd\_l\_noise:} Gaussian zero mean noise std if no observation patterns are present.
+  \item{mean\_l:} Gaussian mean for observation patterns.
+  \item{sd\_l:} Gaussian std for observation patterns.
+ \end{itemize}
+
+\item Return values:
+ \begin{itemize}
+  \item{X:} the noisy data $\X$ from $\mathbb{R}^{n \times l}$.
+  \item{Y:} the noise free data $\Y$ from $\mathbb{R}^{n \times l}$.
+  \item{ZC:} list where $i$th element gives samples belonging to $i$th
+    bicluster.
+  \item{LC:} list where $i$th element gives observations belonging to $i$th
+    bicluster.
+ \end{itemize}
+
+\end{enumerate}
+
+  Essentially the model is the sum of
+  outer products of vectors:
+  \begin{align*}
+    \X \ = \ \sum_{i=1}^{p} \la_i \ \z_i^T \ + \ \Up \ ,
+  \end{align*}
+  where the number of summands  $p$
+  is the number of biclusters.
+  The matrix factorization is
+  \begin{align*}
+    \X \ = \ \La \ \Z \ + \ \Up \ .
+  \end{align*}
+
+  Here $\X \in \Rb^{n \times l}$ and $\Up \in \Rb^{n \times l}$,
+  $\la_i  \in \Rb^n$, $\z_i  \in \Rb^l$, $\La \in \Rb^{n \times p}$,
+  $\Z \in \Rb^{p \times l}$.
+
+
+
+   Sequentially $\la_i$ are generated using
+   \texttt{n}, \texttt{f2}, \texttt{of2}, \texttt{sd\_l\_noise}, \texttt{mean\_l},
+   \texttt{sd\_l}.
+   \texttt{of2} gives the minimal observations participating in a
+   bicluster to which between 0 and $n/f2$ observations are added,
+   where the number is uniformly chosen. \texttt{sd\_l\_noise} gives the
+   noise of observations not participating in the
+   bicluster. \texttt{mean\_l} and \texttt{sd\_l} determines the Gaussian from
+   which the values are drawn for the observations that participate in
+   the bicluster.  "POS": The sign of the mean is fixed.
+
+
+   Sequentially $\z_i$ are generated using
+   \texttt{l}, \texttt{f1}, \texttt{of1}, \texttt{sd\_z\_noise}, \texttt{mean\_z},
+   \texttt{sd\_z}.
+   \texttt{of1} gives the minimal samples participating in a
+   bicluster to which between 0 and $l/f1$ samples are added,
+   where the number is uniformly chosen. \texttt{sd\_z\_noise} gives the
+   noise of samples not participating in the
+   bicluster. \texttt{mean\_z} and \texttt{sd\_z} determines the Gaussian from
+   which the values are drawn for the samples that participate in
+   the bicluster.
+
+   $\Up$ is the overall Gaussian zero mean
+   noise generated by \texttt{sd\_noise}.
+
+
+
+  Implementation in \R.
+
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# DEMO
+#---------------
+
+dat <- makeFabiaDataPos(n = 1000,l= 100,p = 10,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+
+matrixImagePlot(Y)
+dev.new()
+matrixImagePlot(X)
+
+\end{Sinput}
+
+
+\subsection{makeFabiaDataBlocks}
+
+Generation of bicluster data with bicluster blocks.
+
+
+\begin{enumerate}
+
+ \item Usage: \verb+makeFabiaDataBlocks(n,l,p,f1,f2,of1,of2,sd_noise,sd_z_noise,+\\
+\hspace*{6em}\verb+                mean_z,sd_z,sd_l_noise,mean_l,sd_l)+
+
+
+\item Arguments:
+ \begin{itemize}
+  \item{n:} number of observations.
+  \item{l:} number of samples.
+  \item{p:} number of biclusters.
+  \item{f1:} $l/f1$ max. additional samples are active in a bicluster.
+  \item{f2:} $n/f2$ max. additional observations that form a pattern in a bicluster.
+  \item{of1:} minimal active samples in a bicluster.
+  \item{of2:} minimal observations that form a pattern in a bicluster.
+  \item{sd\_noise:} Gaussian zero mean noise std on data matrix.
+  \item{sd\_z\_noise:} Gaussian zero mean noise std for deactivated hidden factors.
+  \item{mean\_z:} Gaussian mean for activated factors.
+  \item{sd\_z:} Gaussian std for activated factors.
+  \item{sd\_l\_noise:} Gaussian zero mean noise std if no observation patterns are present.
+  \item{mean\_l:} Gaussian mean for observation patterns.
+  \item{sd\_l:} Gaussian std for observation patterns.
+ \end{itemize}
+
+\item Return Values:
+ \begin{itemize}
+  \item{X:} the noisy data $\X$ from $\mathbb{R}^{n \times l}$.
+  \item{Y:} the noise free data $\Y$ from $\mathbb{R}^{n \times l}$.
+  \item{ZC:} list where $i$th element gives samples belonging to $i$th
+    bicluster.
+  \item{LC:} list where $i$th element gives observations belonging to $i$th
+    bicluster.
+ \end{itemize}
+
+\end{enumerate}
+
+  Bicluster data is generated for visualization because the biclusters
+  are now in block format. That means observations and samples that
+  belong to a bicluster are consecutive. This allows visual inspection
+  because the use can identify blocks and whether they have been found
+  or reconstructed.
+
+  Essentially the model is the sum of
+  outer products of vectors:
+  \begin{align*}
+    \X \ = \ \sum_{i=1}^{p} \la_i \ \z_i^T \ + \ \Up \ ,
+  \end{align*}
+  where the number of summands  $p$
+  is the number of biclusters.
+  The matrix factorization is
+  \begin{align*}
+    \X \ = \ \La \ \Z \ + \ \Up \ .
+  \end{align*}
+
+  Here $\X \in \Rb^{n \times l}$ and $\Up \in \Rb^{n \times l}$,
+  $\la_i  \in \Rb^n$, $\z_i  \in \Rb^l$, $\La \in \Rb^{n \times p}$,
+  $\Z \in \Rb^{p \times l}$.
+
+
+
+   Sequentially $\la_i$ are generated using
+   \texttt{n}, \texttt{f2}, \texttt{of2}, \texttt{sd\_l\_noise}, \texttt{mean\_l},
+   \texttt{sd\_l}.
+   \texttt{of2} gives the minimal observations participating in a
+   bicluster to which between 0 and $n/f2$ observations are added,
+   where the number is uniformly chosen. \texttt{sd\_l\_noise} gives the
+   noise of observations not participating in the
+   bicluster. \texttt{mean\_l} and \texttt{sd\_l} determines the Gaussian from
+   which the values are drawn for the observations that participate in
+   the bicluster. The sign of the mean is randomly chosen for each
+   component.
+
+   Sequentially $\z_i$ are generated using
+   \texttt{l}, \texttt{f1}, \texttt{of1}, \texttt{sd\_z\_noise}, \texttt{mean\_z},
+   \texttt{sd\_z}.
+   \texttt{of1} gives the minimal samples participating in a
+   bicluster to which between 0 and $l/f1$ samples are added,
+   where the number is uniformly chosen. \texttt{sd\_z\_noise} gives the
+   noise of samples not participating in the
+   bicluster. \texttt{mean\_z} and \texttt{sd\_z} determines the Gaussian from
+   which the values are drawn for the samples that participate in
+   the bicluster.
+
+   $\Up$ is the overall Gaussian zero mean
+   noise generated by \texttt{sd\_noise}.
+
+
+
+  Implementation in \R.
+
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# DEMO
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 1000,l= 100,p = 10,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+Y <- dat[[1]]
+X <- dat[[2]]
+
+matrixImagePlot(Y)
+dev.new()
+matrixImagePlot(X)
+
+
+
+\end{Sinput}
+
+
+\subsection{makeFabiaDataBlocksPos}
+
+Generation of bicluster data with bicluster blocks.
+
+
+\begin{enumerate}
+
+ \item Usage: \verb+makeFabiaDataBlocksPos(n,l,p,f1,f2,of1,of2,sd_noise,+\\
+ \hspace*{6em}\verb+                    sd_z_noise,mean_z,sd_z,sd_l_noise,mean_l,sd_l)+
+
+
+\item Arguments:
+ \begin{itemize}
+  \item{n:} number of observations.
+  \item{l:} number of samples.
+  \item{p:} number of biclusters.
+  \item{f1:} $l/f1$ max. additional samples are active in a bicluster.
+  \item{f2:} $n/f2$ max. additional observations that form a pattern in a bicluster.
+  \item{of1:} minimal active samples in a bicluster.
+  \item{of2:} minimal observations that form a pattern in a bicluster.
+  \item{sd\_noise:} Gaussian zero mean noise std on data matrix.
+  \item{sd\_z\_noise:} Gaussian zero mean noise std for deactivated hidden factors.
+  \item{mean\_z:} Gaussian mean for activated factors.
+  \item{sd\_z:} Gaussian std for activated factors.
+  \item{sd\_l\_noise:} Gaussian zero mean noise std if no observation patterns are present.
+  \item{mean\_l:} Gaussian mean for observation patterns.
+  \item{sd\_l:} Gaussian std for observation patterns.
+ \end{itemize}
+
+\item Return Values:
+ \begin{itemize}
+  \item{X:} the noisy data $\X$ from $\mathbb{R}^{n \times l}$.
+  \item{Y:} the noise free data $\Y$ from $\mathbb{R}^{n \times l}$.
+  \item{ZC:} list where $i$th element gives samples belonging to $i$th
+    bicluster.
+  \item{LC:} list where $i$th element gives observations belonging to $i$th
+    bicluster.
+ \end{itemize}
+
+\end{enumerate}
+
+  Bicluster data is generated for visualization because the biclusters
+  are now in block format. That means observations and samples that
+  belong to a bicluster are consecutive. This allows visual inspection
+  because the use can identify blocks and whether they have been found
+  or reconstructed.
+
+  Essentially the model is the sum of
+  outer products of vectors:
+  \begin{align*}
+    \X \ = \ \sum_{i=1}^{p} \la_i \ \z_i^T \ + \ \Up \ ,
+  \end{align*}
+  where the number of summands  $p$
+  is the number of biclusters.
+  The matrix factorization is
+  \begin{align*}
+    \X \ = \ \La \ \Z \ + \ \Up \ .
+  \end{align*}
+
+ Here $\X \in \Rb^{n \times l}$ and $\Up \in \Rb^{n \times l}$,
+  $\la_i  \in \Rb^n$, $\z_i  \in \Rb^l$, $\La \in \Rb^{n \times p}$,
+  $\Z \in \Rb^{p \times l}$.
+
+
+
+
+   Sequentially $\la_i$ are generated using
+   \texttt{n}, \texttt{f2}, \texttt{of2}, \texttt{sd\_l\_noise}, \texttt{mean\_l},
+   \texttt{sd\_l}.
+   \texttt{of2} gives the minimal observations participating in a
+   bicluster to which between 0 and $n/f2$ observations are added,
+   where the number is uniformly chosen. \texttt{sd\_l\_noise} gives the
+   noise of observations not participating in the
+   bicluster. \texttt{mean\_l} and \texttt{sd\_l} determines the Gaussian from
+   which the values are drawn for the observations that participate in
+   the bicluster. "POS": The sign of the mean is fixed.
+
+
+   Sequentially $\z_i$ are generated using
+   \texttt{l}, \texttt{f1}, \texttt{of1}, \texttt{sd\_z\_noise}, \texttt{mean\_z},
+   \texttt{sd\_z}.
+   \texttt{of1} gives the minimal samples participating in a
+   bicluster to which between 0 and $l/f1$ samples are added,
+   where the number is uniformly chosen. \texttt{sd\_z\_noise} gives the
+   noise of samples not participating in the
+   bicluster. \texttt{mean\_z} and \texttt{sd\_z} determines the Gaussian from
+   which the values are drawn for the samples that participate in
+   the bicluster.
+
+   $\Up$ is the overall Gaussian zero mean
+   noise generated by \texttt{sd\_noise}.
+
+
+
+  Implementation in \R.
+
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# DEMO
+#---------------
+
+dat <- makeFabiaDataBlocksPos(n = 1000,l= 100,p = 10,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+Y <- dat[[1]]
+X <- dat[[2]]
+
+matrixImagePlot(Y)
+dev.new()
+matrixImagePlot(X)
+
+
+
+\end{Sinput}
+
+\section{Utilities}
+
+
+\subsection{fabiaVersion}
+
+Display version info for package and for FABIA.
+
+\begin{enumerate}
+\item Usage:
+\texttt{fabiaVersion()}
+\end{enumerate}
+
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+fabiaVersion()
+\end{Sinput}
+
+
+
+
+
+\subsection{matrixImagePlot}
+
+Plotting of a matrix.
+
+\begin{enumerate}
+\item Usage:
+ \texttt{matrixImagePlot(x,xLabels=NULL, yLabels=NULL, zlim=NULL, title=NULL)}
+
+
+
+\item Arguments:
+  \begin{itemize}
+ \item{x:} the matrix.
+  \item{xLabels:} vector of strings to label the rows (default "rownames(x)").
+  \item{yLabels:} vector of strings to label the columns (default "colnames(x)").
+  \item{zlim:} vector containing a low and high value to use for the color scale.
+  \item{title:} title of the plot.
+ \end{itemize}
+
+\end{enumerate}
+
+  Plotting a table of numbers as an image using \R.
+
+  The color scale is based on the highest and lowest values in the
+  matrix.
+
+  Program has been obtained at
+ \href{http://www.phaget4.org/R/myImagePlot.R}{http://www.phaget4.org/R/myImagePlot.R}
+
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# DEMO
+#---------------
+
+dat <- makeFabiaDataBlocks(n = 1000,l= 100,p = 10,f1 = 5,f2 = 5,
+  of1 = 5,of2 = 10,sd_noise = 3.0,sd_z_noise = 0.2,mean_z = 2.0,
+  sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+X <- dat[[1]]
+Y <- dat[[2]]
+
+matrixImagePlot(X)
+
+
+\end{Sinput}
+
+
+\subsection{projFuncPos}
+
+Projection of a vector to a sparse non-negative vector with given
+sparseness and given $l_2$-norm.
+
+\begin{enumerate}
+
+\item Usage:
+\texttt{projFuncPos(s, k1, k2)}
+
+\item Arguments:
+ \begin{itemize}
+  \item{s:} data vector.
+  \item{k1:} sparseness, $l_1$ norm constraint.
+  \item{k2:} $l_2$ norm constraint.
+ \end{itemize}
+
+\item Return Values:
+ \begin{itemize}
+  \item{v:} non-negative sparse projected vector.
+ \end{itemize}
+
+\end{enumerate}
+
+  The projection minimize the Euclidean distance
+  to the original vector  given an
+  $l_1$-norm and an $l_2$-norm and enforcing non-negativity.
+
+  The projection is a convex quadratic problem which is solved
+  iteratively where at each iteration at least one component is set to
+  zero.
+
+
+  In the applications,
+  instead of the  $l_1$-norm a sparseness measurement is used
+  which relates the $l_1$-norm to the $l_2$-norm:
+
+\begin{align*}\mathrm{sparseness}(\vb) \ = \ \frac{\sqrt{l} \ - \
+    \sum_{j=1}^{l} \left|v_{j} \right|\ / \  \sum_{j=1}^{l}
+    v_{j}^2}{\sqrt{l} \ - \ 1} \end{align*}
+
+  The code is implemented in \R.
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# DEMO
+#---------------
+
+size <- 30
+sparseness <- 0.7
+
+s <- as.vector(rnorm(size))
+sp <- sqrt(1.0*size)-(sqrt(1.0*size)-1.0)*sparseness
+
+ss <- projFuncPos(s,k1=sp,k2=1)
+
+s
+ss
+\end{Sinput}
+
+
+
+\subsection{projFunc}
+
+Projection of a vector to a sparse vector with given
+sparseness and given $l_2$-norm.
+
+\begin{enumerate}
+
+\item Usage:
+\texttt{projFunc(s, k1, k2)}
+
+\item Arguments:
+ \begin{itemize}
+  \item{s:} data vector.
+  \item{k1:} sparseness, $l_1$ norm constraint.
+  \item{k2:} $l_2$ norm constraint.
+ \end{itemize}
+
+\item Return Values:
+ \begin{itemize}
+  \item{v:} sparse projected vector.
+ \end{itemize}
+
+\end{enumerate}
+
+
+The projection is done according to \citep{Hoyer:04}: given an
+  $l_1$-norm and an $l_2$-norm minimize the Euclidean distance
+  to the original vector.
+  The projection is a convex quadratic problem which is solved
+  iteratively where at each iteration at least one component is set to
+  zero.
+
+  In the applications,
+  instead of the  $l_1$-norm a sparseness measurement is used
+  which relates the $l_1$-norm to the $l_2$-norm:
+
+\begin{align*}\mathrm{sparseness}(\vb) \ = \ \frac{\sqrt{l} \ - \
+    \sum_{j=1}^{l} \left|v_{j} \right|\ / \  \sum_{j=1}^{l}
+    v_{j}^2}{\sqrt{l} \ - \ 1} \end{align*}
+
+  The code is implemented in \R.
+
+
+
+
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# DEMO
+#---------------
+
+size <- 30
+sparseness <- 0.7
+
+s <- as.vector(rnorm(size))
+sp <- sqrt(1.0*size)-(sqrt(1.0*size)-1.0)*sparseness
+
+ss <- projFunc(s,k1=sp,k2=1)
+
+s
+ss
+\end{Sinput}
+
+\subsection{estimateMode}
+
+Estimation of the modes of the rows of a matrix.
+
+\begin{enumerate}
+
+\item Usage:
+\texttt{estimateMode(X,maxiter=50,tol=0.001,alpha=0.1,a1=4.0,G1=FALSE)}
+
+\item Arguments:
+ \begin{itemize}
+  \item{X:} matrix of which the modes of the rows are estimated.
+  \item{maxiter:} maximal number of iterations; default = 50.
+  \item{tol:} tolerance for stopping; default = 0.001.
+  \item{alpha:} learning rate; default = 0.1.
+  \item{a1:} parameter of the width of the given distribution; default = 4.
+  \item{G1:} kind of distribution, TRUE: $\frac{1}{a_1} \ln (\cosh (a1
+    x))$,
+    FALSE: $- \frac{1}{a_1} \exp(- \frac{a_1}{2} x^2)$; default = FALSE.
+ \end{itemize}
+
+\item Return Values:
+ \begin{itemize}
+  \item{u:} the vector of estimated modes.
+  \item{xu:} $\X-\u\1^T$ the mode centered data.
+ \end{itemize}
+
+\end{enumerate}
+
+  The mode is estimated by contrast functions G1 $\frac{1}{a_1} \ln (\cosh (a1
+    x))$ or G2  $- \frac{1}{a_1} \exp(- \frac{a_1}{2} x^2)$.
+  The estimation is performed by gradient descent initialized by the
+  median.
+
+
+  Implementation in \R.
+
+\vspace{0.5cm}
+
+\noindent
+EXAMPLE:
+
+\begin{Sinput}
+
+#---------------
+# DEMO
+#---------------
+
+dat <- makeFabiaDataBlocksPos(n = 100,l= 50,p = 10,f1 = 5,f2 = 5,
+       of1 = 5,of2 = 10,sd_noise = 2.0,sd_z_noise = 0.2,mean_z = 2.0,
+       sd_z = 1.0,sd_l_noise = 0.2,mean_l = 3.0,sd_l = 1.0)
+
+     X <- dat[[1]]
+
+modes <- estimateMode(X)
+
+modes$u - apply(X, 1, median)
+
+\end{Sinput}
+
+
+\subsection{eqscplotLoc}
+
+Local Version of \texttt{eqscplot} from the package MASS.
+
+
+  Plots with Geometrically Equal Scales: Version of a scatterplot
+  with scales chosen to be equal on both axes, that is 1cm represents
+  the same units on each.
+
+\begin{enumerate}
+
+\item Usage:
+\texttt{eqscplotLoc(x, y, ratio = 1, tol = 0.04, uin, ...)}
+
+\item Arguments:
+ \begin{itemize}
+
+  \item{x:} vector of x values, or a 2-column matrix, or a list with
+   components ``x'' and ``y''.
+
+  \item{y:} vector of y values.
+
+  \item{ratio:} desired ratio of units on the axes.  Units on the y axis are
+   drawn at ``ratio'' times the size of units on the x axis.
+   Ignored if ``uin'' is specified and of length 2.
+
+ \item{tol:} proportion of white space at the margins of plot.
+
+ \item{uin:} desired values for the units-per-inch parameter. If of length
+   1, the desired units per inch on the x axis.
+
+ \item{...:} further arguments for ``plot'' and graphical parameters.
+          Note that ``par(xaxs="i", yaxs="i")'' is enforced, and
+          ``xlim'' and ``ylim'' will be adjusted accordingly.
+
+ \end{itemize}
+
+\item Return Values:
+ \begin{itemize}
+ \item invisibly, the values of ``uin'' used for the plot.
+ \end{itemize}
+
+\end{enumerate}
+
+
+ Plots with Geometrically Equal Scales
+ eqscplot from the package MASS (Version: 7.3-3, 2009-10-15
+ Maintainer: Brian Ripley <ripley@stats.ox.ac.uk>).
+
+ To make the package stand alone, this function
+ is included as source.
+
+     Limits for the x and y axes are chosen so that they include the
+     data.  One of the sets of limits is then stretched from the
+     midpoint to make the units in the ratio given by ``ratio''.
+     Finally both are stretched by ``1 + tol'' to move points away
+     from the axes, and the points plotted.
+
+  Implementation in \R.
+
+
+\vspace{0.5cm}
+
+\noindent
+REFERENCE:
+\begin{itemize}
+ \item
+Venables, W. N. and Ripley, B. D., (2002), ``Modern Applied
+     Statistics with S'', Fourth edition,  Springer.
+\end{itemize}
+
+
+
+\section{Demo Data Sets from \Rpackage{fabiaData}}
+
+In above examples gene expression data sets from the \R package
+\Rpackage{fabiaData} have been used. In this section these data sets
+are described.
+
+\subsection{Breast\_A}
+
+Microarray data set of van't Veer breast cancer.
+
+  Microarray data from Broad
+  Institute ``Cancer Program Data Sets'' which
+  was produced by \citep{Veer:02}
+  (\href{http://www.broadinstitute.org/cgi-bin/cancer/datasets.cgi}{http://www.broadinstitute.org/cgi-bin/cancer/datasets.cgi})
+  Array S54 was removed because it is an
+  outlier.
+
+  Goal was to find a gene signature to predict
+  the outcome of a cancer therapy that
+  is to predict whether metastasis will occur.
+  A 70 gene signature has been discovered.
+
+  Here we want to find subclasses in the data set.
+
+  \citep{Hoshida:07} found 3 subclasses and verified
+  that 50/61 cases from class 1 and 2 were ER positive
+  and only in 3/36 from class 3.
+
+  \texttt{XBreast} is the data set with
+  97 samples and 1213 genes,
+  \texttt{CBreast} give the
+  three subclasses from  \citep{Hoshida:07}.
+
+\subsection{DLBCL\_B}
+
+Microarray data set of Rosenwald diffuse large-B-cell lymphoma.
+
+ Microarray data from Broad
+  Institute ``Cancer Program Data Sets'' which
+  was produced by \citep{Rosenwald:02}
+  (\href{http://www.broadinstitute.org/cgi-bin/cancer/datasets.cgi}{http://www.broadinstitute.org/cgi-bin/cancer/datasets.cgi})
+
+  Goal was to predict the survival after chemotherapy
+
+  \citep{Hoshida:07} divided the data set into three classes:
+\begin{itemize}
+  \item{OxPhos:} oxidative phosphorylation
+  \item{BCR:} B-cell response
+  \item{HR:} host response
+\end{itemize}
+
+  We want to identify these subclasses.
+
+ The data has 180 samples and 661 probe sets (genes).
+
+ \texttt{XDLBCL} is the data set with
+  180 samples and 661 genes,
+  \texttt{CDLBCL} give the
+  three subclasses from  \citep{Hoshida:07}.
+
+\subsection{Multi\_A}
+
+
+Microarray data set of Su on different mammalian tissue types.
+
+ Microarray data from Broad
+  Institute ``Cancer Program Data Sets'' which
+  was produced by \citep{Su:02}
+  (\href{http://www.broadinstitute.org/cgi-bin/cancer/datasets.cgi}{http://www.brxsoadinstitute.org/cgi-bin/cancer/datasets.cgi})
+s
+
+  Gene expression from human and mouse samples across a diverse array
+  of tissues, organs, and cell lines have been profiled.
+  The goal was to have a reference for the normal mammalian transcriptome.
+
+  Here we want to identify the subclasses which correspond to the tissue
+  types.
+
+The data has 102 samples and 5565 probe sets (genes).
+
+ \texttt{XMulti} is the data set with
+  102 samples and 5565 genes,
+  \texttt{CMulti} give the
+  four subclasses corresponding to the tissue types.
+
+
+
+\bibliographystyle{natbib}
+\bibliography{fabia}
+
+\end{document}
