@@ -726,21 +726,28 @@ Frame <- function(){
   gl_note <- glabel("Verify the simulate dataset",container=bg_note)
   gbutton("Recovery",container = bg_note,handler = function(h,...){
 
-    if(length(real_path)==0){
-      my_path_raw = paste0(th,"raw.txt")
-      raw = as.matrix(read.table(my_path_raw, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
+    raw_bicluster = all_bim
 
-    }else{
-      if (grepl("data_result.txt",real_path)){
-
-        my_path_raw = gsub("data_result.txt","raw.txt",real_path)
-
+    if (length(raw_bicluster)==0){
+      if(length(real_path)==0){
+        my_path_raw = paste0(th,"raw.txt")
         raw = as.matrix(read.table(my_path_raw, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
 
       }else{
-        galert('PLease input the raw bicluster data!',delay = 2)
+        if (grepl("data_result.txt",real_path)){
+
+          my_path_raw = gsub("data_result.txt","raw.txt",real_path)
+
+          raw = as.matrix(read.table(my_path_raw, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
+
+        }else{
+          galert('PLease input the raw bicluster data!',delay = 2)
+        }
       }
+    }else{
+      raw = raw_bicluster
     }
+
 
     craw <<- raw
     #impr <<- dim(raw)
@@ -799,21 +806,30 @@ Frame <- function(){
 
   })
   gbutton("Relevance",container = bg_note,handler = function(h,...){
-    if(length(real_path)==0){
-      my_path_raw = paste0(th,"raw.txt")
-      raw = as.matrix(read.table(my_path_raw, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
 
-    }else{
-      if (grepl("data_result.txt",real_path)){
+    raw_bicluster = all_bim
 
-        my_path_raw = gsub("data_result.txt","raw.txt",real_path)
-
+    if (length(raw_bicluster)==0){
+      if(length(real_path)==0){
+        my_path_raw = paste0(th,"raw.txt")
         raw = as.matrix(read.table(my_path_raw, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
 
       }else{
-        galert('PLease input the raw bicluster data!',delay = 2)
+        if (grepl("data_result.txt",real_path)){
+
+          my_path_raw = gsub("data_result.txt","raw.txt",real_path)
+
+          raw = as.matrix(read.table(my_path_raw, sep="", dec=".", header=FALSE, stringsAsFactors=FALSE))
+
+        }else{
+          galert('PLease input the raw bicluster data!',delay = 2)
+        }
       }
+    }else{
+      raw = raw_bicluster
     }
+
+
     craw <<- raw
     impr <<- dim(raw)
      if (sbf == 1){
