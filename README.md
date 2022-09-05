@@ -4,6 +4,8 @@ The R version for developing BiSEAT toolbox is 4-1-3. And the development system
 
 In addition, please note that the "gWidgets", "gWidgets2" and "gWidgetsRGtK2" packages need to be downloaded manually because it has been removed from the R language. Here, the three packages that need to be downloaded manually has been uploaded to the folder "Packages". To avoid arising from unnecessary problem, please copy all the packages in the "Packages" folder to the R library before running the BiSEAT toolbox.
 
+If the console prompts that package A is missing, use install.package("A") to install it.
+
 Install the package:
 
 devtools::install_github('Chuheming/BiSET')
