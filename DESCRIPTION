@@ -15,7 +15,6 @@ Imports:
         readr,
         readxl,
         writexl,
-        gWidgets2,
         dplyr,
         ggplot2,
         biclust,
